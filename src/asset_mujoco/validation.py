@@ -2,6 +2,7 @@ import hashlib
 import xml.etree.ElementTree as ET
 import mujoco
 import numpy as np
+from .manifest import asset_signature
 
 def check_state(model,data,step,expected_time):
     arrays=(data.qpos,data.qvel,data.qacc,data.energy)
@@ -58,13 +59,8 @@ def validate_physics(package,request,size):
     limit=min(.005,.02*size[2])
     if -worst>limit:
         raise ValueError("ASSET_CONTACT_FAILED: penetration="+str(-worst))
-    digest=hashlib.sha256()
-    for path in sorted(package.rglob("*")):
-        if path.is_file() and path.suffix in (".xml",".obj",".png"):
-            digest.update(path.relative_to(package).as_posix().encode())
-            digest.update(path.read_bytes())
     return {"steps":1000,"dt":model.opt.timestep,"time":data.time,"expected_pair":list(pair),
             "contact_count":count,"first_contact_step":first_contact,"max_penetration_m":-worst,
             "warning_counts":data.warning.number.tolist(),"first_abnormal_step":None,
-            "asset_sha256":digest.hexdigest(),"mujoco":mujoco.__version__,
+            "asset_sha256":asset_signature(package),"mujoco":mujoco.__version__,
             "fixture_contact":{"solref":[.004,1],"solimp":[.99,.99,.001]}}

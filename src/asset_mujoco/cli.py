@@ -6,7 +6,7 @@ import sys
 from pydantic import ValidationError
 from .contracts import ConversionRequest,ValidationResult
 from .inputs import inspect_input
-from .manifest import review_status,save_review
+from .manifest import review_status,save_review,asset_signature
 
 def main(argv=None):
     parser=argparse.ArgumentParser()
@@ -47,6 +47,11 @@ def main(argv=None):
             result=ValidationResult.model_validate_json((package/"validation_report.json").read_text())
             review=package/"appearance_review.json"
             result.appearance_review=review_status(package,json.loads(review.read_text())) if review.exists() else "pending"
+            if result.asset_physics_sha256 and result.asset_physics_sha256!=asset_signature(package):
+                result.compile="not_run"
+                result.physics="not_run"
+                result.render="not_run"
+                result.appearance_review="pending"
             print(json.dumps({"status":result.aggregate(),**result.model_dump()}))
             return 0
         if command=="review":

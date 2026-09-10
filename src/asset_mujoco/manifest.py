@@ -4,6 +4,16 @@ import json
 from pathlib import Path
 from datetime import datetime,timezone
 
+def asset_signature(root):
+    root=Path(root)
+    digest=hashlib.sha256()
+    for path in sorted(root.rglob("*")):
+        relative=path.relative_to(root)
+        if path.is_file() and relative.parts[0]!="previews" and path.suffix in (".xml",".obj",".png"):
+            digest.update(relative.as_posix().encode())
+            digest.update(path.read_bytes())
+    return digest.hexdigest()
+
 def fingerprint(root):
     root=Path(root)
     entries=[]
