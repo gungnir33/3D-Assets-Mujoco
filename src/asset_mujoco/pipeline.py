@@ -1,0 +1,74 @@
+"""同文件系统 staging，先验证再原子发布；失败保留诊断。"""
+import ctypes
+import hashlib
+import json
+import os
+from pathlib import Path
+import tempfile
+import time
+import uuid
+import xml.etree.ElementTree as ET
+import mujoco
+import numpy as np
+from .scene import load_scene
+from .collision import hull
+from .materials import export_visual
+from .mjcf import document
+from .contracts import ValidationResult
+
+def atomic_publish(staging,final):
+    libc=ctypes.CDLL(None,use_errno=True)
+    # Linux renameat2 RENAME_NOREPLACE: 并发情况下也禁止覆盖。
+    result=libc.renameat2(-100,os.fsencode(staging),-100,os.fsencode(final),1)
+    if result:
+        raise OSError(ctypes.get_errno(),"原子发布失败，未覆盖",str(final))
+
+def convert(request):
+    if request.collision_mode not in ("hull","none"):
+        raise ValueError("复杂碰撞策略尚未实现（任务8）")
+    started=time.monotonic()
+    parent=request.output.resolve()
+    parent.mkdir(parents=True,exist_ok=True)
+    staging=Path(tempfile.mkdtemp(prefix=".staging-",dir=parent))
+    final=parent/(request.name+"_"+uuid.uuid4().hex[:12])
+    try:
+        meshes,info=load_scene(request)
+        visuals=[]
+        for i,mesh in enumerate(meshes):
+            if len(mesh.vertices)<4:
+                raise ValueError("VISUAL_MESH_UNSUPPORTED: 少于4顶点")
+            item=export_visual(mesh,staging,i)
+            item["shell"]=bool(np.linalg.matrix_rank(mesh.vertices-mesh.vertices.mean(axis=0))<3)
+            visuals.append(item)
+        if request.collision_mode=="hull":
+            hull(meshes).export(staging/"meshes/collision.obj")
+        for name,is_scene in (("model.xml",False),("scene.xml",True)):
+            ET.ElementTree(document(request,visuals,info["final_size_m"],is_scene)).write(staging/name,encoding="utf-8",xml_declaration=True)
+            model=mujoco.MjModel.from_xml_path(str(staging/name))
+            mujoco.mj_forward(model,mujoco.MjData(model))
+        result=ValidationResult(compile="passed",physics="not_applicable" if request.collision_mode=="none" else "not_run")
+        metadata={"request":request.model_dump(mode="json"),"source_sha256":hashlib.sha256(request.input.read_bytes()).hexdigest(),
+                  "transform":info["matrix"],"final_size_m":info["final_size_m"],"converter_mujoco":mujoco.__version__,
+                  "host_compatibility":"pending","visuals":visuals,"hole_validation":"not_tested"}
+        (staging/"conversion_manifest.json").write_text(json.dumps(metadata,indent=2))
+        if request.validation_level!="compile":
+            from .validation import validate_physics
+            evidence=validate_physics(staging,request,info["final_size_m"])
+            (staging/"physics_evidence.json").write_text(json.dumps(evidence,indent=2))
+            result.physics="passed"
+            result.asset_physics_sha256=evidence["asset_sha256"]
+        if request.validation_level=="full":
+            from .rendering import render_package
+            render_package(staging,info["final_size_m"])
+            result.render="passed"
+        (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
+        (staging/"conversion.log").write_text("duration_s="+str(time.monotonic()-started)+"\n")
+        atomic_publish(staging,final)
+        for name in ("model.xml","scene.xml"):
+            model=mujoco.MjModel.from_xml_path(str(final/name))
+            mujoco.mj_forward(model,mujoco.MjData(model))
+        return final
+    except Exception as error:
+        if staging.exists():
+            (staging/"failure.json").write_text(json.dumps({"error":str(error)}))
+        raise
