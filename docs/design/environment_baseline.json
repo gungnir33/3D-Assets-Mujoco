@@ -1,0 +1,14 @@
+{
+  "python": "3.10.21",
+  "prefix": "/home/mcl/anaconda3/envs/asset_mujoco",
+  "converter_mujoco": "3.4.0",
+  "mujoco_file": "/home/mcl/anaconda3/envs/asset_mujoco/lib/python3.10/site-packages/mujoco/__init__.py",
+  "host_compatibility": "pending",
+  "first_stage_commit": "c78d96ea41a692917918af3d9ce4d3821be64f2b",
+  "first_stage_status": "",
+  "assets": {
+    "/home/mcl/workspace/3D-Assets-Agent/assets/20260909_210330_6c804545/model.glb": "18659f94dcc66ba4d80a95c637f2bbe2194501cad54bd4fd3574c170f7d31fa4",
+    "/home/mcl/workspace/3D-Assets-Agent/assets/20260909_210532_fe231a7e/model.glb": "62d7be2ff354320570674c67fdf07dfc011b05830b492ef3bbc2801892c85554",
+    "/home/mcl/workspace/3D-Assets-Agent/assets/20260909_210805_9dfdcdd0/model.glb": "12f1ed66a874efbdb3c350d819c1f6e076de469e7dc191d236de82073fdd2e12"
+  }
+}

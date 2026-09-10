@@ -1,0 +1,12 @@
+converter:
+  mujoco_version: "3.4.0"
+  host_compatibility: pending
+tolerance:
+  target: {rtol: 0.02, atol_m: 0.0000001}
+  geometry: {rtol: 0.000001, atol_m: 0.0000001}
+  inertia: {rtol: 0.00000001, atol_kg_m2: 0.000000000001}
+defaults:
+  body_mode: static
+  collision_mode: hull
+  scale: null
+  inertia_mode: null
