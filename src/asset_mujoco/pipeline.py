@@ -51,15 +51,27 @@ def convert(request):
                   "transform":info["matrix"],"final_size_m":info["final_size_m"],"converter_mujoco":mujoco.__version__,
                   "host_compatibility":"pending","visuals":visuals,"hole_validation":"not_tested"}
         (staging/"conversion_manifest.json").write_text(json.dumps(metadata,indent=2))
+        (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
         if request.validation_level!="compile":
             from .validation import validate_physics
-            evidence=validate_physics(staging,request,info["final_size_m"])
+            try:
+                evidence=validate_physics(staging,request,info["final_size_m"])
+            except Exception:
+                result.physics="failed"
+                (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
+                raise
             (staging/"physics_evidence.json").write_text(json.dumps(evidence,indent=2))
             result.physics="passed"
             result.asset_physics_sha256=evidence["asset_sha256"]
         if request.validation_level=="full":
             from .rendering import render_package
-            render_package(staging,info["final_size_m"])
+            (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
+            try:
+                render_package(staging,info["final_size_m"])
+            except Exception as error:
+                result.render="unavailable" if "RENDER_UNAVAILABLE" in str(error) else "failed"
+                (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
+                raise
             result.render="passed"
         (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
         (staging/"conversion.log").write_text("duration_s="+str(time.monotonic()-started)+"\n")

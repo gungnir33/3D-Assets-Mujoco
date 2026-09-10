@@ -48,6 +48,7 @@ def document(request,visuals,size,scene=False):
     root=ET.Element("mujoco",model=request.name)
     ET.SubElement(root,"compiler",angle="radian",inertiafromgeom="false")
     if scene:
+        ET.SubElement(ET.SubElement(root,"visual"),"global",offwidth="512",offheight="512")
         option=ET.SubElement(root,"option",timestep="0.002")
         ET.SubElement(option,"flag",energy="enable",autoreset="disable")
     asset=ET.SubElement(root,"asset")
@@ -62,8 +63,13 @@ def document(request,visuals,size,scene=False):
             com,tensor=supplied_inertia(request.supplied_inertia,request.mass,size)
         else:
             raise ValueError("watertight 属于任务8，尚未实现")
+        from scipy.spatial.transform import Rotation
+        eigen,rotation=np.linalg.eigh(tensor)
+        if np.linalg.det(rotation)<0:
+            rotation[:,0]*=-1
+        xyzw=Rotation.from_matrix(rotation).as_quat()
         ET.SubElement(body,"inertial",pos=values(com),mass=str(request.mass),
-                      fullinertia=values([tensor[0,0],tensor[1,1],tensor[2,2],tensor[0,1],tensor[0,2],tensor[1,2]]))
+                      diaginertia=values(eigen),quat=values(xyzw[[3,0,1,2]]))
     for item in visuals:
         attrs={"name":item["name"],"file":item["mesh"]}
         if item.get("shell"):
