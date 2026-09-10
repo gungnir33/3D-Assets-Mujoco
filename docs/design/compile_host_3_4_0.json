@@ -1,0 +1,106 @@
+{
+  "mujoco": "3.4.0",
+  "module": "/home/mcl/code/mujoco_sim/sim_test/.conda-env/lib/python3.11/site-packages/mujoco/__init__.py",
+  "rows": [
+    {
+      "version": "3.4.0",
+      "case": "box",
+      "strategy": "default",
+      "syntax": "supported",
+      "compile": "passed",
+      "forward": "passed",
+      "effect": "not_tested",
+      "explicit_mass": 2.0,
+      "explicit_inertia": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "version": "3.4.0",
+      "case": "six_material_faces",
+      "strategy": "default",
+      "syntax": "supported",
+      "compile": "failed",
+      "forward": "not_run",
+      "effect": "not_tested",
+      "error": "Error: mesh volume is too small: visual_0 . Try setting inertia to shell\nElement name 'visual_0', id 0, line 1"
+    },
+    {
+      "version": "3.4.0",
+      "case": "triangle",
+      "strategy": "default",
+      "syntax": "supported",
+      "compile": "failed",
+      "forward": "not_run",
+      "effect": "not_tested",
+      "error": "Error: at least 4 vertices required\nElement name 'visual_0', id 0, line 1"
+    },
+    {
+      "version": "3.4.0",
+      "case": "plane_with_collision",
+      "strategy": "default",
+      "syntax": "supported",
+      "compile": "failed",
+      "forward": "not_run",
+      "effect": "not_tested",
+      "error": "Error: mesh volume is too small: visual_0 . Try setting inertia to shell\nElement name 'visual_0', id 0, line 1"
+    },
+    {
+      "version": "3.4.0",
+      "case": "box",
+      "strategy": "shell",
+      "syntax": "supported",
+      "compile": "passed",
+      "forward": "passed",
+      "effect": "not_tested",
+      "explicit_mass": 2.0,
+      "explicit_inertia": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "version": "3.4.0",
+      "case": "six_material_faces",
+      "strategy": "shell",
+      "syntax": "supported",
+      "compile": "passed",
+      "forward": "passed",
+      "effect": "not_tested",
+      "explicit_mass": 2.0,
+      "explicit_inertia": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "version": "3.4.0",
+      "case": "triangle",
+      "strategy": "shell",
+      "syntax": "supported",
+      "compile": "failed",
+      "forward": "not_run",
+      "effect": "not_tested",
+      "error": "Error: at least 4 vertices required\nElement name 'visual_0', id 0, line 1"
+    },
+    {
+      "version": "3.4.0",
+      "case": "plane_with_collision",
+      "strategy": "shell",
+      "syntax": "supported",
+      "compile": "passed",
+      "forward": "passed",
+      "effect": "not_tested",
+      "explicit_mass": 2.0,
+      "explicit_inertia": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  ]
+}
