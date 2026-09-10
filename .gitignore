@@ -7,3 +7,9 @@ outputs/*
 !outputs/.gitkeep
 real_inputs/
 secrets/
+models/
+checkpoints/
+envs/
+.conda/
+*.pem
+*.key

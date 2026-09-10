@@ -25,6 +25,8 @@ def validate_glb_features(doc):
             if set(p.get("attributes",{}))-{"POSITION","NORMAL","TEXCOORD_0"}:
                 raise ValueError("不支持顶点色、额外 UV 或其它属性")
     for mat in doc.get("materials",[]):
+        if mat.get("pbrMetallicRoughness",{}).get("metallicRoughnessTexture"):
+            raise ValueError("基础模式不支持 metallicRoughnessTexture")
         if mat.get("alphaMode","OPAQUE")!="OPAQUE" or mat.get("extensions"):
             raise ValueError("不支持透明或扩展材质")
         tex=mat.get("pbrMetallicRoughness",{}).get("baseColorTexture",{})
@@ -33,6 +35,8 @@ def validate_glb_features(doc):
         if any(mat.get(k) for k in ("normalTexture","occlusionTexture","emissiveTexture")):
             raise ValueError("基础模式不支持附加材质纹理")
     for sampler in doc.get("samplers",[]):
+        if "magFilter" in sampler or "minFilter" in sampler:
+            raise ValueError("显式纹理过滤器尚未完成效果验证")
         if sampler.get("wrapS",10497)!=10497 or sampler.get("wrapT",10497)!=10497:
             raise ValueError("仅支持 repeat sampler")
 

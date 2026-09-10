@@ -8,6 +8,8 @@ from asset_mujoco.inputs import validate_glb_features, resource_path
  {"meshes":[{"primitives":[{"attributes":{"POSITION":0},"targets":[{}]}]}]},
  {"materials":[{"alphaMode":"BLEND"}]},
  {"textures":[{"sampler":0}],"samplers":[{"wrapS":33071}]},
+ {"samplers":[{"magFilter":9728}]},
+ {"materials":[{"pbrMetallicRoughness":{"metallicRoughnessTexture":{"index":0}}}]},
 ])
 def test_raw_unsupported_rejected(doc):
     with pytest.raises(ValueError):

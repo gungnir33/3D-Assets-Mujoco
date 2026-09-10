@@ -53,6 +53,7 @@ def convert(request):
         metadata["tolerances"]={"target":{"rtol":.02,"atol_m":1e-7},"geometry":{"rtol":1e-6,"atol_m":1e-7},"inertia":{"rtol":1e-8,"atol_kg_m2":1e-12}}
         metadata["physical_scale_verified"]=request.scale is not None or request.target_size_m is not None
         metadata["uniform_rule"]="dot(current_size,target_size)/dot(current_size,current_size)"
+        metadata["material_approximations"]=["仅保留基础颜色/贴图；metallic、roughness 标量与 MuJoCo 光照并非完整 PBR 等价映射"]
         (staging/"conversion_manifest.json").write_text(json.dumps(metadata,indent=2))
         (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
         if request.validation_level!="compile":
