@@ -1,0 +1,84 @@
+{
+  "request": {
+    "input": "/home/mcl/workspace/3D-Assets-Agent/assets/20260909_210805_9dfdcdd0/model.glb",
+    "output": "/home/mcl/workspace/3D-Assets-Mujoco/outputs",
+    "name": "penguin_m1",
+    "source_up": "y",
+    "scale": 0.5,
+    "target_size_m": null,
+    "yaw_deg": 180.0,
+    "scale_mode": "uniform",
+    "body_mode": "static",
+    "collision_mode": "hull",
+    "validation_level": "full",
+    "mass": null,
+    "inertia_mode": null,
+    "supplied_inertia": null,
+    "seed": 12345
+  },
+  "source_sha256": "12f1ed66a874efbdb3c350d819c1f6e076de469e7dc191d236de82073fdd2e12",
+  "transform": [
+    [
+      -0.5,
+      0.0,
+      6.123233995736766e-17,
+      -0.0012958943843841553
+    ],
+    [
+      6.123233995736766e-17,
+      0.0,
+      0.5,
+      0.011736556887626648
+    ],
+    [
+      0.0,
+      0.5,
+      0.0,
+      0.500032365322113
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "final_size_m": [
+    0.6319856643676758,
+    0.6949711740016937,
+    0.9977107644081116
+  ],
+  "converter_mujoco": "3.4.0",
+  "host_compatibility": "pending",
+  "visuals": [
+    {
+      "name": "visual_000",
+      "mesh": "meshes/visual_000.obj",
+      "rgba": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "texture": "textures/visual_000.png",
+      "shell": false
+    }
+  ],
+  "hole_validation": "not_tested",
+  "tolerances": {
+    "target": {
+      "rtol": 0.02,
+      "atol_m": 1e-07
+    },
+    "geometry": {
+      "rtol": 1e-06,
+      "atol_m": 1e-07
+    },
+    "inertia": {
+      "rtol": 1e-08,
+      "atol_kg_m2": 1e-12
+    }
+  },
+  "physical_scale_verified": true,
+  "uniform_rule": "dot(current_size,target_size)/dot(current_size,current_size)"
+}

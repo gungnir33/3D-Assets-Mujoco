@@ -1,0 +1,36 @@
+{
+  "steps": 1000,
+  "dt": 0.002,
+  "time": 2.0000000000000013,
+  "expected_pair": [
+    "asset_collision",
+    "probe"
+  ],
+  "contact_count": 48,
+  "first_contact_step": 144,
+  "max_penetration_m": 0.001190423480125262,
+  "warning_counts": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "first_abnormal_step": null,
+  "asset_sha256": "88a39b5ba679adb49b80433860e7755ab004296a73e6e305460c613668be620e",
+  "mujoco": "3.4.0",
+  "fixture_contact": {
+    "solref": [
+      0.004,
+      1
+    ],
+    "solimp": [
+      0.99,
+      0.99,
+      0.001
+    ]
+  }
+}
