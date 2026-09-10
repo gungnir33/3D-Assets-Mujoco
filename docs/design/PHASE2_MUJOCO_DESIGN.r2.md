@@ -1,10 +1,10 @@
 # 第二阶段：3D 资产到 MuJoCo MJCF 独立转换工程设计与实施计划
 
-状态：R3 小范围契约修订，R2 总体设计已审核通过。本轮授权依次执行任务 1–7；实施证据单独记录，设计要求不等于验证通过。
+状态：R2 修订稿，待用户审核。技术策略均为拟实现要求，除明确标注的只读检查外，未安装、未转换、未编译、未仿真、未渲染。
 
 主要依据：[完整修订指令](PHASE2_MUJOCO_CODEX_REVISION_INSTRUCTIONS.md)及本轮用户要求。原始 18 章结构保留；变更与检查记录见 [修订对照与待实测清单](PHASE2_MUJOCO_REVISION_REPORT.md)。
 
-当前唯一权威设计位于 `/home/mcl/workspace/3D-Assets-Mujoco/docs/design/PHASE2_MUJOCO_DESIGN.md`。原稿和 R2 为同目录只读归档，tasks 中旧路径仅保留迁移指针。实施进度与证据见 M1_IMPLEMENTATION_REPORT.md；本设计仍保留全部 18 章和 10 项任务，不把未完成子项标为通过。本轮授权任务 1–7，不修改第一阶段或现有宿主环境，不调用生成、不自动 push。
+当前唯一权威设计为本文件。原稿按字节归档为 `PHASE2_MUJOCO_DESIGN.original.md`，仅用于追溯，不继续维护。第二阶段初始化后，将本文件迁入 `/home/mcl/workspace/3D-Assets-Mujoco/docs/design/PHASE2_MUJOCO_DESIGN.md`，该路径成为唯一权威版本；原 tasks 文件改为迁移指针（路径、版本、提交和 SHA256），不保留两份可编辑正文。修订说明、原稿与修改记录同期归档。本轮不创建工程、不安装环境、不转换资产、不调用生成、不推送任何 Git。
 
 ## 1. 目标、交付物与边界
 
@@ -164,7 +164,7 @@ class ConversionRequest:
     supplied_inertia: SuppliedInertia | None
     validation_level: str   # compile / physics / full，默认 full
     mass_kg: float | None
-    inertia_mode: str | None # static 可省略；free 强制惯量策略及正质量
+    inertia_mode: str       # supplied / box_approx / watertight
     seed: int
 
 @dataclass(frozen=True)
@@ -188,7 +188,7 @@ GLB 优先，OBJ 次要。第一版不接受 FBX、USD、远程 URL、骨骼动�
 输入检查：
 
 1. resolve 后必须是普通文件，检查扩展名、内容是否可解析；默认最大输入 512 MiB、总面数 5,000,000、纹理展开后总像素预算 64,000,000。
-2. 任何几何顶点须 finite；三角面索引合法；不接受空几何或退化三角形。单轴厚度为零的有效平面和单三角形允许进入编译兼容性判定，不在输入层拒绝；体积碰撞与质量积分另要求三维体积。
+2. 任何几何顶点须 finite；三角面索引合法；无空几何或零尺寸模型。
 3. GLB 外部 URI、OBJ MTL 和纹理路径只能位于显式输入资源根目录内；禁止网络访问与目录穿越；符号链接同样检查最终路径。
 4. OBJ 缺少必需 MTL/纹理时，默认 texture_policy=strict 报错；显式 allow_flat 才能降级，并记录警告。
 5. 稀有扩展如 Draco、KTX2、骨骼、morph target 首版报 UNSUPPORTED_ASSET_FEATURE，不静默丢弃。
@@ -217,7 +217,7 @@ supplied 碰撞代理展开自己的 T_node_world 后应用视觉资产确定的
 
 - scale 输入层为 None；只有用户显式 scale 与 target_size_m 同时提供才冲突。两者均省略时 GLB 解析 scale=1，报告 physical_scale_verified=false。OBJ 必须显式给出 source_up 以及 scale（允许 1）或目标尺寸，不猜单位。
 - `--scale`：统一缩放因子，可用于 OBJ 毫米到米的 0.001。
-- `--target-size-m X Y Z --scale-mode uniform`：唯一比例 s=(d·t)/(d·d)，d 为轴转换与 yaw 后尺寸，t 为目标 XYZ，不排列轴。逐轴误差须 ≤0.02*t+1e-7 m。平面零轴要求目标对应轴为零，至少一个正尺寸轴。
+- `--target-size-m X Y Z --scale-mode uniform`：要求三个轴同比例，误差超过 2% 则报错，防止伪造精确尺寸。
 - `fit_axes`：显式允许非均匀变形以达到三个目标尺寸，记录形状变形，不作为默认。
 - scale 与 target_size 二选一，目标尺寸均须正数。
 
@@ -286,7 +286,7 @@ static 不创建 joint、不要求质量。free 创建一个 freejoint、要求 
 
 不得再次应用 R_axis、R_yaw、S_scale、T_origin 或平行轴项。source frame 明确 UNSUPPORTED_INERTIA_FRAME；不猜单位、不仅旋转后继续使用。若用户改变尺寸/原点，必须重给符合新最终 body 的 COM/张量；同一真实物体仅改变 body 原点时关于 COM 的惯量本身不变。
 
-验证：质量和所有数有限；张量严格 3×3。提议相对容差 1e-8、绝对容差 1e-12 kg·m²；对称误差在容差内才允许数值对称化并记录，超出报错。最小特征值必须 >0，最大主惯量不超过其余两者之和+容差。目标尺寸容差为 rtol=0.02、atol=1e-7 m；几何数值一致性（含 supplied.final_size_m 对最终 AABB）为 rtol=1e-6、atol=1e-7 m；惯量数值一致性为 rtol=1e-8、atol=1e-12 kg·m²；质量匹配另用 rtol=1e-8、atol=1e-9 kg。分别记录，不混用；加入 float32 0.13 m 用例。
+验证：质量和所有数有限；张量严格 3×3。提议相对容差 1e-8、绝对容差 1e-12 kg·m²；对称误差在容差内才允许数值对称化并记录，超出报错。最小特征值必须 >0，最大主惯量不超过其余两者之和+容差。输入 mass_kg 与请求、final_size_m 与最终 AABB 用 rtol=1e-8/atol=1e-9 比较。容差是本项目拟定策略，实施测试再锁定。
 
 XML fullinertia 顺序拟为 Ixx Iyy Izz Ixy Ixz Iyz；目标版本通过非零非对角项测试核对。编译后用 body_iquat 与 body_inertia 重建张量，与 supplied 的 body 坐标张量、body_ipos、body_mass 比较，避免只看特征值漏掉方向错误。
 
@@ -430,7 +430,7 @@ warning 按枚举名称分类：BADQPOS/BADQVEL/BADQACC、BADCTRL、惯量/求�
 | full 且 render passed 但 physics failed | 保留 render=passed | 退出 5，不能升级物理状态 |
 | full 且全部通过且人工 approved | 所有证据齐备 | FULLY_VALIDATED |
 
-CONVERTED 仅转换阶段完成，不表示任何引擎测试通过；编译失败时保留该阶段事实及失败原因。人工审查不影响自动命令退出码，但决定最终 FULLY_VALIDATED。compile 允许 passed/failed/not_run；physics 允许 passed/failed/not_run/not_applicable；render 允许 passed/failed/not_run/unavailable；appearance_review 为 pending/approved/rejected。渲染不可用不推翻物理通过，人工 rejected 则不能最终通过。
+CONVERTED 仅转换阶段完成，不表示任何引擎测试通过；编译失败时保留该阶段事实及失败原因。人工审查不影响自动命令退出码，但决定最终 FULLY_VALIDATED。compile/physics/render 各自允许 passed/failed/not_run，render 另有 unavailable；appearance_review 为 pending/approved/rejected。渲染不可用不推翻物理通过，人工 rejected 则不能最终通过。
 
 collision=none 必须 static+显式 compile，asset_kind=VISUAL_ONLY、physics=not_applicable，不得 PHYSICS_VALIDATED/FULLY_VALIDATED。用户可另行渲染预览但不升级物理状态。
 
@@ -444,11 +444,6 @@ collision=none 必须 static+显式 compile，asset_kind=VISUAL_ONLY、physics=n
 
 不把这些真实资产提交到第二阶段 Git；测试中通过显式 fixture 路径引用，仓库仅保存程序生成的小型合成 fixture。
 
-
-物理通过必须绑定当前转换资产和碰撞资源哈希，并执行该资产的动态探针或 free 刚体测试，断言具体 geom 对、预期接触和逐步数值状态；标准箱体回归不能替代。VISUAL_ONLY 序列化 physics=not_applicable，聚合始终 VISUAL_ONLY。
-
-人工审查保存于 appearance_review.json：reviewer、UTC 时间、结论、审查图片相对路径与哈希、package_content_sha256。对包内排序的相对路径和内容 SHA256 列表计算包指纹，包含 XML/资源/预览/转换配置/验证证据，仅排除审查文件本身及可重算 aggregate_status.json，避免循环。inspect/validate/report 每次重算指纹，改变受绑定内容后旧 approved 失效为 pending，保留旧记录用于审计。没有有效人工批准不得 FULLY_VALIDATED。
-
 ## 14. manifest 和可追溯性
 
 conversion_manifest 至少包含：schema_version、转换器 commit、依赖版本、源路径与各资源 SHA256、可选第一阶段 job 引用、完整已解析参数、输入/输出 AABB、轴变换矩阵、尺度、原点、材质映射、近似/丢弃通道、可视/碰撞面数、凸体数、质量惯量与来源、seed、每阶段耗时、输出文件哈希。
@@ -461,7 +456,7 @@ manifest 额外记录 yaw、最终 X/Y/Z、scale 是否显式、代理共用矩�
 
 ## 15. 分阶段实施计划与首个里程碑
 
-以下保留 R2 的十项任务及验收清单，具体已执行/未完成子项以 M1_IMPLEMENTATION_REPORT.md 为准，只在第二阶段独立仓库实施。每项顺序为失败测试→最小实现→测试通过→本地阶段提交。任务 3 是真实引擎实验，不要求对不支持候选伪造预期成功。推送需后续明确授权，本轮不推送。
+以下十项全部未执行；只在第二阶段独立仓库实施。每项顺序为失败测试→最小实现→测试通过→本地阶段提交。任务 3 是真实引擎实验，不要求对不支持候选伪造预期成功；其通过标准是支持策略得到证据或明确阻断。推送需遵循后续明确授权，本轮不推送。
 
 ### 任务 1：独立仓库、环境、冻结边界和完整契约
 
@@ -472,8 +467,6 @@ manifest 额外记录 yaw、最终 X/Y/Z、scale 是否显式、代理共用矩�
 - [ ] 测试显式 scale+target 冲突、省略 scale 不冲突、OBJ 缺单位失败、NaN yaw 失败、supplied 缺字段失败、VISUAL_ONLY+full 失败。
 - [ ] 在 asset_mujoco 独立环境锁依赖；识别宿主版本后决定 converter 版本，并记录未测兼容性。git check-ignore 断言 XML/OBJ/PNG 合成 fixture 可跟踪、真实资产不可跟踪。
 - [ ] 通过标准：pytest tests/unit/test_contracts.py tests/integration/test_isolation.py -q；目录与 remote 精确匹配、第一阶段基线未改变。提交 chore: initialize isolated converter contracts。
-
-任务 1 补充验收：static 可省略 inertia_mode、free 强制质量/惯量；VISUAL_ONLY JSON 往返及状态聚合；三类容差、float32 0.13 m 和 uniform 唯一比例规则；人工审核哈希失效与重算测试。任务 2/5/7 实测对应几何、惯量和物理行为。
 
 ### 任务 2：原始输入、Scene、尺度与 yaw
 
@@ -515,8 +508,6 @@ manifest 额外记录 yaw、最终 X/Y/Z、scale 是否显式、代理共用矩�
 
 ### 任务 6：static/free MJCF 和可移植包
 
-实施数值适配记录：3.4.0 对一个非对角 fullinertia 测例重建误差约1.52e-7，未达到既定阈值。输出改为由最终 COM 张量显式求特征分解，写 diaginertia 和惯性坐标系 quat；真实编译后重建张量通过原 rtol=1e-8、atol=1e-12，不放宽阈值、不重新变换 supplied 数据。输入仍为完整对称张量。
-
 依赖：任务 3–5。新增 pipeline.py、manifest.py，扩展 mjcf.py；新增 tests/integration/test_mjcf_compile.py、test_package_publish.py、test_host_merge.py、examples/merge_into_minimal_host.py。
 
 - [ ] 从同一中间模型输出 model.xml/scene.xml；无重复质量、static 无 joint、free 的 supplied/box 编译值符合输入，视觉资源编译参数不影响 body inertial。
@@ -524,8 +515,6 @@ manifest 额外记录 yaw、最终 X/Y/Z、scale 是否显式、代理共用矩�
 - [ ] 达到请求自动等级才发布；先实现 compile 等级。验证相对引用、发布后报告无 staging 依赖、复制到新目录后两份 XML 编译+forward。
 - [ ] 在合成宿主中合并 asset/body 并断言名称/资源无冲突、宿主 option 不变、物理属性不变，不碰真实 ACS 场景。
 - [ ] 通过标准：上述三个测试文件通过；失败目录保留诊断。提交 feat: publish portable static and free mjcf packages。
-
-任务 6 增加非默认宿主 compiler 配置测试：angle、inertiafromgeom、meshdir/texturedir、fusestatic、balanceinertia。分别报告语法支持、几何编译、物理/渲染效果；不兼容返回 HOST_COMPILER_CONFLICT，不静默修改宿主 compiler/option。
 
 ### 任务 7：物理、渲染、状态验证及首个可用里程碑 M1
 
@@ -589,7 +578,7 @@ manifest 额外记录 yaw、最终 X/Y/Z、scale 是否显式、代理共用矩�
 - supplied 惯量单位/坐标不明确：明确拒绝，normalized_body/com 不作二次变换。
 - watertight 标志掩盖不可信实体：独立 mass_geometry 与拓扑/自交检查，无法证明则失败。
 
-R2 已审核通过，实施任务 1–7，包括 static 与基础 free 刚体。任务 8 已计划的孔洞测试不属新增范围，但须等待 M1 自动闭环通过；关节、流体和材料形变仍在范围外。不得自动 push。
+审核同意本方案后再开始任务 1。若需要“路障为静态障碍物”以外的物理行为、精确孔洞接触或可运动关节，应在实施前修改对应范围。
 
 ## 17. 技术依据
 
