@@ -61,6 +61,7 @@ class ValidationResult(BaseModel):
     render: Literal["passed","failed","not_run","unavailable"] = "not_run"
     appearance_review: Literal["pending","approved","rejected"] = "pending"
     asset_physics_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    evidence_issues: list[str] = Field(default_factory=list)
 
     def aggregate(self):
         if "failed" in (self.compile,self.physics,self.render):

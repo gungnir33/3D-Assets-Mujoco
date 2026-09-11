@@ -15,6 +15,7 @@ from .collision import hull
 from .materials import export_visual
 from .mjcf import document
 from .contracts import ValidationResult
+from .manifest import record_layer,compile_resources
 
 class ValidationFailed(ValueError):
     def __init__(self,package,result):
@@ -63,6 +64,8 @@ def convert(request):
         metadata["input_dependencies"]=info["input_dependencies"]
         metadata["source_sha256"]=info["input_dependencies"][0]["sha256"]
         (staging/"conversion_manifest.json").write_text(json.dumps(metadata,indent=2))
+        resources=compile_resources(staging)
+        record_layer(staging,"compile","passed",resources,{"mujoco":mujoco.__version__,"forward":True})
         (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
         if request.validation_level!="compile":
             from .validation import validate_physics
@@ -74,18 +77,22 @@ def convert(request):
                 raise
             (staging/"physics_evidence.json").write_text(json.dumps(evidence,indent=2))
             result.physics=evidence["status"]
+            record_layer(staging,"physics",result.physics,resources+["physics_native.xml","physics_benchmark.xml","physics_evidence.json"],
+                         {"mujoco":mujoco.__version__,"required_case":"native"})
             if result.physics=="passed":
                 result.asset_physics_sha256=evidence["asset_sha256"]
         if request.validation_level=="full":
             from .rendering import render_package
             (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
             try:
-                render_package(staging,info["final_size_m"])
+                render_report=render_package(staging,info["final_size_m"])
             except Exception as error:
                 result.render="unavailable" if "RENDER_UNAVAILABLE" in str(error) else "failed"
                 (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
                 raise
             result.render="passed"
+            record_layer(staging,"render","passed",resources+["render_config.json","render_evidence.json"]+render_report["images"],
+                         {"mujoco":mujoco.__version__,"backend":render_report["backend"]})
         (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
         (staging/"conversion.log").write_text("duration_s="+str(time.monotonic()-started)+"\n")
         if result.physics=="failed":

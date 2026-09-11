@@ -13,7 +13,7 @@ def test_changed_asset_invalidates_physics_report(tmp_path):
     from asset_mujoco.pipeline import convert
     from asset_mujoco.contracts import ConversionRequest,ValidationResult
     from asset_mujoco.validation import run_contact_case
-    from asset_mujoco.manifest import asset_signature
+    from asset_mujoco.manifest import asset_signature,record_layer,compile_resources,checked_report
     source=tmp_path/"box.glb"
     trimesh.creation.box().export(source)
     request=ConversionRequest(input=source,output=tmp_path/"out",source_up="z",validation_level="compile")
@@ -23,6 +23,9 @@ def test_changed_asset_invalidates_physics_report(tmp_path):
     (package/"physics_evidence.json").write_text(json.dumps({"status":"passed","native":native}))
     state=ValidationResult(compile="passed",physics="passed",asset_physics_sha256=asset_signature(package))
     (package/"validation_report.json").write_text(state.model_dump_json())
+    record_layer(package,"physics","passed",compile_resources(package)+["physics_native.xml","physics_evidence.json"],
+                 {"required_case":"native","initial_position":[0,0,1.026]})
+    assert checked_report(package).physics=="passed"
     with (package/"model.xml").open("a") as file:
         file.write("<!-- changed -->")
     run=subprocess.run([sys.executable,"-B","-m","asset_mujoco.cli","report",str(package)],env=dict(os.environ,PYTHONPATH="src"),capture_output=True,text=True)

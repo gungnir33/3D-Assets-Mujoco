@@ -6,6 +6,9 @@ import subprocess
 import sys
 
 def render_package(package,size):
+    config={"size":size,"width":512,"height":512,"distance_factor":2.7,
+            "views":[["front",-90,-10,False],["side",0,-10,False],["iso",-45,-25,False],["collision",-45,-25,True]]}
+    (package/"render_config.json").write_text(json.dumps(config,indent=2))
     attempts=[]
     for backend in ("egl","osmesa"):
         env=dict(os.environ,MUJOCO_GL=backend,PYTHONPATH=str(Path(__file__).parents[1]))
@@ -26,6 +29,8 @@ def worker(package,size):
     import mujoco
     import numpy as np
     from PIL import Image
+    config=json.loads((package/"render_config.json").read_text())
+    size=config["size"]
     model=mujoco.MjModel.from_xml_path(str(package/"scene.xml"))
     data=mujoco.MjData(model)
     mujoco.mj_forward(model,data)
@@ -33,12 +38,12 @@ def worker(package,size):
     out.mkdir(exist_ok=True)
     camera=mujoco.MjvCamera()
     camera.lookat[:]=[0,0,size[2]/2]
-    camera.distance=max(size)*2.7
+    camera.distance=max(size)*config["distance_factor"]
     option=mujoco.MjvOption()
     option.geomgroup[3]=0
     images=[]
-    with mujoco.Renderer(model,512,512) as renderer:
-        for name,azimuth,elevation,collision in (("front",-90,-10,False),("side",0,-10,False),("iso",-45,-25,False),("collision",-45,-25,True)):
+    with mujoco.Renderer(model,config["height"],config["width"]) as renderer:
+        for name,azimuth,elevation,collision in config["views"]:
             camera.azimuth=azimuth
             camera.elevation=elevation
             option.geomgroup[3]=int(collision)
