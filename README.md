@@ -6,6 +6,17 @@
 环境：Conda asset_mujoco、Python 3.10.21、MuJoCo 3.4.0。
 requirements.lock.txt 为本次独立环境实测锁文件；不要安装到 hunyuan3d 或现有宿主。
 
+M1.1 已用独立 `asset_mujoco_m1_1_rebuild` 重建安装并完成回归。新环境安装示例（名称已存在时另选唯一名称）：
+
+```bash
+conda create -n asset_mujoco_m1_1_rebuild python=3.10 -y
+conda run -n asset_mujoco_m1_1_rebuild python -m pip install -r requirements.lock.txt
+conda run -n asset_mujoco_m1_1_rebuild python -m pip install --no-deps --no-build-isolation .
+conda run -n asset_mujoco_m1_1_rebuild python -m pip check
+```
+
+锁文件 stdout 与 stderr 分开生成，不把 WARNING 写入依赖；没有修改原有环境或系统驱动。
+
 ## 使用
 
 在本仓库根目录运行：
@@ -33,6 +44,7 @@ box_approx 不代表真实质量分布。supplied 使用 --supplied-inertia /pat
 必须是最终 normalized_body 坐标系、关于 COM、m 和 kg*m^2，不再应用 yaw/scale。
 OBJ 必须指定 --source-up 及 --scale 或 --target-size-m。
 target-size-m 是最终 XYZ；与 scale 互斥。uniform 用单一最小二乘比例，尺寸近似误差2%；fit_axes 会改变形状，必须显式选用。
+显式倍率/目标尺寸只代表用户声明，`physical_scale_verified=false`；`scale_evidence` 记录来源、已应用参数及空的确认依据。历史 M1 包曾将显式倍率误标为已验证，不能用作物理尺寸证明。
 
 ## 验证和人工审核
 
@@ -41,7 +53,8 @@ python -m asset_mujoco.cli report ./outputs/package_name
 python -B -m pytest -p no:cacheprovider -q
 ```
 
-compile/physics/full 为请求的自动验证等级。full 自动通过仍为 PHYSICS_VALIDATED，人工审核默认 pending。
+compile/physics/full 为请求的自动验证等级，正常资产默认 **full**；compile-only 必须显式指定。渲染不可用返回 7，不自动降级 compile。full 自动通过仍为 PHYSICS_VALIDATED，人工审核默认 pending。
+物理验收运行当前导出资产的原始碰撞配置，不添加强制 contact/pair，不修改资产碰撞位、摩擦或接触参数。受控 benchmark 独立记录，不能覆盖原始配置失败。
 人工查看 previews 后才可记录：
 
 ```bash
@@ -51,6 +64,7 @@ python -m asset_mujoco.cli review ./outputs/package_name \
 ```
 
 审核记录绑定包内容哈希；改变 XML、资源、预览或证据后旧批准失效。report 每次重新判定，不依赖旧总状态。
+`evidence_manifest.json` 分别绑定编译资源、物理夹具/结果、渲染配置/预览；`report` 仅检查旧证据，不重新编译或仿真，不给变化后的内容补签通过。缺少新证据的旧包保守显示 not_run。原样迁移不失效。
 VISUAL_ONLY 仅 --collision-mode none --validation-level compile，physics=not_applicable。
 
 退出码：0 请求自动等级通过（不等于人工批准）；2 输入错误；3 转换错误；4 XML 编译错误；
@@ -63,7 +77,11 @@ VISUAL_ONLY 仅 --collision-mode none --validation-level compile，physics=not_a
 - 单三角形 primitive 暂不支持，不静默增加厚度。平面 shell 仅3.4.0实测可用，3.2.3不识别该属性。
 - EGL 已通过；OSMesa 当前 OpenGL 加载不可用，没有修改系统包或驱动。
 - 透明、顶点色、额外 UV、压缩、骨骼/morph 和扩展材质严格拒绝；非完整 PBR 等价转换器。
+- OBJ/MTL/纹理在实际读取 resolver 层限制于输入文件父目录，禁止越界和符号链接越界，无不受限 fallback。必需资源缺失直接失败。
+- 有 PBR 材质但省略 baseColorFactor 时使用白色全 1；真正无材质使用默认灰色。源法线按完整组合变换的逆转置导出，缺失才计算并记录来源。
 - 非默认宿主 compiler 冲突会报 HOST_COMPILER_CONFLICT，不自动修正宿主。
 - CoACD、supplied 碰撞代理、watertight 积分和 HTTP 串联尚未实施。
 
-权威设计与具体证据：[设计](docs/design/PHASE2_MUJOCO_DESIGN.md)、[M1 报告](docs/design/M1_IMPLEMENTATION_REPORT.md)、[编译矩阵](docs/design/visual_mesh_compatibility.md)。
+本轮结果：94 passed、1 skipped（OSMesa）；新企鹅两份 XML 与 EGL 渲染通过，但原始配置最大穿透 11.795 mm > 5 mm，**M1.1 自动验收未通过**。受控 benchmark 的 1.190 mm 不代表原始配置保证。失败包保留于 `outputs/penguin_m1_1_20260911_final/.staging-396kwwx1`；人工审核 pending，真实宿主集成 pending。
+
+权威设计与具体证据：[设计](docs/design/PHASE2_MUJOCO_DESIGN.md)、[M1.1 报告](docs/design/M1_1_IMPLEMENTATION_REPORT.md)、[本轮机器证据](docs/design/M1_1_EVIDENCE.json)、[历史 M1 报告](docs/design/M1_IMPLEMENTATION_REPORT.md)、[编译矩阵](docs/design/visual_mesh_compatibility.md)。历史报告保留，不作为 M1.1 成功证据。

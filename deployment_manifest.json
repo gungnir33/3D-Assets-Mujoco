@@ -1,60 +1,99 @@
 {
-  "schema_version": 1,
-  "project_code_commit": "6ae197b6c4bcdc8255d9f772799c6f3bfb4fe851",
+  "schema_version": 2,
+  "project_code_commit": "830556e02ceb0bf35979e137fdf4cf44056cf402",
   "remote": "https://github.com/gungnir33/3D-Assets-Mujoco.git",
   "python": "3.10.21",
-  "environment": "/home/mcl/anaconda3/envs/asset_mujoco",
+  "environment": "/home/mcl/anaconda3/envs/asset_mujoco_m1_1_rebuild",
   "converter_mujoco": "3.4.0",
-  "host_compatibility": [
-    {
-      "version": "3.2.3",
-      "module": "/home/mcl/anaconda3/envs/acs_test/lib/python3.8/site-packages/mujoco/__init__.py",
-      "rows": [
-        {
-          "file": "model.xml",
-          "compile": "passed",
-          "forward": "passed"
-        },
-        {
-          "file": "scene.xml",
-          "compile": "passed",
-          "forward": "passed"
-        }
-      ],
-      "host_integration": "pending",
-      "host_physics": "not_tested",
-      "host_render": "not_tested"
-    },
-    {
-      "version": "3.4.0",
-      "module": "/home/mcl/code/mujoco_sim/sim_test/.conda-env/lib/python3.11/site-packages/mujoco/__init__.py",
-      "rows": [
-        {
-          "file": "model.xml",
-          "compile": "passed",
-          "forward": "passed"
-        },
-        {
-          "file": "scene.xml",
-          "compile": "passed",
-          "forward": "passed"
-        }
-      ],
-      "host_integration": "pending",
-      "host_physics": "not_tested",
-      "host_render": "not_tested"
-    }
-  ],
-  "m1_package": "outputs/penguin_m1_1fd1864a5e55",
-  "m1_asset_conversion_commit": "7e54c956cb0c2c707f9751d94cdae91c19bfdd40",
-  "automated_m1": "passed",
-  "appearance_review": "pending",
-  "fully_validated": false,
+  "rebuild_validation": "passed",
+  "pip_check": "passed",
   "tests": {
-    "passed": 56,
+    "passed": 94,
     "skipped": 1,
-    "skipped_reason": "OSMesa OpenGL loader unavailable"
+    "duration_s": 8.04,
+    "skipped_reason": "OSMesa OpenGL loader unavailable; EGL passed"
   },
+  "m1_1_package": "outputs/penguin_m1_1_20260911_final/.staging-396kwwx1",
+  "package_kind": "failed_validation_diagnostic_not_published",
+  "package_fingerprint": "c0c316e460fe5047c31292c10412dc8bba562c0e12d592be1d6df93b17a8433b",
+  "compile": "passed",
+  "physics": "failed",
+  "benchmark": "passed",
+  "render": "passed",
+  "render_backend": "egl",
+  "migration": "passed",
+  "automated_m1_1": "failed",
+  "native_max_penetration_m": 0.011795154509838177,
+  "penetration_limit_m": 0.005,
+  "appearance_review": "pending",
+  "host_integration": "pending",
+  "host_compatibility": "not_retested_in_actual_host",
+  "physical_scale_verified": false,
+  "fully_validated": false,
   "first_stage_modified": false,
-  "pushed": false
+  "pushed": false,
+  "evidence": "docs/design/M1_1_EVIDENCE.json",
+  "historical_m1": {
+    "note": "Historical only: old pair benchmark and old package, not M1.1 validation; original paths may have moved to example_outputs.",
+    "manifest": {
+      "schema_version": 1,
+      "project_code_commit": "6ae197b6c4bcdc8255d9f772799c6f3bfb4fe851",
+      "remote": "https://github.com/gungnir33/3D-Assets-Mujoco.git",
+      "python": "3.10.21",
+      "environment": "/home/mcl/anaconda3/envs/asset_mujoco",
+      "converter_mujoco": "3.4.0",
+      "host_compatibility": [
+        {
+          "version": "3.2.3",
+          "module": "/home/mcl/anaconda3/envs/acs_test/lib/python3.8/site-packages/mujoco/__init__.py",
+          "rows": [
+            {
+              "file": "model.xml",
+              "compile": "passed",
+              "forward": "passed"
+            },
+            {
+              "file": "scene.xml",
+              "compile": "passed",
+              "forward": "passed"
+            }
+          ],
+          "host_integration": "pending",
+          "host_physics": "not_tested",
+          "host_render": "not_tested"
+        },
+        {
+          "version": "3.4.0",
+          "module": "/home/mcl/code/mujoco_sim/sim_test/.conda-env/lib/python3.11/site-packages/mujoco/__init__.py",
+          "rows": [
+            {
+              "file": "model.xml",
+              "compile": "passed",
+              "forward": "passed"
+            },
+            {
+              "file": "scene.xml",
+              "compile": "passed",
+              "forward": "passed"
+            }
+          ],
+          "host_integration": "pending",
+          "host_physics": "not_tested",
+          "host_render": "not_tested"
+        }
+      ],
+      "m1_package": "outputs/penguin_m1_1fd1864a5e55",
+      "m1_asset_conversion_commit": "7e54c956cb0c2c707f9751d94cdae91c19bfdd40",
+      "automated_m1": "passed",
+      "appearance_review": "pending",
+      "fully_validated": false,
+      "tests": {
+        "passed": 56,
+        "skipped": 1,
+        "skipped_reason": "OSMesa OpenGL loader unavailable"
+      },
+      "first_stage_modified": false,
+      "pushed": false
+    }
+  }
 }

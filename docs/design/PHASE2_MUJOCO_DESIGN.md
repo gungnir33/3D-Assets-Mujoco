@@ -189,8 +189,8 @@ GLB 优先，OBJ 次要。第一版不接受 FBX、USD、远程 URL、骨骼动�
 
 1. resolve 后必须是普通文件，检查扩展名、内容是否可解析；默认最大输入 512 MiB、总面数 5,000,000、纹理展开后总像素预算 64,000,000。
 2. 任何几何顶点须 finite；三角面索引合法；不接受空几何或退化三角形。单轴厚度为零的有效平面和单三角形允许进入编译兼容性判定，不在输入层拒绝；体积碰撞与质量积分另要求三维体积。
-3. GLB 外部 URI、OBJ MTL 和纹理路径只能位于显式输入资源根目录内；禁止网络访问与目录穿越；符号链接同样检查最终路径。
-4. OBJ 缺少必需 MTL/纹理时，默认 texture_policy=strict 报错；显式 allow_flat 才能降级，并记录警告。
+3. GLB 外部 URI、OBJ MTL 和纹理路径只能位于显式输入资源根目录内；禁止网络访问与目录穿越；符号链接同样检查最终路径。M1.1 的 OBJ 根目录为主文件父目录，实际 resolver 每次读取前 resolve 和边界检查，以受限目录 fd/O_NOFOLLOW 打开并保存字节快照及依赖哈希；禁止检查失败后回退到不受限加载器。
+4. OBJ 缺少必需 MTL/纹理时严格报错。M1.1 未开放有损 fallback；未来只有用户显式选择并记录损失才可降级，不能吞掉错误输出灰模成功。mtllib 的 tab、map_Kd 的前导空格必须解析。
 5. 稀有扩展如 Draco、KTX2、骨骼、morph target 首版报 UNSUPPORTED_ASSET_FEATURE，不静默丢弃。
 
 源文件只读。记录输入 GLB 或 OBJ+MTL+纹理的全部哈希；在输出工作区建立自己的资源副本。--output 是父目录，可包含其他任务；每次分配唯一 <name>_<id> 最终目录，禁止覆盖。staging 位于同一父目录/文件系统，达到请求自动验证等级后原子发布。输入资源目录与 staging/final 目录不得重叠，防止覆盖来源。发布后重新检查 XML 及报告资源不依赖 staging；源绝对路径只作为 provenance。失败保留诊断目录。
@@ -217,6 +217,7 @@ supplied 碰撞代理展开自己的 T_node_world 后应用视觉资产确定的
 
 - scale 输入层为 None；只有用户显式 scale 与 target_size_m 同时提供才冲突。两者均省略时 GLB 解析 scale=1，报告 physical_scale_verified=false。OBJ 必须显式给出 source_up 以及 scale（允许 1）或目标尺寸，不猜单位。
 - `--scale`：统一缩放因子，可用于 OBJ 毫米到米的 0.001。
+- 显式倍率或目标尺寸也不能证明真实物理尺寸：M1.1 始终 `physical_scale_verified=false`，`scale_evidence.source` 区分 user_multiplier/user_target_size/format_default，记录 applied 和参数，confirmation 为 null。本轮不开发测量系统，旧示例错误字段仅作历史记录，不原地改写。
 - `--target-size-m X Y Z --scale-mode uniform`：唯一比例 s=(d·t)/(d·d)，d 为轴转换与 yaw 后尺寸，t 为目标 XYZ，不排列轴。逐轴误差须 ≤0.02*t+1e-7 m。平面零轴要求目标对应轴为零，至少一个正尺寸轴。
 - `fit_axes`：显式允许非均匀变形以达到三个目标尺寸，记录形状变形，不作为默认。
 - scale 与 target_size 二选一，目标尺寸均须正数。
@@ -238,6 +239,7 @@ supplied 碰撞代理展开自己的 T_node_world 后应用视觉资产确定的
 | 输入 | 输出策略 |
 |---|---|
 | 无材质、无颜色 | 明确默认灰色 RGBA |
+| 有 PBR 材质但省略 baseColorFactor | glTF 缺省 [1,1,1,1]，不是无材质灰色 |
 | baseColorFactor | MJCF material/geom rgba |
 | baseColorTexture + UV | PNG + OBJ UV + XML texture/material 引用 |
 | 多材质 | 分别导出 mesh/geom，各自绑定 material |
@@ -245,6 +247,10 @@ supplied 碰撞代理展开自己的 T_node_world 后应用视觉资产确定的
 | metallic/roughness/normal/emissive 等 | 记录不支持的通道，基础外观模式近似；strict PBR 模式报错 |
 
 不依赖 OBJ 的 MTL 被 MuJoCo 自动解析；XML 显式绑定纹理和材质。颜色因子与纹理相乘只能做一次，禁止重复变暗。首版核心只保证不透明颜色贴图，alpha blend/mask 不保证透明排序，默认报不支持；用户选择 flatten 时使用指定背景色并记录。
+
+M1.1 同时根据原始 GLB COLOR 属性与 OBJ v 行检查源顶点色，存在即明确拒绝，不把加载器默认色误判为输入顶点色。未开放有损顶点色选项。缺省白色、显式全 1、非白因子通过实际像素及 MJCF 材质绑定测试，原始图片不修改。
+
+源法线从解码 primitive/OBJ (v,vt,vn) 对应关系显式保存，不依赖 mesh.copy 的缓存。组合线性变换 A 包含节点世界、轴、yaw 和尺度；导出 normalize(inverse(A).T@n)，镜像只翻一次面绕序。无源法线才计算并标记 normals_source=computed；不焊接视觉 UV seam 或硬边，实际导出 OBJ 的 vn 和面角索引必须回归。
 
 UV 垂直方向、repeat、颜色空间通过四色 UV 图和超范围 UV 测试；非单位纹理变换要么已实现并测试，要么明确拒绝。测试包括纯色纹理、多材质共享图片但颜色因子不同、不同 sampler、非默认 UV 集、缺纹理 OBJ。纯色纹理合法，“非单色”只用于四色夹具，不作通用验收。不能依据一次观察随意翻转 PNG。基础模式下 MuJoCo 渲染效果与 Blender 不会像素一致。
 
@@ -447,9 +453,13 @@ collision=none 必须 static+显式 compile，asset_kind=VISUAL_ONLY、physics=n
 
 物理通过必须绑定当前转换资产和碰撞资源哈希，并执行该资产的动态探针或 free 刚体测试，断言具体 geom 对、预期接触和逐步数值状态；标准箱体回归不能替代。VISUAL_ONLY 序列化 physics=not_applicable，聚合始终 VISUAL_ONLY。
 
+M1.1 原始配置验收不得添加强制 contact/pair 或改写资产碰撞位、摩擦、solref/solimp；探针初始位置由转换参数确定并记录，碰撞体被移动后不能重新瞄准。独立 benchmark 可使用明确记录的强制 pair，仅作为受控基准。physics=passed 必须以 native=passed 为前提；原始失败而 benchmark 通过仍失败。保留既定 min(0.005 m, 高度2%) 穿透阈值，逐步记录首次异常（包括首次超限）、具体接触对和时段。历史 1.19 mm 仅属于定制夹具，不能视为原始配置保证。
+
 人工审查保存于 appearance_review.json：reviewer、UTC 时间、结论、审查图片相对路径与哈希、package_content_sha256。对包内排序的相对路径和内容 SHA256 列表计算包指纹，包含 XML/资源/预览/转换配置/验证证据，仅排除审查文件本身及可重算 aggregate_status.json，避免循环。inspect/validate/report 每次重算指纹，改变受绑定内容后旧 approved 失效为 pending，保留旧记录用于审计。没有有效人工批准不得 FULLY_VALIDATED。
 
 ## 14. manifest 和可追溯性
+
+M1.1 `evidence_manifest.json` schema_version=2 使用包相对路径及 SHA256。compile 绑定 model.xml/scene.xml/转换清单/引用网格和纹理；physics 另绑定实际夹具及 physics_evidence；render 另绑定渲染配置、后端结果与四张预览。每层保存当时的上下文、状态和摘要，汇总状态、日志及人工审查不参与分层自动证据哈希，不形成循环。report 只校验原记录；缺失、旧格式或内容变化使旧 passed 失效为 not_run，不运行引擎、不重签。人工审核仍保留独立历史和更保守的整包内容绑定。原样迁移只改变目录，不失效。
 
 conversion_manifest 至少包含：schema_version、转换器 commit、依赖版本、源路径与各资源 SHA256、可选第一阶段 job 引用、完整已解析参数、输入/输出 AABB、轴变换矩阵、尺度、原点、材质映射、近似/丢弃通道、可视/碰撞面数、凸体数、质量惯量与来源、seed、每阶段耗时、输出文件哈希。
 

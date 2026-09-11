@@ -1,0 +1,421 @@
+{
+  "code_commit": "830556e02ceb0bf35979e137fdf4cf44056cf402",
+  "package_checks": [
+    {
+      "path": "/home/mcl/workspace/3D-Assets-Mujoco/outputs/penguin_m1_1_20260911_final/.staging-396kwwx1",
+      "xml": [
+        {
+          "file": "model.xml",
+          "compile": "passed",
+          "forward": "passed",
+          "ngeom": 2,
+          "nmesh": 2,
+          "nmat": 1,
+          "ntex": 1
+        },
+        {
+          "file": "scene.xml",
+          "compile": "passed",
+          "forward": "passed",
+          "ngeom": 3,
+          "nmesh": 2,
+          "nmat": 1,
+          "ntex": 1
+        }
+      ],
+      "report": {
+        "compile": "passed",
+        "physics": "failed",
+        "render": "passed",
+        "appearance_review": "pending",
+        "asset_physics_sha256": null,
+        "evidence_issues": []
+      },
+      "aggregate": "FAILED",
+      "fingerprint": "c0c316e460fe5047c31292c10412dc8bba562c0e12d592be1d6df93b17a8433b"
+    },
+    {
+      "path": "/tmp/asset-mujoco-m1-1-migrated-h49qqdcx/package",
+      "xml": [
+        {
+          "file": "model.xml",
+          "compile": "passed",
+          "forward": "passed",
+          "ngeom": 2,
+          "nmesh": 2,
+          "nmat": 1,
+          "ntex": 1
+        },
+        {
+          "file": "scene.xml",
+          "compile": "passed",
+          "forward": "passed",
+          "ngeom": 3,
+          "nmesh": 2,
+          "nmat": 1,
+          "ntex": 1
+        }
+      ],
+      "report": {
+        "compile": "passed",
+        "physics": "failed",
+        "render": "passed",
+        "appearance_review": "pending",
+        "asset_physics_sha256": null,
+        "evidence_issues": []
+      },
+      "aggregate": "FAILED",
+      "fingerprint": "c0c316e460fe5047c31292c10412dc8bba562c0e12d592be1d6df93b17a8433b"
+    }
+  ],
+  "migration": "passed",
+  "python": "3.10.21 (main, Aug 27 2026, 14:42:07) [GCC 14.3.0]",
+  "environment": "/home/mcl/anaconda3/envs/asset_mujoco_m1_1_rebuild",
+  "dependencies": {
+    "mujoco": "3.4.0",
+    "trimesh": "4.7.4",
+    "numpy": "2.2.6",
+    "Pillow": "11.3.0",
+    "pydantic": "2.11.7",
+    "scipy": "1.15.3",
+    "pytest": "8.4.1",
+    "setuptools": "83.0.0",
+    "wheel": "0.47.0"
+  },
+  "pip_check": {
+    "exit_code": 0,
+    "stdout": "No broken requirements found.\n",
+    "stderr": ""
+  },
+  "physics": {
+    "status": "failed",
+    "native": {
+      "kind": "native",
+      "status": "failed",
+      "error": "ASSET_CONTACT_FAILED: penetration=0.011795154509838177",
+      "steps": 1000,
+      "dt": 0.002,
+      "time": 2.0000000000000013,
+      "expected_pair": [
+        "asset_collision",
+        "probe"
+      ],
+      "initial_position": [
+        0,
+        0,
+        1.2221956863999368
+      ],
+      "resolved_geoms": {
+        "asset_collision": {
+          "contype": 1,
+          "conaffinity": 1,
+          "friction": [
+            1.0,
+            0.005,
+            0.0001
+          ],
+          "solref": [
+            0.02,
+            1.0
+          ],
+          "solimp": [
+            0.9,
+            0.95,
+            0.001,
+            0.5,
+            2.0
+          ],
+          "pos": [
+            0.00016546711219603939,
+            0.0661531426600358,
+            0.44440318439264304
+          ]
+        },
+        "probe": {
+          "contype": 1,
+          "conaffinity": 1,
+          "friction": [
+            1.0,
+            0.005,
+            0.0001
+          ],
+          "solref": [
+            0.02,
+            1.0
+          ],
+          "solimp": [
+            0.9,
+            0.95,
+            0.001,
+            0.5,
+            2.0
+          ],
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "first_resolved_contact": {
+        "solref": [
+          0.02,
+          1.0
+        ],
+        "solimp": [
+          0.9,
+          0.95,
+          0.001,
+          0.5,
+          2.0
+        ],
+        "friction": [
+          1.0,
+          1.0,
+          0.005,
+          0.0001,
+          0.0001
+        ]
+      },
+      "contact_count": 70,
+      "first_contact_step": 144,
+      "last_contact_step": 213,
+      "max_penetration_m": 0.011795154509838177,
+      "penetration_limit_m": 0.005,
+      "warning_counts": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "first_abnormal_step": 146,
+      "final_qpos": [
+        0.0007121012731589376,
+        -2.559132682026305,
+        0.02457558726774264,
+        -0.8495535067674014,
+        0.5275024403263104,
+        3.308110845985839e-05,
+        -0.00011616642719161441
+      ],
+      "final_qvel": [
+        0.00045344265023988497,
+        -1.5674467293843846,
+        -4.953351789991009e-16,
+        63.30770698335455,
+        0.002725115786736931,
+        0.0026782539262741527
+      ],
+      "final_energy": [
+        0.024108651109655533,
+        0.1727136838001012
+      ],
+      "fixture": "physics_native.xml",
+      "mujoco": "3.4.0",
+      "fixture_contact": null
+    },
+    "benchmark": {
+      "kind": "benchmark",
+      "status": "passed",
+      "error": null,
+      "steps": 1000,
+      "dt": 0.002,
+      "time": 2.0000000000000013,
+      "expected_pair": [
+        "asset_collision",
+        "probe"
+      ],
+      "initial_position": [
+        0,
+        0,
+        1.2221956863999368
+      ],
+      "resolved_geoms": {
+        "asset_collision": {
+          "contype": 1,
+          "conaffinity": 1,
+          "friction": [
+            1.0,
+            0.005,
+            0.0001
+          ],
+          "solref": [
+            0.02,
+            1.0
+          ],
+          "solimp": [
+            0.9,
+            0.95,
+            0.001,
+            0.5,
+            2.0
+          ],
+          "pos": [
+            0.00016546711219603939,
+            0.0661531426600358,
+            0.44440318439264304
+          ]
+        },
+        "probe": {
+          "contype": 1,
+          "conaffinity": 1,
+          "friction": [
+            1.0,
+            0.005,
+            0.0001
+          ],
+          "solref": [
+            0.02,
+            1.0
+          ],
+          "solimp": [
+            0.9,
+            0.95,
+            0.001,
+            0.5,
+            2.0
+          ],
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "first_resolved_contact": {
+        "solref": [
+          0.004,
+          1.0
+        ],
+        "solimp": [
+          0.99,
+          0.99,
+          0.001,
+          0.5,
+          2.0
+        ],
+        "friction": [
+          1.0,
+          1.0,
+          0.005,
+          0.0001,
+          0.0001
+        ]
+      },
+      "contact_count": 48,
+      "first_contact_step": 144,
+      "last_contact_step": 206,
+      "max_penetration_m": 0.001190423480125262,
+      "penetration_limit_m": 0.005,
+      "warning_counts": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "first_abnormal_step": null,
+      "final_qpos": [
+        0.0005125068352802504,
+        -2.6578401560996303,
+        0.024575587267742633,
+        -0.9724390415705898,
+        -0.23315725539827606,
+        -6.590645176412663e-05,
+        -1.8459558276495126e-05
+      ],
+      "final_qvel": [
+        0.0003126228671805911,
+        -1.6176847493624504,
+        -2.779918493356627e-16,
+        65.33677098211044,
+        0.010916038225551214,
+        0.0032116208313405824
+      ],
+      "final_energy": [
+        0.024108651109655526,
+        0.18396234150620974
+      ],
+      "fixture": "physics_benchmark.xml",
+      "mujoco": "3.4.0",
+      "fixture_contact": {
+        "solref": [
+          0.004,
+          1
+        ],
+        "solimp": [
+          0.99,
+          0.99,
+          0.001
+        ]
+      }
+    },
+    "asset_sha256": "3e407d276c1cce720947e3c067c73b52c558ab3b9150eb1d4f27a851407a80ca"
+  },
+  "render": {
+    "status": "passed",
+    "backend": "egl",
+    "images": [
+      "previews/front.png",
+      "previews/side.png",
+      "previews/iso.png",
+      "previews/collision.png"
+    ],
+    "appearance_review": "pending",
+    "mujoco": "3.4.0",
+    "attempts": [
+      {
+        "backend": "egl",
+        "exit_code": 0,
+        "stderr": ""
+      }
+    ]
+  },
+  "duration": "duration_s=3.5489787699189037",
+  "source_sha256": "12f1ed66a874efbdb3c350d819c1f6e076de469e7dc191d236de82073fdd2e12",
+  "final_size_m": [
+    0.6319856643676758,
+    0.6949711740016937,
+    0.9977107644081116
+  ],
+  "physical_scale_verified": false,
+  "scale_evidence": {
+    "source": "user_multiplier",
+    "multiplier": 0.5,
+    "target_size_m": null,
+    "applied": true,
+    "confirmation": null
+  },
+  "files_sha256": {
+    "conversion.log": "bb7aabda0da186606488ac64b8db3933767fda184494b6c28e8878a5cb54db57",
+    "conversion_manifest.json": "f4a9f3acc4a1b6233aab101015deaa0b86debec13ee42b722001283611386ad1",
+    "evidence_manifest.json": "281066f8b21c5a0ee5a223680d9f0587730f83f88a1905062125954f2c4dc0ca",
+    "failure.json": "e88c4f9f32a70ee49d0d53d92d5847cce20f7e591eb86a00cfe953a8a21be2a0",
+    "meshes/collision.obj": "887a8c2d70b76d21b50dc1d0a596fc51fd3d094b93bb8423a860471db70f5de6",
+    "meshes/visual_000.obj": "270db08ce25e523b76816ba335cd4c83fa523f87225fc277c201a923dbac722b",
+    "model.xml": "f1a31838bb5acf4107dc8b4cbf2825febc1d08a23cb472d8f3e22cf7798c5785",
+    "physics_benchmark.xml": "1a66853a94ed399f60119270f04eba0940d2b0dbf285708d7c0c2c392e42432c",
+    "physics_evidence.json": "d44106b8d2b975d98c211b3fddfc88ba60aa80c3798590fec78000513a63c25f",
+    "physics_native.xml": "3e0095c9ae8c28049e9ded98e4a2f2c3ef0179a754889687485adad925801ee6",
+    "previews/collision.png": "bee48d1522217ef6cdf35a273e974f3ad77873b83d4187af70e3c3ee2f2deebe",
+    "previews/front.png": "71e4ff5e0dd9db6849b32b6906ce4e57cfbe87487037825fb0c72f2450f01215",
+    "previews/iso.png": "00d4f8a792dcc1ae74259658af3ad67dcd91edd24c65c23c5023ba8eb184cf6c",
+    "previews/side.png": "9f90ed6c2fc36814e342794479cafbd4674e135416d4052941fa7c55f3ed9b0d",
+    "render_config.json": "fe9a94be6c0a82bca251b0579b11742cfefea0752f6ff3166daa6e95e7b68a48",
+    "render_evidence.json": "80d85df351d0f2c6c64991e9e874b872ee8650d5742ce76f5e2355eee2bec4df",
+    "scene.xml": "294c793c43e53a533959afe0fad41fb9b13c45fdf2104d0489f63cdb3f874d62",
+    "textures/visual_000.png": "d5ed04dc65d06e127a02ec5c1ecfefe0234f4363525123fd6dfdd35e8bc833b4",
+    "validation_report.json": "f629d6adffee5bdb29ea864b348fd1a17e49950135ac2ecce86a5374518feca1"
+  },
+  "pytest": "...............................................s........................ [ 75%]\n.......................                                                  [100%]\n=========================== short test summary info ============================\nSKIPPED [1] tests/integration/test_render_backend.py:13: osmesa 不可用或探测失败: _init__.py\", line 4, in <module>\n    from OpenGL.GL.VERSION.GL_1_1 import *\n  File \"/home/mcl/anaconda3/envs/asset_mujoco_m1_1_rebuild/lib/python3.10/site-packages/OpenGL/GL/VERSION/GL_1_1.py\", line 14, in <module>\n    from OpenGL.raw.GL.VERSION.GL_1_1 import *\n  File \"/home/mcl/anaconda3/envs/asset_mujoco_m1_1_rebuild/lib/python3.10/site-packages/OpenGL/raw/GL/VERSION/GL_1_1.py\", line 7, in <module>\n    from OpenGL.raw.GL import _errors\n  File \"/home/mcl/anaconda3/envs/asset_mujoco_m1_1_rebuild/lib/python3.10/site-packages/OpenGL/raw/GL/_errors.py\", line 4, in <module>\n    _error_checker = _ErrorChecker( _p, _p.GL.glGetError )\nAttributeError: 'NoneType' object has no attribute 'glGetError'\n94 passed, 1 skipped in 8.04s\n",
+  "automatic_validation": "failed",
+  "appearance_review": "pending",
+  "host_integration": "pending"
+}
