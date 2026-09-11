@@ -30,7 +30,7 @@ class ConversionRequest(BaseModel):
     scale_mode: Literal["uniform","fit_axes"] = "uniform"
     body_mode: Literal["static","free"] = "static"
     collision_mode: Literal["hull","none","supplied","decompose"] = "hull"
-    validation_level: Literal["compile","physics","full"] = "compile"
+    validation_level: Literal["compile","physics","full"] = "full"
     mass: float | None = Field(default=None, gt=0)
     inertia_mode: Literal["supplied","box_approx","watertight"] | None = None
     supplied_inertia: SuppliedInertia | None = None

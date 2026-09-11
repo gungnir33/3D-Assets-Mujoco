@@ -34,7 +34,7 @@ def main(argv=None):
     convert.add_argument("--inertia-mode",choices=["box_approx","supplied"])
     convert.add_argument("--supplied-inertia",type=Path)
     convert.add_argument("--collision-mode",choices=["hull","none"],default="hull")
-    convert.add_argument("--validation-level",choices=["compile","physics","full"],default="compile")
+    convert.add_argument("--validation-level",choices=["compile","physics","full"],default="full")
     args=vars(parser.parse_args(argv))
     command=args.pop("command")
     try:

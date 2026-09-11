@@ -17,7 +17,7 @@ def test_real_host_compile_nondefault(tmp_path):
     from asset_mujoco.contracts import ConversionRequest
     source=tmp_path/"box.glb"
     trimesh.creation.box().export(source)
-    package=convert(ConversionRequest(input=source,output=tmp_path/"out",body_mode="free",mass=2,inertia_mode="box_approx"))
+    package=convert(ConversionRequest(input=source,output=tmp_path/"out",body_mode="free",mass=2,inertia_mode="box_approx",validation_level="compile"))
     root=ET.fromstring('<mujoco><compiler angle="radian" inertiafromgeom="false"/><option timestep=".003"/><worldbody/></mujoco>')
     merge_host(root,package,"object_",tmp_path)
     path=tmp_path/"host.xml"

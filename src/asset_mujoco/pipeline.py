@@ -58,10 +58,15 @@ def convert(request):
                   "transform":info["matrix"],"final_size_m":info["final_size_m"],"converter_mujoco":mujoco.__version__,
                   "host_compatibility":"pending","visuals":visuals,"hole_validation":"not_tested"}
         metadata["tolerances"]={"target":{"rtol":.02,"atol_m":1e-7},"geometry":{"rtol":1e-6,"atol_m":1e-7},"inertia":{"rtol":1e-8,"atol_kg_m2":1e-12}}
-        metadata["physical_scale_verified"]=request.scale is not None or request.target_size_m is not None
+        metadata["physical_scale_verified"]=False
+        metadata["scale_evidence"]={
+            "source":"user_multiplier" if request.scale is not None else "user_target_size" if request.target_size_m is not None else "format_default",
+            "multiplier":request.scale,"target_size_m":request.target_size_m,
+            "applied":True,"confirmation":None}
         metadata["uniform_rule"]="dot(current_size,target_size)/dot(current_size,current_size)"
         metadata["material_approximations"]=["仅保留基础颜色/贴图；metallic、roughness 标量与 MuJoCo 光照并非完整 PBR 等价映射"]
         metadata["input_dependencies"]=info["input_dependencies"]
+        metadata["normal_provenance"]=info["normal_provenance"]
         metadata["source_sha256"]=info["input_dependencies"][0]["sha256"]
         (staging/"conversion_manifest.json").write_text(json.dumps(metadata,indent=2))
         resources=compile_resources(staging)

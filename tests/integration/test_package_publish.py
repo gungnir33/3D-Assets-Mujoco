@@ -7,7 +7,7 @@ from asset_mujoco.contracts import ConversionRequest
 def test_portable_static(tmp_path):
     source=tmp_path/"box.glb"
     trimesh.creation.box().export(source)
-    req=ConversionRequest(input=source,output=tmp_path/"out",source_up="z")
+    req=ConversionRequest(input=source,output=tmp_path/"out",source_up="z",validation_level="compile")
     first=convert(req)
     second=convert(req)
     assert first!=second and first.is_dir()
@@ -21,7 +21,7 @@ def test_portable_static(tmp_path):
 def test_free_inertial(tmp_path):
     source=tmp_path/"box.glb"
     trimesh.creation.box(extents=[1,2,3]).export(source)
-    package=convert(ConversionRequest(input=source,output=tmp_path/"out",source_up="z",body_mode="free",mass=2,inertia_mode="box_approx"))
+    package=convert(ConversionRequest(input=source,output=tmp_path/"out",source_up="z",body_mode="free",mass=2,inertia_mode="box_approx",validation_level="compile"))
     model=mujoco.MjModel.from_xml_path(str(package/"model.xml"))
     assert model.body_mass[1]==2
     assert model.njnt==1
@@ -33,7 +33,7 @@ def test_supplied_compiled_tensor(tmp_path):
     trimesh.creation.box().export(source)
     tensor=np.array([[2,.1,.2],[.1,2.5,.15],[.2,.15,3.]])
     supplied=SuppliedInertia(frame="normalized_body",reference="com",com_unit="m",inertia_unit="kg*m^2",com=[.1,.2,.3],tensor=tensor.tolist(),mass_kg=2,final_size_m=[1,1,1])
-    package=convert(ConversionRequest(input=source,output=tmp_path/"out",body_mode="free",mass=2,inertia_mode="supplied",supplied_inertia=supplied,yaw_deg=90))
+    package=convert(ConversionRequest(input=source,output=tmp_path/"out",body_mode="free",mass=2,inertia_mode="supplied",supplied_inertia=supplied,yaw_deg=90,validation_level="compile"))
     model=mujoco.MjModel.from_xml_path(str(package/"model.xml"))
     rot=np.empty(9)
     mujoco.mju_quat2Mat(rot,model.body_iquat[1])
