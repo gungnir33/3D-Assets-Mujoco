@@ -26,6 +26,8 @@ def test_native_contact_not_forced(tmp_path):
     root=ET.parse(package/"physics_native.xml").getroot()
     assert root.find(".//pair") is None
     assert report["native"]["max_penetration_m"]>0
+    assert report["native"]["status"]=="failed"
+    assert report["native"]["first_contact_step"]<=report["native"]["first_abnormal_step"]<=1000
 
 def test_disabled_collision_fails_even_if_benchmark_passes(tmp_path):
     package,request=box_package(tmp_path)

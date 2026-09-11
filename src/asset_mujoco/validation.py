@@ -58,12 +58,13 @@ def run_contact_case(package,request,size,*,benchmark=False,initial_position=Non
     abnormal=None
     error=None
     step=0
+    limit=min(.005,.02*size[2])
     for step in range(1,1001):
         try:
             mujoco.mj_step(model,data)
             check_state(model,data,step,step*model.opt.timestep)
         except ValueError as exc:
-            abnormal=step
+            abnormal=abnormal or step
             error=str(exc)
             break
         for contact in data.contact:
@@ -74,9 +75,11 @@ def run_contact_case(package,request,size,*,benchmark=False,initial_position=Non
                 last_contact=step
                 count+=1
                 worst=min(worst,float(contact.dist))
+                if (step<=1 or -float(contact.dist)>limit) and abnormal is None:
+                    abnormal=step
     if count==0 or first_contact<=1:
         error=error or "ASSET_CONTACT_FAILED: 预期接触未发生或初始已穿透"
-    limit=min(.005,.02*size[2])
+        abnormal=abnormal or step
     if -worst>limit:
         error=error or "ASSET_CONTACT_FAILED: penetration="+str(-worst)
     geoms={}
