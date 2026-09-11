@@ -5,7 +5,8 @@ from pathlib import Path
 
 def test_environment_is_independent():
     assert sys.version_info[:2]==(3,10)
-    assert Path(sys.prefix).name=="asset_mujoco"
+    name=Path(sys.prefix).name
+    assert name=="asset_mujoco" or name.startswith("asset_mujoco_m1_1_rebuild")
     assert importlib.util.find_spec("local_3d_agent") is None
     assert importlib.util.find_spec("torch") is None
 

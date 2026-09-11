@@ -13,3 +13,5 @@ envs/
 .conda/
 *.pem
 *.key
+build/
+dist/
