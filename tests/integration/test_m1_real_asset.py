@@ -11,7 +11,7 @@ import trimesh
 from asset_mujoco.pipeline import convert, ValidationFailed
 from asset_mujoco.contracts import ConversionRequest
 
-def test_real_m1(tmp_path):
+def test_real_asset_native_failure_is_reported(tmp_path):
     source=Path(os.environ.get("ASSET_MUJOCO_REAL_INPUT","/home/mcl/workspace/3D-Assets-Agent/assets/20260909_210805_9dfdcdd0/model.glb"))
     if not source.is_file():
         pytest.skip("真实资产未提供，M1 不得据此声明通过")
