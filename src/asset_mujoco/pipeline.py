@@ -53,13 +53,15 @@ def convert(request):
             model=mujoco.MjModel.from_xml_path(str(staging/name))
             mujoco.mj_forward(model,mujoco.MjData(model))
         result=ValidationResult(compile="passed",physics="not_applicable" if request.collision_mode=="none" else "not_run")
-        metadata={"request":request.model_dump(mode="json"),"source_sha256":hashlib.sha256(request.input.read_bytes()).hexdigest(),
+        metadata={"request":request.model_dump(mode="json"),"source_sha256":info["input_dependencies"][0]["sha256"],
                   "transform":info["matrix"],"final_size_m":info["final_size_m"],"converter_mujoco":mujoco.__version__,
                   "host_compatibility":"pending","visuals":visuals,"hole_validation":"not_tested"}
         metadata["tolerances"]={"target":{"rtol":.02,"atol_m":1e-7},"geometry":{"rtol":1e-6,"atol_m":1e-7},"inertia":{"rtol":1e-8,"atol_kg_m2":1e-12}}
         metadata["physical_scale_verified"]=request.scale is not None or request.target_size_m is not None
         metadata["uniform_rule"]="dot(current_size,target_size)/dot(current_size,current_size)"
         metadata["material_approximations"]=["仅保留基础颜色/贴图；metallic、roughness 标量与 MuJoCo 光照并非完整 PBR 等价映射"]
+        metadata["input_dependencies"]=info["input_dependencies"]
+        metadata["source_sha256"]=info["input_dependencies"][0]["sha256"]
         (staging/"conversion_manifest.json").write_text(json.dumps(metadata,indent=2))
         (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
         if request.validation_level!="compile":
