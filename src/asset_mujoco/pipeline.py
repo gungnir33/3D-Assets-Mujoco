@@ -76,8 +76,10 @@ def convert(request):
             from .validation import validate_physics
             try:
                 evidence=validate_physics(staging,request,info["final_size_m"])
-            except EvidenceIOError:
-                raise
+            except OSError as error:
+                if isinstance(error,EvidenceIOError):
+                    raise
+                raise EvidenceIOError(f'EVIDENCE_IO_ERROR: physics persistence: {error}') from error
             except Exception:
                 result.physics="failed"
                 (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))

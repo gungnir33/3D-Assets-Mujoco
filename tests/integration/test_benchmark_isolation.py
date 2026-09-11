@@ -103,3 +103,13 @@ def test_benchmark_persistence_failure_keeps_native_but_blocks_publish(tmp_path,
     package=next((tmp_path/'out').glob('.staging-*'))
     assert checked_report(package).physics=='passed'
     assert checked_report(package).compile=='passed'
+
+def test_hash_persistence_io_error_does_not_relabel_physics(tmp_path,monkeypatch):
+    def fail(*args,**kwargs):
+        raise OSError('injected hash read error')
+    monkeypatch.setattr(validation,'record_layer',fail)
+    with pytest.raises(Exception,match='EVIDENCE_IO_ERROR'):
+        convert(request(tmp_path))
+    package=next((tmp_path/'out').glob('.staging-*'))
+    assert checked_report(package).compile=='passed'
+    assert checked_report(package).physics=='not_run'
