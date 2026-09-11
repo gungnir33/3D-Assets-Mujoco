@@ -1,0 +1,132 @@
+{
+  "status": "failed",
+  "native": {
+    "kind": "native",
+    "status": "failed",
+    "error": "ASSET_CONTACT_FAILED: penetration=0.011795154509838177",
+    "steps": 1000,
+    "dt": 0.002,
+    "time": 2.0000000000000013,
+    "expected_pair": [
+      "asset_collision",
+      "probe"
+    ],
+    "initial_position": [
+      0,
+      0,
+      1.2221956863999368
+    ],
+    "resolved_geoms": {
+      "asset_collision": {
+        "contype": 1,
+        "conaffinity": 1,
+        "friction": [
+          1.0,
+          0.005,
+          0.0001
+        ],
+        "solref": [
+          0.02,
+          1.0
+        ],
+        "solimp": [
+          0.9,
+          0.95,
+          0.001,
+          0.5,
+          2.0
+        ],
+        "pos": [
+          0.00016546711219603939,
+          0.0661531426600358,
+          0.44440318439264304
+        ]
+      },
+      "probe": {
+        "contype": 1,
+        "conaffinity": 1,
+        "friction": [
+          1.0,
+          0.005,
+          0.0001
+        ],
+        "solref": [
+          0.02,
+          1.0
+        ],
+        "solimp": [
+          0.9,
+          0.95,
+          0.001,
+          0.5,
+          2.0
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "first_resolved_contact": {
+      "solref": [
+        0.02,
+        1.0
+      ],
+      "solimp": [
+        0.9,
+        0.95,
+        0.001,
+        0.5,
+        2.0
+      ],
+      "friction": [
+        1.0,
+        1.0,
+        0.005,
+        0.0001,
+        0.0001
+      ]
+    },
+    "contact_count": 70,
+    "first_contact_step": 144,
+    "last_contact_step": 213,
+    "max_penetration_m": 0.011795154509838177,
+    "penetration_limit_m": 0.005,
+    "warning_counts": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "first_abnormal_step": 146,
+    "final_qpos": [
+      0.0007121012731589376,
+      -2.559132682026305,
+      0.02457558726774264,
+      -0.8495535067674014,
+      0.5275024403263104,
+      3.308110845985839e-05,
+      -0.00011616642719161441
+    ],
+    "final_qvel": [
+      0.00045344265023988497,
+      -1.5674467293843846,
+      -4.953351789991009e-16,
+      63.30770698335455,
+      0.002725115786736931,
+      0.0026782539262741527
+    ],
+    "final_energy": [
+      0.024108651109655533,
+      0.1727136838001012
+    ],
+    "fixture": "physics_native.xml",
+    "mujoco": "3.4.0",
+    "fixture_contact": null
+  }
+}

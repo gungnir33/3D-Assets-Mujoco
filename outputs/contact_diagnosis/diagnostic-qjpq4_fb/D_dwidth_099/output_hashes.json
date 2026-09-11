@@ -1,0 +1,12 @@
+{
+  "contact_summary.json": "e62ee3def9f09bb9ab71585ac7ad0b1267c5c5dd379ecff4f916756abb5248f9",
+  "contact_trace.jsonl": "d3523dfc3c0adf31d976bf4e9d31b7d1f30c750e1cbfad5c57c4cc87fd625067",
+  "conversion_manifest.json": "825804634dfa6f5d774421a5727c6c4d86c7e72eea2e234cb82ae21b8e6a201c",
+  "experiment_config.json": "89668f86ff60389fafba845735ddb6fbcd84c19208601a8228576f1d196bf110",
+  "fixture.xml": "f6a6fd9d27ee8fcae4d4d6d8739100723847b874e064f714a2bdaf764003ef9f",
+  "meshes/collision.obj": "887a8c2d70b76d21b50dc1d0a596fc51fd3d094b93bb8423a860471db70f5de6",
+  "meshes/visual_000.obj": "270db08ce25e523b76816ba335cd4c83fa523f87225fc277c201a923dbac722b",
+  "model.xml": "0777af2c922d81b62ed6c36919d11d746491a46ea8fef39ae8b826a475e6dbf5",
+  "scene.xml": "97512f8d8ec093fc800acd7e17cfb3fc4398fe4b86da23b664f744a21b492a0f",
+  "textures/visual_000.png": "d5ed04dc65d06e127a02ec5c1ecfefe0234f4363525123fd6dfdd35e8bc833b4"
+}

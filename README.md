@@ -1,7 +1,7 @@
 # 3D Assets → MuJoCo
 
 独立第二阶段转换器。只读使用已有 GLB/OBJ，不 import 第一阶段、不加载 CUDA 模型。
-模型、真实输入及 outputs 不提交 Git。MuJoCo、trimesh 等依赖遵循各自许可证；本仓库尚未选择项目许可证，不推定 MIT 授权。
+模型权重和真实输入不提交 Git。按用户要求，outputs 已纳入版本管理，包含生成资源和诊断证据；提交前检查文件大小和敏感内容。MuJoCo、trimesh 等依赖遵循各自许可证；本仓库尚未选择项目许可证，不推定 MIT 授权。
 
 环境：Conda asset_mujoco、Python 3.10.21、MuJoCo 3.4.0。
 requirements.lock.txt 为本次独立环境实测锁文件；不要安装到 hunyuan3d 或现有宿主。

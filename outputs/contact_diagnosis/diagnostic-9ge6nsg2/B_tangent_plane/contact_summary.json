@@ -1,0 +1,195 @@
+{
+  "diagnostic": true,
+  "dt": 0.002,
+  "requested_steps": 1000,
+  "requested_time_s": 2.0,
+  "threshold_m": 0.005,
+  "first_contact_step": 144,
+  "first_exceedance_step": 146,
+  "max_penetration_step": 153,
+  "max_penetration_m": 0.011795154509838363,
+  "contact_record_count": 207,
+  "max_normal_force_N": 19.033929188608944,
+  "first_abnormal_step": null,
+  "numerically_stable": true,
+  "sampling": "step k: pre-integration t=(k-1)*dt; force/qacc from same step2 solve; post-state separately labeled",
+  "force_coordinates": "contact frame [normal,tangent1,tangent2], force then torque; world force on geom2",
+  "normal_velocity_definition": "dot(v_geom2_at_contact-v_geom1_at_contact, normal_geom1_to_geom2)",
+  "mujoco": "3.4.0",
+  "fixture_sha256": "69d6139a013cc3086197d068c138aac12c23db7449bec916d5b7deb877defc09",
+  "initial_qpos": [
+    0.0,
+    0.0,
+    1.2221956863999368,
+    1.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "initial_qvel": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "resolved_geoms": {
+    "asset_collision": {
+      "type": 0,
+      "size": [
+        5.0,
+        5.0,
+        0.1
+      ],
+      "contype": 1,
+      "conaffinity": 1,
+      "solref": [
+        0.02,
+        1.0
+      ],
+      "solimp": [
+        0.9,
+        0.95,
+        0.001,
+        0.5,
+        2.0
+      ],
+      "solmix": 1.0,
+      "priority": 0,
+      "friction": [
+        1.0,
+        0.005,
+        0.0001
+      ],
+      "margin": 0.0,
+      "gap": 0.0
+    },
+    "probe": {
+      "type": 2,
+      "size": [
+        0.02494276911020279,
+        0.0,
+        0.0
+      ],
+      "contype": 1,
+      "conaffinity": 1,
+      "solref": [
+        0.02,
+        1.0
+      ],
+      "solimp": [
+        0.9,
+        0.95,
+        0.001,
+        0.5,
+        2.0
+      ],
+      "solmix": 1.0,
+      "priority": 0,
+      "friction": [
+        1.0,
+        0.005,
+        0.0001
+      ],
+      "margin": 0.0,
+      "gap": 0.0
+    }
+  },
+  "probe_mass_kg": 0.1,
+  "solver": {
+    "integrator": "Euler",
+    "solver": 2,
+    "iterations": 100,
+    "tolerance": 1e-08,
+    "enableflags": 2,
+    "disableflags": 65536
+  },
+  "first_contact_time_s": 0.2860000000000002,
+  "first_contact": {
+    "index": 0,
+    "geom1": "asset_collision",
+    "geom2": "probe",
+    "dist_m": -0.00119042348012521,
+    "penetration_m": 0.00119042348012521,
+    "point_world_m": [
+      -3.6422994357053498e-06,
+      0.01857848897459074,
+      0.802443960470335
+    ],
+    "normal_world": [
+      0.00014959609213909325,
+      -0.7630535043887144,
+      0.6463353054422385
+    ],
+    "frame_rows_world": [
+      [
+        0.00014959609213909325,
+        -0.7630535043887144,
+        0.6463353054422385
+      ],
+      [
+        -0.00012671357053133962,
+        0.6463352930211864,
+        0.7630535190528173
+      ],
+      [
+        -0.9999999807823401,
+        -0.00019604927885633462,
+        0.0
+      ]
+    ],
+    "normal_relative_velocity_m_s": -1.813397113067075,
+    "solref": [
+      0.02,
+      1.0
+    ],
+    "solimp": [
+      0.9,
+      0.95,
+      0.001,
+      0.5,
+      2.0
+    ],
+    "friction": [
+      1.0,
+      1.0,
+      0.005,
+      0.0001,
+      0.0001
+    ],
+    "force_contact_frame_N_Nm": [
+      19.033929188608944,
+      6.676666740158199,
+      8.881784197001252e-16,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "force_world_on_geom2_N": [
+      0.0020013771427739467,
+      -10.208541015749736,
+      17.396954487506115
+    ]
+  },
+  "max_penetration_time_s": 0.3040000000000002,
+  "first_exceedance_time_s": 0.2900000000000002,
+  "steps": 1000,
+  "total_time_s": 2.0000000000000013,
+  "warning_counts": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "contact_exists": true,
+  "threshold_passed": false,
+  "hashes": {
+    "fixture.xml": "69d6139a013cc3086197d068c138aac12c23db7449bec916d5b7deb877defc09",
+    "contact_trace.jsonl": "9b19604db588a1e19d642509c6aa373e08c5d5c571fd17f04b227da375b91791"
+  }
+}

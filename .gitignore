@@ -3,8 +3,6 @@ __pycache__/
 *.egg-info/
 .env
 .venv/
-outputs/*
-!outputs/.gitkeep
 real_inputs/
 secrets/
 models/

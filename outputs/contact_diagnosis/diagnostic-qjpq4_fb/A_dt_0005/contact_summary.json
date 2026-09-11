@@ -1,0 +1,195 @@
+{
+  "diagnostic": true,
+  "dt": 0.0005,
+  "requested_steps": 4000,
+  "requested_time_s": 2.0,
+  "threshold_m": 0.005,
+  "first_contact_step": 574,
+  "first_exceedance_step": 580,
+  "max_penetration_step": 613,
+  "max_penetration_m": 0.01333497802162525,
+  "contact_record_count": 281,
+  "max_normal_force_N": 18.81511506275548,
+  "first_abnormal_step": null,
+  "numerically_stable": true,
+  "sampling": "step k: pre-integration t=(k-1)*dt; force/qacc from same step2 solve; post-state separately labeled",
+  "force_coordinates": "contact frame [normal,tangent1,tangent2], force then torque; world force on geom2",
+  "normal_velocity_definition": "dot(v_geom2_at_contact-v_geom1_at_contact, normal_geom1_to_geom2)",
+  "mujoco": "3.4.0",
+  "fixture_sha256": "832bc2d117e713815ee3f915701db233560150bb6a81ed0c847fab8a8b6ed015",
+  "initial_qpos": [
+    0.0,
+    0.0,
+    1.2221956863999368,
+    1.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "initial_qvel": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "resolved_geoms": {
+    "asset_collision": {
+      "type": 7,
+      "size": [
+        0.3122404539932393,
+        0.3160960954496683,
+        0.5695715921033088
+      ],
+      "contype": 1,
+      "conaffinity": 1,
+      "solref": [
+        0.02,
+        1.0
+      ],
+      "solimp": [
+        0.9,
+        0.95,
+        0.001,
+        0.5,
+        2.0
+      ],
+      "solmix": 1.0,
+      "priority": 0,
+      "friction": [
+        1.0,
+        0.005,
+        0.0001
+      ],
+      "margin": 0.0,
+      "gap": 0.0
+    },
+    "probe": {
+      "type": 2,
+      "size": [
+        0.02494276911020279,
+        0.0,
+        0.0
+      ],
+      "contype": 1,
+      "conaffinity": 1,
+      "solref": [
+        0.02,
+        1.0
+      ],
+      "solimp": [
+        0.9,
+        0.95,
+        0.001,
+        0.5,
+        2.0
+      ],
+      "solmix": 1.0,
+      "priority": 0,
+      "friction": [
+        1.0,
+        0.005,
+        0.0001
+      ],
+      "margin": 0.0,
+      "gap": 0.0
+    }
+  },
+  "probe_mass_kg": 0.1,
+  "solver": {
+    "integrator": "Euler",
+    "solver": 2,
+    "iterations": 100,
+    "tolerance": 1e-08,
+    "enableflags": 2,
+    "disableflags": 65536
+  },
+  "first_contact_time_s": 0.2865000000000002,
+  "first_contact": {
+    "index": 0,
+    "geom1": "probe",
+    "geom2": "asset_collision",
+    "dist_m": -0.0007386593391943697,
+    "penetration_m": 0.0007386593391943697,
+    "point_world_m": [
+      -3.6760905107503763e-06,
+      0.0187508490800381,
+      0.8029969274133281
+    ],
+    "normal_world": [
+      -0.00014959609213987293,
+      0.7630535043887277,
+      -0.6463353054422227
+    ],
+    "frame_rows_world": [
+      [
+        -0.00014959609213987293,
+        0.7630535043887277,
+        -0.6463353054422227
+      ],
+      [
+        -0.00012671357053199475,
+        0.6463352930211707,
+        0.7630535190528307
+      ],
+      [
+        0.9999999807823401,
+        0.00019604927885735301,
+        0.0
+      ]
+    ],
+    "normal_relative_velocity_m_s": -1.8165673877402087,
+    "solref": [
+      0.02,
+      1.0
+    ],
+    "solimp": [
+      0.9,
+      0.95,
+      0.001,
+      0.5,
+      2.0
+    ],
+    "friction": [
+      1.0,
+      1.0,
+      0.005,
+      0.0001,
+      0.0001
+    ],
+    "force_contact_frame_N_Nm": [
+      18.81511506275548,
+      -6.575493566942141,
+      8.881784197001252e-16,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "force_world_on_geom2_N": [
+      -0.0019814634186719913,
+      10.106965922764335,
+      -17.17832664678108
+    ]
+  },
+  "max_penetration_time_s": 0.3060000000000002,
+  "first_exceedance_time_s": 0.2895000000000002,
+  "steps": 4000,
+  "total_time_s": 1.9999999999998352,
+  "warning_counts": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "contact_exists": true,
+  "threshold_passed": false,
+  "hashes": {
+    "fixture.xml": "832bc2d117e713815ee3f915701db233560150bb6a81ed0c847fab8a8b6ed015",
+    "contact_trace.jsonl": "d166aebac1e165a2f6b223e78e72a4d6a223f7ba286b528037a813be690ef858"
+  }
+}

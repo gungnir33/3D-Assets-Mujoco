@@ -1,0 +1,61 @@
+{
+  "diagnostic": true,
+  "package": "/home/mcl/workspace/3D-Assets-Mujoco/outputs/contact_diagnosis/acceptance-jiw7b14f/packages/.staging-svydizf5",
+  "source_fixture_sha256": "91367006aff8dfaa2c27f08de890bad05e28305d8426f380df1534482c2aed92",
+  "cases": [
+    {
+      "name": "baseline"
+    },
+    {
+      "name": "A_dt_001",
+      "dt": 0.001
+    },
+    {
+      "name": "A_dt_0005",
+      "dt": 0.0005
+    },
+    {
+      "name": "B_tangent_plane",
+      "geometry": "tangent_plane"
+    },
+    {
+      "name": "C_timeconst_01",
+      "solref": [
+        0.01,
+        1
+      ]
+    },
+    {
+      "name": "C_timeconst_006",
+      "solref": [
+        0.006,
+        1
+      ]
+    },
+    {
+      "name": "D_d0_095",
+      "solimp": [
+        0.95,
+        0.95,
+        0.001,
+        0.5,
+        2
+      ]
+    },
+    {
+      "name": "D_dwidth_099",
+      "solimp": [
+        0.9,
+        0.99,
+        0.001,
+        0.5,
+        2
+      ]
+    }
+  ],
+  "total_time_s": 2.0,
+  "threshold_m": 0.005,
+  "normal_mixing": "C/D set same changed parameter on both geoms; priority/solmix/friction unchanged",
+  "baseline_gate": "match native max penetration within 1e-10 m and same first-contact step before scanning",
+  "B_geometry": "infinite tangent plane at first contact surface point; same probe/state/gravity, no finite mesh curvature"
+}

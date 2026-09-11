@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "backend": "egl",
+  "images": [
+    "previews/front.png",
+    "previews/side.png",
+    "previews/iso.png",
+    "previews/collision.png"
+  ],
+  "appearance_review": "pending",
+  "mujoco": "3.4.0",
+  "attempts": [
+    {
+      "backend": "egl",
+      "exit_code": 0,
+      "stderr": ""
+    }
+  ]
+}

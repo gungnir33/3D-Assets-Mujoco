@@ -1,0 +1,9 @@
+{
+  "name": "C_timeconst_01",
+  "solref": [
+    0.01,
+    1
+  ],
+  "diagnostic": true,
+  "plane": null
+}

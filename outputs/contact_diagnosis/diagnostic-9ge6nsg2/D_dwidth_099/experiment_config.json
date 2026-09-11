@@ -1,0 +1,12 @@
+{
+  "name": "D_dwidth_099",
+  "solimp": [
+    0.9,
+    0.99,
+    0.001,
+    0.5,
+    2
+  ],
+  "diagnostic": true,
+  "plane": null
+}
