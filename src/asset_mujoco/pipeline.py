@@ -15,7 +15,7 @@ from .collision import hull
 from .materials import export_visual
 from .mjcf import document
 from .contracts import ValidationResult
-from .manifest import record_layer,compile_resources
+from .manifest import record_layer,compile_resources,EvidenceIOError
 
 class ValidationFailed(ValueError):
     def __init__(self,package,result):
@@ -76,14 +76,13 @@ def convert(request):
             from .validation import validate_physics
             try:
                 evidence=validate_physics(staging,request,info["final_size_m"])
+            except EvidenceIOError:
+                raise
             except Exception:
                 result.physics="failed"
                 (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
                 raise
-            (staging/"physics_evidence.json").write_text(json.dumps(evidence,indent=2))
             result.physics=evidence["status"]
-            record_layer(staging,"physics",result.physics,resources+["physics_native.xml","physics_benchmark.xml","physics_evidence.json"],
-                         {"mujoco":mujoco.__version__,"required_case":"native"})
             if result.physics=="passed":
                 result.asset_physics_sha256=evidence["asset_sha256"]
         if request.validation_level=="full":
@@ -109,5 +108,8 @@ def convert(request):
         return final
     except Exception as error:
         if staging.exists():
-            (staging/"failure.json").write_text(json.dumps({"error":str(error)}))
+            try:
+                (staging/"failure.json").write_text(json.dumps({"error":str(error),'type':type(error).__name__}))
+            except OSError:
+                pass  # 不让二次磁盘错误掩盖最初的证据I/O故障。
         raise

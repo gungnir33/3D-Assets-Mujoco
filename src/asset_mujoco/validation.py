@@ -2,7 +2,7 @@
 import xml.etree.ElementTree as ET
 import mujoco
 import numpy as np
-from .manifest import asset_signature
+from .manifest import record_layer,compile_resources,write_evidence,EvidenceIOError
 
 def check_state(model,data,step,expected_time):
     arrays=(data.qpos,data.qvel,data.qacc,data.energy)
@@ -96,7 +96,33 @@ def run_contact_case(package,request,size,*,benchmark=False,initial_position=Non
             "fixture_contact":{"solref":[.004,1],"solimp":[.99,.99,.001]} if benchmark else None}
 
 def validate_physics(package,request,size):
-    native=run_contact_case(package,request,size)
-    benchmark=run_contact_case(package,request,size,benchmark=True)
-    return {"status":native["status"],"native":native,"benchmark":benchmark,
-            "asset_sha256":asset_signature(package)}
+    from .contracts import ValidationResult
+
+    def run(kind):
+        try:
+            return run_contact_case(package,request,size,benchmark=(kind=='benchmark'))
+        except OSError as error:
+            # 包括fixture写入故障；不是接触精度失败，不能发布成功包。
+            raise EvidenceIOError(f'EVIDENCE_IO_ERROR: {kind}: {error}') from error
+        except Exception as error:
+            return {'kind':kind,'status':'failed','error':str(error),
+                    'exception':{'stage':kind+'.run_contact_case','type':type(error).__name__,'message':str(error)},
+                    'diagnostic_files':[p.name for p in package.glob('physics_'+kind+'*') if p.is_file()]}
+
+    native=run('native')
+    write_evidence(package,'physics_native_evidence.json',{'status':native['status'],'native':native})
+    paths=compile_resources(package)+['physics_native_evidence.json']
+    if (package/'physics_native.xml').is_file():
+        paths.append('physics_native.xml')
+    entry=record_layer(package,'physics',native['status'],paths,
+                       {'mujoco':mujoco.__version__,'required_case':'native','native_evidence':'physics_native_evidence.json'})
+    state=ValidationResult.model_validate_json((package/'validation_report.json').read_text())
+    state.physics=native['status']
+    state.asset_physics_sha256=entry['sha256'] if native['status']=='passed' else None
+    write_evidence(package,'validation_report.json',state.model_dump())
+    # 此处native及其hash已经持久化，benchmark不是physics层的依赖。
+    benchmark=run('benchmark')
+    write_evidence(package,'benchmark_evidence.json',benchmark)
+    combined={'status':native['status'],'native':native,'benchmark':benchmark,'asset_sha256':entry['sha256']}
+    write_evidence(package,'physics_evidence.json',combined)
+    return combined

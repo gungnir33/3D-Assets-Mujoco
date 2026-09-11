@@ -5,6 +5,15 @@ from pathlib import Path
 from datetime import datetime,timezone
 import xml.etree.ElementTree as ET
 
+class EvidenceIOError(OSError):
+    """证据未可靠保存；不能以物理通过发布包。"""
+
+def write_evidence(root,name,value):
+    try:
+        (Path(root)/name).write_text(json.dumps(value,indent=2,allow_nan=False))
+    except OSError as error:
+        raise EvidenceIOError(f"EVIDENCE_IO_ERROR: {name}: {error}") from error
+
 def content_manifest(root,paths):
     """稳定的包相对路径→内容哈希；不允许越界、链接或缺失文件。"""
     root=Path(root).resolve()
@@ -41,7 +50,7 @@ def record_layer(root,layer,status,paths,context):
     entry={"status":status,"files":content_manifest(root,paths),"context":context}
     entry["sha256"]=_digest(entry)
     document["layers"][layer]=entry
-    target.write_text(json.dumps(document,indent=2))
+    write_evidence(root,target.name,document)
     return entry
 
 def checked_report(root):
@@ -67,12 +76,15 @@ def checked_report(root):
                 valid=entry.get("sha256")==_digest(body) and content_manifest(root,entry["files"])==entry["files"]
                 required={"model.xml","scene.xml","conversion_manifest.json"}
                 if layer=="physics":
-                    required|={"physics_native.xml","physics_evidence.json"}
+                    primary=entry['context'].get('native_evidence','physics_evidence.json')
+                    required.add(primary)
+                    if state=='passed' or primary=='physics_evidence.json':
+                        required.add('physics_native.xml')
                 if layer=="render":
                     required|={"render_config.json","render_evidence.json","previews/front.png","previews/side.png","previews/iso.png","previews/collision.png"}
                 valid=valid and required.issubset(entry["files"])
                 if layer=="physics" and state=="passed":
-                    evidence=json.loads((root/"physics_evidence.json").read_text())
+                    evidence=json.loads((root/primary).read_text())
                     valid=valid and evidence.get("native",{}).get("status")=="passed"
             except (OSError,ValueError,KeyError):
                 valid=False
