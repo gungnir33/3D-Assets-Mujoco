@@ -455,11 +455,15 @@ collision=none 必须 static+显式 compile，asset_kind=VISUAL_ONLY、physics=n
 
 M1.1 原始配置验收不得添加强制 contact/pair 或改写资产碰撞位、摩擦、solref/solimp；探针初始位置由转换参数确定并记录，碰撞体被移动后不能重新瞄准。独立 benchmark 可使用明确记录的强制 pair，仅作为受控基准。physics=passed 必须以 native=passed 为前提；原始失败而 benchmark 通过仍失败。保留既定 min(0.005 m, 高度2%) 穿透阈值，逐步记录首次异常（包括首次超限）、具体接触对和时段。历史 1.19 mm 仅属于定制夹具，不能视为原始配置保证。
 
+验收补强：benchmark为非强制诊断项。native完成后立即持久化结果、独立内容哈希和分层状态，再运行benchmark；其可恢复异常只记stage/type/message/已有文件，不更改native通过或原失败原因，不阻止独立渲染。native异常只产生失败证据；证据持久化或哈希I/O失败为EVIDENCE_IO_ERROR，禁止发布成功包，与物理超限区分。
+test_real_asset_native_failure_is_reported只验证已知失败被正确处理；独立python -m asset_mujoco.acceptance才执行真实GLB的compile/native/render/迁移达标门槛。缺原始输入报告not_executed，不达标非零退出，不以回归全绿或诊断达标替代。
+独立contact_diagnostics只操作新副本，执行前保存有限参数组，先验证未改基线再做控制变量实验。trace明确积分前采样和积分后时间，分列首次接触、首次超限、最大穿透步；累计接触记录不等于独立撞击次数。正式参数调整必须用户另行批准，未来native验收应测试新交付XML，不在验证器覆盖配置。
+
 人工审查保存于 appearance_review.json：reviewer、UTC 时间、结论、审查图片相对路径与哈希、package_content_sha256。对包内排序的相对路径和内容 SHA256 列表计算包指纹，包含 XML/资源/预览/转换配置/验证证据，仅排除审查文件本身及可重算 aggregate_status.json，避免循环。inspect/validate/report 每次重算指纹，改变受绑定内容后旧 approved 失效为 pending，保留旧记录用于审计。没有有效人工批准不得 FULLY_VALIDATED。
 
 ## 14. manifest 和可追溯性
 
-M1.1 `evidence_manifest.json` schema_version=2 使用包相对路径及 SHA256。compile 绑定 model.xml/scene.xml/转换清单/引用网格和纹理；physics 另绑定实际夹具及 physics_evidence；render 另绑定渲染配置、后端结果与四张预览。每层保存当时的上下文、状态和摘要，汇总状态、日志及人工审查不参与分层自动证据哈希，不形成循环。report 只校验原记录；缺失、旧格式或内容变化使旧 passed 失效为 not_run，不运行引擎、不重签。人工审核仍保留独立历史和更保守的整包内容绑定。原样迁移只改变目录，不失效。
+M1.1 `evidence_manifest.json` schema_version=2 使用包相对路径及 SHA256。compile 绑定 model.xml/scene.xml/转换清单/引用网格和纹理；新physics绑定实际native夹具及physics_native_evidence.json，context.native_evidence指定主证据，benchmark_evidence.json和physics_evidence.json汇总不作为该层依赖。旧包继续按原physics_evidence绑定检查，不能重新签名冒充新版验证。native初始化异常未生成XML时保留失败结果；通过证据必须含nativeXML。render另绑定渲染配置、后端结果与四张预览。每层保存当时的上下文、状态和摘要，汇总状态、日志及人工审查不参与分层自动证据哈希，不形成循环。report只校验原记录；缺失、旧格式或内容变化使旧passed失效为not_run，不运行引擎、不重签。人工审核仍保留独立历史和更保守的整包内容绑定。原样迁移只改变目录，不失效。
 
 conversion_manifest 至少包含：schema_version、转换器 commit、依赖版本、源路径与各资源 SHA256、可选第一阶段 job 引用、完整已解析参数、输入/输出 AABB、轴变换矩阵、尺度、原点、材质映射、近似/丢弃通道、可视/碰撞面数、凸体数、质量惯量与来源、seed、每阶段耗时、输出文件哈希。
 
