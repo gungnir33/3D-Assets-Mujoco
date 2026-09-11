@@ -31,6 +31,7 @@ class ConversionRequest(BaseModel):
     body_mode: Literal["static","free"] = "static"
     collision_mode: Literal["hull","none","supplied","decompose"] = "hull"
     validation_level: Literal["compile","physics","full"] = "full"
+    contact_profile: Literal['preserve','engineering_static_v1'] = 'preserve'
     mass: float | None = Field(default=None, gt=0)
     inertia_mode: Literal["supplied","box_approx","watertight"] | None = None
     supplied_inertia: SuppliedInertia | None = None
@@ -38,6 +39,8 @@ class ConversionRequest(BaseModel):
 
     @model_validator(mode="after")
     def constraints(self):
+        if self.contact_profile!='preserve' and (self.body_mode!='static' or self.collision_mode!='hull'):
+            raise ValueError('engineering_static_v1 only supports static+hull')
         if self.scale is not None and self.target_size_m is not None:
             raise ValueError("scale 与 target_size_m 互斥")
         if self.target_size_m is not None and (min(self.target_size_m)<0 or max(self.target_size_m)<=0):

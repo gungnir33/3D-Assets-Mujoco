@@ -16,6 +16,7 @@ from .materials import export_visual
 from .mjcf import document
 from .contracts import ValidationResult
 from .manifest import record_layer,compile_resources,EvidenceIOError
+from .contact_profiles import contact_scene,profile_manifest
 
 class ValidationFailed(ValueError):
     def __init__(self,package,result):
@@ -53,12 +54,18 @@ def convert(request):
             ET.ElementTree(document(request,visuals,info["final_size_m"],is_scene)).write(staging/name,encoding="utf-8",xml_declaration=True)
             model=mujoco.MjModel.from_xml_path(str(staging/name))
             mujoco.mj_forward(model,mujoco.MjData(model))
+        if request.contact_profile!='preserve':
+            fixture=contact_scene(ET.parse(staging/'scene.xml').getroot(),info['final_size_m'],request.contact_profile)
+            ET.ElementTree(fixture).write(staging/'contact_scene.xml')
+            model=mujoco.MjModel.from_xml_path(str(staging/'contact_scene.xml'))
+            mujoco.mj_forward(model,mujoco.MjData(model))
         result=ValidationResult(compile="passed",physics="not_applicable" if request.collision_mode=="none" else "not_run")
         metadata={"request":request.model_dump(mode="json"),"source_sha256":info["input_dependencies"][0]["sha256"],
                   "transform":info["matrix"],"final_size_m":info["final_size_m"],"converter_mujoco":mujoco.__version__,
                   "host_compatibility":"pending","visuals":visuals,"hole_validation":"not_tested"}
         metadata["tolerances"]={"target":{"rtol":.02,"atol_m":1e-7},"geometry":{"rtol":1e-6,"atol_m":1e-7},"inertia":{"rtol":1e-8,"atol_kg_m2":1e-12}}
         metadata["physical_scale_verified"]=False
+        metadata['contact_profile']=profile_manifest(request.contact_profile)
         metadata["scale_evidence"]={
             "source":"user_multiplier" if request.scale is not None else "user_target_size" if request.target_size_m is not None else "format_default",
             "multiplier":request.scale,"target_size_m":request.target_size_m,

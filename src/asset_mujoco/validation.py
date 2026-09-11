@@ -3,6 +3,8 @@ import xml.etree.ElementTree as ET
 import mujoco
 import numpy as np
 from .manifest import record_layer,compile_resources,write_evidence,EvidenceIOError
+from .contact_profiles import ENGINEERING_SOLREF,ENGINEERING_SOLIMP
+from .contact_statistics import ContactStatistics
 
 def check_state(model,data,step,expected_time):
     arrays=(data.qpos,data.qvel,data.qacc,data.energy)
@@ -14,9 +16,15 @@ def check_state(model,data,step,expected_time):
         raise ValueError("SIMULATION_WARNING first_step="+str(step)+" counters="+str(data.warning.number))
 
 def run_contact_case(package,request,size,*,benchmark=False,initial_position=None):
-    root=ET.parse(package/"scene.xml").getroot()
+    engineering=request.contact_profile!='preserve'
+    root=ET.parse(package/('contact_scene.xml' if engineering else 'scene.xml')).getroot()
     world=root.find("worldbody")
-    if request.body_mode=="static":
+    if engineering:
+        if initial_position is not None:
+            raise ValueError('candidate native validation must use delivered probe conditions')
+        initial_position=np.fromstring(world.find("body[@name='probe_body']").get('pos'),sep=' ').tolist()
+        pair=('asset_collision','probe')
+    elif request.body_mode=="static":
         radius=max(size)*.025
         initial_position=list(initial_position) if initial_position is not None else [0,0,size[2]+max(size)*.2+radius]
         body=ET.SubElement(world,"body",name="probe_body",pos=" ".join(map(str,initial_position)))
@@ -59,9 +67,13 @@ def run_contact_case(package,request,size,*,benchmark=False,initial_position=Non
     error=None
     step=0
     limit=min(.005,.02*size[2])
+    statistics=ContactStatistics()
     for step in range(1,1001):
         try:
+            qvel_before=data.qvel.copy()
+            sample_time=float(data.time)
             mujoco.mj_step(model,data)
+            statistics.sample(model,data,qvel_before,step,sample_time,float(model.opt.timestep))
             check_state(model,data,step,step*model.opt.timestep)
         except ValueError as exc:
             abnormal=abnormal or step
@@ -83,10 +95,18 @@ def run_contact_case(package,request,size,*,benchmark=False,initial_position=Non
     if -worst>limit:
         error=error or "ASSET_CONTACT_FAILED: penetration="+str(-worst)
     geoms={}
-    for name in pair:
+    for name in set(pair)|({'ground'} if engineering else set()):
         i=model.geom(name).id
-        geoms[name]={k:np.asarray(getattr(model,"geom_"+k)[i]).tolist() for k in ("contype","conaffinity","friction","solref","solimp","pos")}
+        geoms[name]={k:np.asarray(getattr(model,"geom_"+k)[i]).tolist() for k in ("contype","conaffinity","friction","solref","solimp","pos","priority","solmix")}
+    contract={'id':request.contact_profile,'matched':None,'application_force_limit':'not_specified'}
+    if engineering:
+        contract['matched']=all(np.allclose(g['solref'],ENGINEERING_SOLREF,atol=1e-12,rtol=0) and
+            np.allclose(g['solimp'],ENGINEERING_SOLIMP,atol=1e-12,rtol=0) and g['priority']==0 and g['solmix']==1 for g in geoms.values())
+        if not contract['matched'] and not benchmark:
+            error=error or 'CONTACT_PROFILE_MISMATCH: delivered counterpart parameters do not match'
     return {"kind":kind,"status":"failed" if error else "passed","error":error,
+            'profile_contract':contract,
+            'contact_statistics':statistics.results,'application_force_limit':'not_specified',
             "steps":step,"dt":model.opt.timestep,"time":data.time,"expected_pair":list(pair),
             "initial_position":initial_position,"resolved_geoms":geoms,"first_resolved_contact":resolved_contact,
             "contact_count":count,"first_contact_step":first_contact,"last_contact_step":last_contact,"max_penetration_m":-worst,
@@ -110,8 +130,13 @@ def validate_physics(package,request,size):
                     'diagnostic_files':[p.name for p in package.glob('physics_'+kind+'*') if p.is_file()]}
 
     native=run('native')
+    write_evidence(package,'contact_result_manifest.json',{'contact_profile':request.contact_profile,
+        'source':'actual_native_MuJoCo_run','objects':native.get('resolved_geoms',{}),
+        'resolved_contact':native.get('first_resolved_contact'),'contract':native.get('profile_contract'),
+        'contact_statistics':native.get('contact_statistics',{}),
+        'application_force_limit':'not_specified'})
     write_evidence(package,'physics_native_evidence.json',{'status':native['status'],'native':native})
-    paths=compile_resources(package)+['physics_native_evidence.json']
+    paths=compile_resources(package)+['physics_native_evidence.json','contact_result_manifest.json']
     if (package/'physics_native.xml').is_file():
         paths.append('physics_native.xml')
     entry=record_layer(package,'physics',native['status'],paths,

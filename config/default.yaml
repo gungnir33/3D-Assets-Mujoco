@@ -6,6 +6,7 @@ tolerance:
   geometry: {rtol: 0.000001, atol_m: 0.0000001}
   inertia: {rtol: 0.00000001, atol_kg_m2: 0.000000000001}
 defaults:
+  contact_profile: preserve
   validation_level: full
   body_mode: static
   collision_mode: hull

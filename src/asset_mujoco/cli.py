@@ -35,6 +35,7 @@ def main(argv=None):
     convert.add_argument("--supplied-inertia",type=Path)
     convert.add_argument("--collision-mode",choices=["hull","none"],default="hull")
     convert.add_argument("--validation-level",choices=["compile","physics","full"],default="full")
+    convert.add_argument('--contact-profile',choices=['preserve','engineering_static_v1'],default='preserve')
     args=vars(parser.parse_args(argv))
     command=args.pop("command")
     try:

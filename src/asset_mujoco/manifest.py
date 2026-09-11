@@ -28,7 +28,11 @@ def content_manifest(root,paths):
 
 def compile_resources(root):
     paths={"model.xml","scene.xml","conversion_manifest.json"}
-    for name in ("model.xml","scene.xml"):
+    documents=['model.xml','scene.xml']
+    if (Path(root)/'contact_scene.xml').is_file():
+        documents.append('contact_scene.xml')
+        paths.add('contact_scene.xml')
+    for name in documents:
         tree=ET.parse(Path(root)/name)
         compiler=tree.getroot().find("compiler")
         for node in tree.iter():

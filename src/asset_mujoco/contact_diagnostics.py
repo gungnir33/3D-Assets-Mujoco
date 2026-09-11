@@ -10,6 +10,7 @@ import mujoco
 import numpy as np
 from .manifest import compile_resources,write_evidence
 from .validation import check_state
+from .contact_statistics import ContactStatistics
 
 CASES=[
     {'name':'baseline'},
@@ -100,6 +101,7 @@ def trace_fixture(fixture,output,*,total_time=2.,limit=.005):
     summary['solver']={'integrator':'Euler','solver':int(model.opt.solver),'iterations':int(model.opt.iterations),
                        'tolerance':float(model.opt.tolerance),'enableflags':int(model.opt.enableflags),'disableflags':int(model.opt.disableflags)}
     trace=output/'contact_trace.jsonl'
+    statistics=ContactStatistics()
     with trace.open('w') as file:
         for step in range(1,steps+1):
             mujoco.mj_step1(model,data)
@@ -123,6 +125,8 @@ def trace_fixture(fixture,output,*,total_time=2.,limit=.005):
                          'solref':c.solref.tolist(),'solimp':c.solimp.tolist(),'friction':c.friction.tolist()}
                 row['contacts'].append(contact); indexes.append(index)
             mujoco.mj_step2(model,data)
+            observed=statistics.sample(model,data,np.asarray(row['qvel']),step,row['sample_time_s'],dt)
+            row['secondary_contacts']=[c for c in observed if c['pair']=='ground_probe']
             row.update(qacc=data.qacc.tolist(),qpos_after=data.qpos.tolist(),qvel_after=data.qvel.tolist(),
                        integrated_time_s=float(data.time),warning_counts=data.warning.number.tolist())
             for contact,index in zip(row['contacts'],indexes):
@@ -148,6 +152,7 @@ def trace_fixture(fixture,output,*,total_time=2.,limit=.005):
             if not valid:
                 break
     summary.update(steps=step,total_time_s=float(data.time),warning_counts=data.warning.number.tolist())
+    summary.update(contact_statistics=statistics.results,application_force_limit='not_specified')
     summary['contact_exists']=summary['contact_record_count']>0
     summary['threshold_passed']=bool(summary['contact_exists'] and summary['numerically_stable'] and summary['max_penetration_m']<=limit)
     summary['hashes']={'fixture.xml':sha(fixture),'contact_trace.jsonl':sha(trace)}

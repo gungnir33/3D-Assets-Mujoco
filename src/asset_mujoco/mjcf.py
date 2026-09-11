@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import numpy as np
 from .inertia import box_inertia,supplied_inertia
+from .contact_profiles import contact_attributes
 
 def values(items):
     return " ".join(format(float(x),".17g") for x in items)
@@ -83,8 +84,8 @@ def document(request,visuals,size,scene=False):
         ET.SubElement(body,"geom",name=item["name"],type="mesh",mesh=item["name"],material=mat["name"],mass="0",contype="0",conaffinity="0",group="2")
     if request.collision_mode=="hull":
         ET.SubElement(asset,"mesh",name="collision_mesh",file="meshes/collision.obj")
-        ET.SubElement(body,"geom",name="asset_collision",type="mesh",mesh="collision_mesh",mass="0",contype="1",conaffinity="1",group="3",rgba="0 1 0 .25")
+        ET.SubElement(body,"geom",name="asset_collision",type="mesh",mesh="collision_mesh",mass="0",contype="1",conaffinity="1",group="3",rgba="0 1 0 .25",**contact_attributes(request.contact_profile))
     if scene:
-        ET.SubElement(world,"geom",name="ground",type="plane",size="5 5 .1",rgba=".65 .65 .65 1")
+        ET.SubElement(world,"geom",name="ground",type="plane",size="5 5 .1",rgba=".65 .65 .65 1",**contact_attributes(request.contact_profile))
         ET.SubElement(world,"light",pos="2 -3 5",dir="-2 3 -5")
     return root
