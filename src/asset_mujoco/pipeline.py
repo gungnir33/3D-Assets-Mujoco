@@ -16,6 +16,12 @@ from .materials import export_visual
 from .mjcf import document
 from .contracts import ValidationResult
 
+class ValidationFailed(ValueError):
+    def __init__(self,package,result):
+        self.package=package
+        self.result=result
+        super().__init__("ASSET_CONTACT_FAILED: 原始配置验收未通过；诊断目录 "+str(package))
+
 def atomic_publish(staging,final):
     libc=ctypes.CDLL(None,use_errno=True)
     # Linux renameat2 RENAME_NOREPLACE: 并发情况下也禁止覆盖。
@@ -65,8 +71,9 @@ def convert(request):
                 (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
                 raise
             (staging/"physics_evidence.json").write_text(json.dumps(evidence,indent=2))
-            result.physics="passed"
-            result.asset_physics_sha256=evidence["asset_sha256"]
+            result.physics=evidence["status"]
+            if result.physics=="passed":
+                result.asset_physics_sha256=evidence["asset_sha256"]
         if request.validation_level=="full":
             from .rendering import render_package
             (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
@@ -79,6 +86,8 @@ def convert(request):
             result.render="passed"
         (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
         (staging/"conversion.log").write_text("duration_s="+str(time.monotonic()-started)+"\n")
+        if result.physics=="failed":
+            raise ValidationFailed(staging,result)
         atomic_publish(staging,final)
         for name in ("model.xml","scene.xml"):
             model=mujoco.MjModel.from_xml_path(str(final/name))
