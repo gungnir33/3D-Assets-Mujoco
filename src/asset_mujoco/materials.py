@@ -2,6 +2,7 @@
 from pathlib import Path
 import numpy as np
 from PIL import Image
+from trimesh.visual.material import PBRMaterial
 
 def export_visual(mesh,root,index):
     root=Path(root)
@@ -15,7 +16,7 @@ def export_visual(mesh,root,index):
         image=getattr(mat,"image",None)
     factor=getattr(mat,"baseColorFactor",None)
     if factor is None:
-        factor=getattr(mat,"diffuse",[180,180,180,255])
+        factor=[1,1,1,1] if isinstance(mat,PBRMaterial) else getattr(mat,"diffuse",[180,180,180,255])
     factor=np.asarray(factor,dtype=float)
     if factor.max()>1:
         factor=factor/255
@@ -36,7 +37,10 @@ def export_visual(mesh,root,index):
     lines=["v "+" ".join(format(float(x),".17g") for x in v) for v in mesh.vertices]
     if uv is not None:
         lines+=["vt "+" ".join(format(float(x),".17g") for x in v) for v in uv]
-    lines+=["vn "+" ".join(format(float(x),".17g") for x in v) for v in mesh.vertex_normals]
+    normals=mesh.metadata.get("export_normals")
+    if normals is None:
+        normals=mesh.vertex_normals
+    lines+=["vn "+" ".join(format(float(x),".17g") for x in v) for v in normals]
     for face in mesh.faces:
         tokens=[f"{i+1}/{i+1}/{i+1}" if uv is not None else f"{i+1}//{i+1}" for i in face]
         lines.append("f "+" ".join(tokens))

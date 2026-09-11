@@ -89,10 +89,12 @@ def prepare_obj(data,resolver):
     mtls=[]
     used=set()
     for line in text.splitlines():
-        parts=line.strip().split(maxsplit=1)
+        parts=line.partition("#")[0].strip().split(maxsplit=1)
         if not parts:
             continue
         key=parts[0]
+        if key=="v" and len(parts)>1 and len(parts[1].split())>=6:
+            raise ValueError("不支持 OBJ 源顶点色，禁止静默丢弃")
         if key=="mtllib":
             if len(parts)!=2:
                 raise ValueError("空 mtllib")
