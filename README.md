@@ -85,7 +85,7 @@ VISUAL_ONLY 仅 --collision-mode none --validation-level compile，physics=not_a
 
 历史M1.1结果：94 passed、1 skipped（OSMesa）；当时失败包保留于 `outputs/penguin_m1_1_20260911_final/.staging-396kwwx1`。不作为新一轮验收证据。
 
-最新验收补强/接触诊断：安装包模式107 passed、1 skipped，真实验收命令仍退出5；原始配置重测最大穿透11.795mm > 5mm，首次接触/首次超限/最大穿透分别为第144/146/153步。两份XML、EGL渲染、迁移通过；人工审核和真实宿主集成pending。**软件回归通过不等于真实资产自动验收通过。**
+历史验收补强/接触诊断：安装包模式107 passed、1 skipped，真实验收命令仍退出5；原始配置重测最大穿透11.795mm > 5mm，首次接触/首次超限/最大穿透分别为第144/146/153步。两份XML、EGL渲染、迁移通过；人工审核和真实宿主集成pending。**软件回归通过不等于真实资产自动验收通过。**
 
 ## 显式验收与接触诊断
 
@@ -100,7 +100,24 @@ conda run -n asset_mujoco_m1_1_rebuild python -m asset_mujoco.contact_diagnostic
 ```
 
 acceptance默认只读使用指定原始GLB，可显式--input；缺失时not_executed/退出2，不达标退出5。它检查compile/native/render及迁移，和test_real_asset_native_failure_is_reported的失败处理回归分开。
-diagnostics先重测基线、一致后运行预先保存的小规模A–D参数组；仅修改新副本，输出fixture/逐步trace/summary/hash。诊断执行成功或某实验达标都不改变原始验收状态。正式接触配置仍未更改，下一步建议待用户批准。
-最新完整结论：[接触诊断报告](docs/design/M1_1_CONTACT_DIAGNOSIS_REPORT.md)，[本轮机器证据](docs/design/M1_1_CONTACT_DIAGNOSIS_EVIDENCE.json)。
+diagnostics先重测基线、一致后运行预先保存的小规模A–D参数组；仅修改新副本，输出fixture/逐步trace/summary/hash。诊断执行成功或某实验达标都不改变原始验收状态。
+历史完整结论：[接触诊断报告](docs/design/M1_1_CONTACT_DIAGNOSIS_REPORT.md)，[当轮机器证据](docs/design/M1_1_CONTACT_DIAGNOSIS_EVIDENCE.json)。
+
+## M1.2 可选工程接触配置（受限使用）
+
+默认 `--contact-profile preserve`，不改变原始行为。仅 static+hull 可显式选择 `engineering_static_v1`：
+
+```bash
+python -m asset_mujoco.cli convert /absolute/input.glb --output ./outputs \
+  --source-up y --yaw-deg 180 --scale .5 --body-mode static --collision-mode hull \
+  --contact-profile engineering_static_v1 --validation-level full
+python -m asset_mujoco.acceptance --contact-profile preserve --output ./outputs/m1_2_preserve
+python -m asset_mujoco.acceptance --contact-profile engineering_static_v1 --output ./outputs/m1_2_candidate
+python -m asset_mujoco.profile_diagnostics --package /absolute/new/candidate/package --output ./outputs/m1_2_experiments
+```
+
+工程约定：双方 solref=[.006,1]、solimp=[.9,.95,.001,.5,2]；资产写入 model.xml/scene.xml，ground 写入 scene.xml；公开 `contact_scene.xml` 包含同配置的探针，native 直接读取交付场景，不隐藏覆盖参数。新配置不采用 priority 强制覆盖，不改摩擦、碰撞位、solmix、正式探针和时间步。`conversion_manifest.json` 声明配置，`contact_result_manifest.json` 记录实际解析与统计并绑定证据。对方仍为 .02 时实际混合为 .013，不属于该候选的通过条件；不能自动用于 ACS 或其他宿主。
+
+指定企鹅资产接触工况下，候选穿透约2.377mm，但后续地面接触约8.961mm，超过5mm。physics通过仅指明确的资产—探针对；`followup_ground` 独立报告，不代表整个场景达标。峰值力、冲量和分离速度是观测值，`application_force_limit=not_specified`；不是材料标定或机器人接触安全证明。人工审核和真实宿主集成均pending，未设全局默认。详细命令、最终测试数及支持范围见 [M1.2报告](docs/design/M1_2_CONTACT_PROFILE_REPORT.md)。
 
 权威设计与历史证据：[设计](docs/design/PHASE2_MUJOCO_DESIGN.md)、[历史M1.1报告](docs/design/M1_1_IMPLEMENTATION_REPORT.md)、[历史M1.1机器证据](docs/design/M1_1_EVIDENCE.json)、[历史M1报告](docs/design/M1_IMPLEMENTATION_REPORT.md)、[编译矩阵](docs/design/visual_mesh_compatibility.md)。历史报告保留，不作为当前成功证据。

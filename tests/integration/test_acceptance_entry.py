@@ -38,6 +38,9 @@ def test_engineering_acceptance_explicit_profile_and_migration(tmp_path):
     report=json.loads(result.stdout)
     assert report['contact_profile']=='engineering_static_v1'
     assert report['native']['profile_contract']['matched'] is True
+    assert report['native']['acceptance_scope']=='asset_collision:probe; unchanged baseline conditions'
+    assert report['native']['followup_ground']['status']=='not_tested'
+    assert report['native']['followup_ground']['mandatory_for_physics'] is False
     assert report['migration']['status']=='passed'
     assert len(report['migration']['xml'])==6
     assert report['appearance_review']==report['host_integration']=='pending'

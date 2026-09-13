@@ -16,4 +16,7 @@ def test_remote():
 def test_ignore_scope():
     for name in ("tests/fixtures/a.xml","tests/fixtures/a.obj","tests/fixtures/a.png"):
         assert subprocess.run(["git","check-ignore","--no-index",name],capture_output=True).returncode==1
-    assert subprocess.run(["git","check-ignore","--no-index","outputs/private.glb"],capture_output=True).returncode==0
+    # 用户已显式要求跟踪outputs；私人输入、密钥和环境仍排除。
+    assert subprocess.run(["git","check-ignore","--no-index","outputs/example.glb"],capture_output=True).returncode==1
+    for name in ("real_inputs/private.glb","secrets/token",".env","envs/python",".venv/python"):
+        assert subprocess.run(["git","check-ignore","--no-index",name],capture_output=True).returncode==0

@@ -455,6 +455,10 @@ collision=none 必须 static+显式 compile，asset_kind=VISUAL_ONLY、physics=n
 
 M1.1 原始配置验收不得添加强制 contact/pair 或改写资产碰撞位、摩擦、solref/solimp；探针初始位置由转换参数确定并记录，碰撞体被移动后不能重新瞄准。独立 benchmark 可使用明确记录的强制 pair，仅作为受控基准。physics=passed 必须以 native=passed 为前提；原始失败而 benchmark 通过仍失败。保留既定 min(0.005 m, 高度2%) 穿透阈值，逐步记录首次异常（包括首次超限）、具体接触对和时段。历史 1.19 mm 仅属于定制夹具，不能视为原始配置保证。
 
+M1.2 经显式批准增加可选 `contact_profile=engineering_static_v1`，仅 static+hull；默认仍为 `preserve`，不改变旧输出参数。工程约定为 solref=[0.006,1]、solimp=[0.9,0.95,0.001,0.5,2]，不是材料测量。导出时资产写入参数，scene.xml 的 ground 同步写入；新增公开 contact_scene.xml，包含完全沿用基线质量、半径和初始位置的 probe，双方采用相同参数。native 直接读取该交付场景，不增加 pair、override 或运行时接触配置。摩擦、碰撞位、priority、solmix、dt=.002、1000步及原阈值不改。free 或非 hull 的候选请求拒绝；不自动修改任何宿主。只给资产设置 .006、对方仍 .02 时不满足配置契约，实际解析结果必须报告，不能借用双方一致的通过结论。
+
+M1.2 的 physics 判定范围明确为既定当前资产—探针工况，`acceptance_scope` 明示具体 geom 对；额外 `followup_ground` 单独记录是否发生、相同阈值下结果和非原验收门槛属性，不能用资产接触通过暗示整个场景达标。接触统计分资产—探针、ground—探针，记录实际参数、峰值法向力、积分冲量、接触时段和接触期间分离速度。力为同次求解的接触坐标系量，世界冲量明确作用于 probe；不是恢复系数标定。`application_force_limit=not_specified`，不声明机器人安全。dt、落点、解析几何和有限质量/半径变化仅在新诊断副本执行，先存固定实验计划，不回写正式参数。扩展超限必须保留并限制结论，人工和真实宿主继续 pending。
+
 验收补强：benchmark为非强制诊断项。native完成后立即持久化结果、独立内容哈希和分层状态，再运行benchmark；其可恢复异常只记stage/type/message/已有文件，不更改native通过或原失败原因，不阻止独立渲染。native异常只产生失败证据；证据持久化或哈希I/O失败为EVIDENCE_IO_ERROR，禁止发布成功包，与物理超限区分。
 test_real_asset_native_failure_is_reported只验证已知失败被正确处理；独立python -m asset_mujoco.acceptance才执行真实GLB的compile/native/render/迁移达标门槛。缺原始输入报告not_executed，不达标非零退出，不以回归全绿或诊断达标替代。
 独立contact_diagnostics只操作新副本，执行前保存有限参数组，先验证未改基线再做控制变量实验。trace明确积分前采样和积分后时间，分列首次接触、首次超限、最大穿透步；累计接触记录不等于独立撞击次数。正式参数调整必须用户另行批准，未来native验收应测试新交付XML，不在验证器覆盖配置。
@@ -464,6 +468,8 @@ test_real_asset_native_failure_is_reported只验证已知失败被正确处理�
 ## 14. manifest 和可追溯性
 
 M1.1 `evidence_manifest.json` schema_version=2 使用包相对路径及 SHA256。compile 绑定 model.xml/scene.xml/转换清单/引用网格和纹理；新physics绑定实际native夹具及physics_native_evidence.json，context.native_evidence指定主证据，benchmark_evidence.json和physics_evidence.json汇总不作为该层依赖。旧包继续按原physics_evidence绑定检查，不能重新签名冒充新版验证。native初始化异常未生成XML时保留失败结果；通过证据必须含nativeXML。render另绑定渲染配置、后端结果与四张预览。每层保存当时的上下文、状态和摘要，汇总状态、日志及人工审查不参与分层自动证据哈希，不形成循环。report只校验原记录；缺失、旧格式或内容变化使旧passed失效为not_run，不运行引擎、不重签。人工审核仍保留独立历史和更保守的整包内容绑定。原样迁移只改变目录，不失效。
+
+M1.2 可选公开 contact_scene.xml 及引用资源加入 compile 清单；contact_result_manifest.json 保存实际 native 解析对象、接触参数、适用范围、后续地面结果和统计，并绑定 physics 层。conversion_manifest 只声明配置来源、参数、使用对象和运行结果文件名，不在物理运行后循环修改。更改公开场景或运行结果清单使对应旧证据失效；迁移不失效。benchmark 依然不参与 native 证据依赖。
 
 conversion_manifest 至少包含：schema_version、转换器 commit、依赖版本、源路径与各资源 SHA256、可选第一阶段 job 引用、完整已解析参数、输入/输出 AABB、轴变换矩阵、尺度、原点、材质映射、近似/丢弃通道、可视/碰撞面数、凸体数、质量惯量与来源、seed、每阶段耗时、输出文件哈希。
 

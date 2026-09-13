@@ -104,7 +104,15 @@ def run_contact_case(package,request,size,*,benchmark=False,initial_position=Non
             np.allclose(g['solimp'],ENGINEERING_SOLIMP,atol=1e-12,rtol=0) and g['priority']==0 and g['solmix']==1 for g in geoms.values())
         if not contract['matched'] and not benchmark:
             error=error or 'CONTACT_PROFILE_MISMATCH: delivered counterpart parameters do not match'
+    ground=statistics.results['ground_probe']
+    ground_status=('not_tested' if not ground['contact_records'] else
+                   ('passed' if ground['max_penetration_m']<=limit and not np.any(data.warning.number) and
+                    all(np.isfinite(a).all() for a in (data.qpos,data.qvel,data.qacc,data.energy)) else 'failed'))
     return {"kind":kind,"status":"failed" if error else "passed","error":error,
+            'acceptance_scope':':'.join(pair)+'; unchanged baseline conditions',
+            'followup_ground':{'status':ground_status,'mandatory_for_physics':False,
+                'scope':'additional observation, not the baseline asset contact gate',
+                'comparison_threshold_m':limit,'application_force_limit':'not_specified'},
             'profile_contract':contract,
             'contact_statistics':statistics.results,'application_force_limit':'not_specified',
             "steps":step,"dt":model.opt.timestep,"time":data.time,"expected_pair":list(pair),
@@ -134,6 +142,7 @@ def validate_physics(package,request,size):
         'source':'actual_native_MuJoCo_run','objects':native.get('resolved_geoms',{}),
         'resolved_contact':native.get('first_resolved_contact'),'contract':native.get('profile_contract'),
         'contact_statistics':native.get('contact_statistics',{}),
+        'acceptance_scope':native.get('acceptance_scope'),'followup_ground':native.get('followup_ground'),
         'application_force_limit':'not_specified'})
     write_evidence(package,'physics_native_evidence.json',{'status':native['status'],'native':native})
     paths=compile_resources(package)+['physics_native_evidence.json','contact_result_manifest.json']

@@ -59,3 +59,16 @@ def test_profile_cannot_bypass_collision_filters_or_retarget(tmp_path,attrs):
     report=run_contact_case(package,request,[1,1,1])
     assert report['status']=='failed' and report['contact_count']==0
     assert report['initial_position']==pytest.approx([0,0,1.225])
+
+@pytest.mark.parametrize('resource,layer',[
+    ('contact_scene.xml','compile'),('contact_result_manifest.json','physics')])
+def test_profile_resources_are_bound_to_layered_evidence(tmp_path,resource,layer):
+    from asset_mujoco.validation import validate_physics
+    from asset_mujoco.manifest import checked_report
+    package,request=make(tmp_path)
+    validate_physics(package,request,[1,1,1])
+    assert getattr(checked_report(package),layer)=='passed'
+    with (package/resource).open('a') as file:
+        file.write('\n ')
+    assert getattr(checked_report(package),layer)!='passed'
+    assert checked_report(package).evidence_issues
