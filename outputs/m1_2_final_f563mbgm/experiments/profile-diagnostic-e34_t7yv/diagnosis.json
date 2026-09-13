@@ -1,0 +1,2439 @@
+{
+  "diagnostic": true,
+  "directory": "/home/mcl/workspace/3D-Assets-Mujoco/outputs/m1_2_final_f563mbgm/experiments/profile-diagnostic-e34_t7yv",
+  "results": [
+    {
+      "name": "baseline",
+      "directory": "/home/mcl/workspace/3D-Assets-Mujoco/outputs/m1_2_final_f563mbgm/experiments/profile-diagnostic-e34_t7yv/baseline",
+      "summary": {
+        "diagnostic": true,
+        "dt": 0.002,
+        "requested_steps": 1000,
+        "requested_time_s": 2.0,
+        "threshold_m": 0.005,
+        "first_contact_step": 144,
+        "first_exceedance_step": null,
+        "max_penetration_step": 146,
+        "max_penetration_m": 0.002376892611438749,
+        "contact_record_count": 55,
+        "max_normal_force_N": 64.3556545127125,
+        "first_abnormal_step": null,
+        "numerically_stable": true,
+        "sampling": "step k: pre-integration t=(k-1)*dt; force/qacc from same step2 solve; post-state separately labeled",
+        "force_coordinates": "contact frame [normal,tangent1,tangent2], force then torque; world force on geom2",
+        "normal_velocity_definition": "dot(v_geom2_at_contact-v_geom1_at_contact, normal_geom1_to_geom2)",
+        "mujoco": "3.4.0",
+        "fixture_sha256": "2af80a672fdd917468bea9eb50527320b3b1ddcfad9c034f398c34a0661dfd02",
+        "initial_qpos": [
+          0.0,
+          0.0,
+          1.2221956863999368,
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "initial_qvel": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "resolved_geoms": {
+          "asset_collision": {
+            "type": 7,
+            "size": [
+              0.3122404539932393,
+              0.3160960954496683,
+              0.5695715921033088
+            ],
+            "contype": 1,
+            "conaffinity": 1,
+            "solref": [
+              0.006,
+              1.0
+            ],
+            "solimp": [
+              0.9,
+              0.95,
+              0.001,
+              0.5,
+              2.0
+            ],
+            "solmix": 1.0,
+            "priority": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "margin": 0.0,
+            "gap": 0.0
+          },
+          "probe": {
+            "type": 2,
+            "size": [
+              0.02494276911020279,
+              0.0,
+              0.0
+            ],
+            "contype": 1,
+            "conaffinity": 1,
+            "solref": [
+              0.006,
+              1.0
+            ],
+            "solimp": [
+              0.9,
+              0.95,
+              0.001,
+              0.5,
+              2.0
+            ],
+            "solmix": 1.0,
+            "priority": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "margin": 0.0,
+            "gap": 0.0
+          }
+        },
+        "probe_mass_kg": 0.1,
+        "solver": {
+          "integrator": "Euler",
+          "solver": 2,
+          "iterations": 100,
+          "tolerance": 1e-08,
+          "enableflags": 2,
+          "disableflags": 65536
+        },
+        "first_contact_time_s": 0.2860000000000002,
+        "first_contact": {
+          "index": 0,
+          "geom1": "probe",
+          "geom2": "asset_collision",
+          "dist_m": -0.001190423480125262,
+          "penetration_m": 0.001190423480125262,
+          "point_world_m": [
+            -3.6422994357053756e-06,
+            0.01857848897459088,
+            0.8024439604703351
+          ],
+          "normal_world": [
+            -0.00014959609213909323,
+            0.7630535043887143,
+            -0.6463353054422386
+          ],
+          "frame_rows_world": [
+            [
+              -0.00014959609213909323,
+              0.7630535043887143,
+              -0.6463353054422386
+            ],
+            [
+              -0.00012671357053133968,
+              0.6463352930211866,
+              0.7630535190528173
+            ],
+            [
+              0.9999999807823402,
+              0.00019604927885633468,
+              1.3552527156068805e-20
+            ]
+          ],
+          "normal_relative_velocity_m_s": -1.8133971130670752,
+          "solref": [
+            0.006,
+            1.0
+          ],
+          "solimp": [
+            0.9,
+            0.95,
+            0.001,
+            0.5,
+            2.0
+          ],
+          "friction": [
+            1.0,
+            1.0,
+            0.005,
+            0.0001,
+            0.0001
+          ],
+          "force_contact_frame_N_Nm": [
+            64.3556545127125,
+            -21.754711651378017,
+            3.552713678800501e-15,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "force_world_on_geom2_N": [
+            -0.006870737232925992,
+            35.045969773369826,
+            -58.19534089797254
+          ]
+        },
+        "max_penetration_time_s": 0.2900000000000002,
+        "steps": 1000,
+        "total_time_s": 2.0000000000000013,
+        "warning_counts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "contact_statistics": {
+          "asset_probe": {
+            "contact_records": 55,
+            "normal_impulse_N_s": 0.2613780732338425,
+            "world_impulse_on_probe_N_s": [
+              2.8440904348588835e-05,
+              -0.1414351737841786,
+              0.23742720983342697
+            ],
+            "peak_normal_force_N": 64.3556545127125,
+            "max_penetration_m": 0.002376892611438749,
+            "first_contact_step": 144,
+            "last_contact_step": 207,
+            "first_contact_normal_velocity_m_s": -1.8133971130670752,
+            "max_separating_speed_during_contact_m_s": 0.15659902789477406,
+            "first_resolved_contact": {
+              "solref": [
+                0.006,
+                1.0
+              ],
+              "solimp": [
+                0.9,
+                0.95,
+                0.001,
+                0.5,
+                2.0
+              ],
+              "friction": [
+                1.0,
+                1.0,
+                0.005,
+                0.0001,
+                0.0001
+              ]
+            },
+            "contact_intervals": [
+              {
+                "first_step": 144,
+                "last_step": 156
+              },
+              {
+                "first_step": 166,
+                "last_step": 207
+              }
+            ],
+            "first_contact_time_s": 0.2860000000000002,
+            "last_contact_time_s": 0.4120000000000003,
+            "last_contact_normal_velocity_m_s": 0.031296223585740225,
+            "peak_normal_force_step": 144,
+            "max_penetration_step": 146
+          },
+          "ground_probe": {
+            "contact_records": 633,
+            "normal_impulse_N_s": 1.7245727901665826,
+            "world_impulse_on_probe_N_s": [
+              8.596313038505808e-06,
+              -0.023957798401232952,
+              1.7245727901665826
+            ],
+            "peak_normal_force_N": 149.70583873810932,
+            "max_penetration_m": 0.008960727379537667,
+            "first_contact_step": 319,
+            "last_contact_step": 1000,
+            "first_contact_normal_velocity_m_s": -3.864887901665744,
+            "max_separating_speed_during_contact_m_s": 0.5948972945704026,
+            "first_resolved_contact": {
+              "solref": [
+                0.006,
+                1.0
+              ],
+              "solimp": [
+                0.9,
+                0.95,
+                0.001,
+                0.5,
+                2.0
+              ],
+              "friction": [
+                1.0,
+                1.0,
+                0.005,
+                0.0001,
+                0.0001
+              ]
+            },
+            "contact_intervals": [
+              {
+                "first_step": 319,
+                "last_step": 328
+              },
+              {
+                "first_step": 378,
+                "last_step": 1000
+              }
+            ],
+            "first_contact_time_s": 0.6360000000000005,
+            "last_contact_time_s": 1.9980000000000016,
+            "last_contact_normal_velocity_m_s": 4.885213443708062e-16,
+            "peak_normal_force_step": 319,
+            "max_penetration_step": 320
+          }
+        },
+        "application_force_limit": "not_specified",
+        "contact_exists": true,
+        "threshold_passed": true,
+        "hashes": {
+          "fixture.xml": "2af80a672fdd917468bea9eb50527320b3b1ddcfad9c034f398c34a0661dfd02",
+          "contact_trace.jsonl": "7f11e2307b19f6fad51242f27be8a4b26a450cc5f7651d860b2eecdb69637eb0"
+        },
+        "execution_status": "completed"
+      }
+    },
+    {
+      "name": "dt_001",
+      "directory": "/home/mcl/workspace/3D-Assets-Mujoco/outputs/m1_2_final_f563mbgm/experiments/profile-diagnostic-e34_t7yv/dt_001",
+      "summary": {
+        "diagnostic": true,
+        "dt": 0.001,
+        "requested_steps": 2000,
+        "requested_time_s": 2.0,
+        "threshold_m": 0.005,
+        "first_contact_step": 287,
+        "first_exceedance_step": null,
+        "max_penetration_step": 292,
+        "max_penetration_m": 0.0030423279482729437,
+        "contact_record_count": 95,
+        "max_normal_force_N": 59.073187324927545,
+        "first_abnormal_step": null,
+        "numerically_stable": true,
+        "sampling": "step k: pre-integration t=(k-1)*dt; force/qacc from same step2 solve; post-state separately labeled",
+        "force_coordinates": "contact frame [normal,tangent1,tangent2], force then torque; world force on geom2",
+        "normal_velocity_definition": "dot(v_geom2_at_contact-v_geom1_at_contact, normal_geom1_to_geom2)",
+        "mujoco": "3.4.0",
+        "fixture_sha256": "41076cb89811856c221704dfb4be93b586d5b4ab72a2be061b333daf35c69dcc",
+        "initial_qpos": [
+          0.0,
+          0.0,
+          1.2221956863999368,
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "initial_qvel": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "resolved_geoms": {
+          "asset_collision": {
+            "type": 7,
+            "size": [
+              0.3122404539932393,
+              0.3160960954496683,
+              0.5695715921033088
+            ],
+            "contype": 1,
+            "conaffinity": 1,
+            "solref": [
+              0.006,
+              1.0
+            ],
+            "solimp": [
+              0.9,
+              0.95,
+              0.001,
+              0.5,
+              2.0
+            ],
+            "solmix": 1.0,
+            "priority": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "margin": 0.0,
+            "gap": 0.0
+          },
+          "probe": {
+            "type": 2,
+            "size": [
+              0.02494276911020279,
+              0.0,
+              0.0
+            ],
+            "contype": 1,
+            "conaffinity": 1,
+            "solref": [
+              0.006,
+              1.0
+            ],
+            "solimp": [
+              0.9,
+              0.95,
+              0.001,
+              0.5,
+              2.0
+            ],
+            "solmix": 1.0,
+            "priority": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "margin": 0.0,
+            "gap": 0.0
+          }
+        },
+        "probe_mass_kg": 0.1,
+        "solver": {
+          "integrator": "Euler",
+          "solver": 2,
+          "iterations": 100,
+          "tolerance": 1e-08,
+          "enableflags": 2,
+          "disableflags": 65536
+        },
+        "first_contact_time_s": 0.2860000000000002,
+        "first_contact": {
+          "index": 0,
+          "geom1": "probe",
+          "geom2": "asset_collision",
+          "dist_m": -0.00028372492359153914,
+          "penetration_m": 0.00028372492359153914,
+          "point_world_m": [
+            -3.7101187161093003e-06,
+            0.018924418730084443,
+            0.8035537748260947
+          ],
+          "normal_world": [
+            -0.00014959609213913966,
+            0.7630535043887048,
+            -0.6463353054422497
+          ],
+          "frame_rows_world": [
+            [
+              -0.00014959609213913966,
+              0.7630535043887048,
+              -0.6463353054422497
+            ],
+            [
+              -0.00012671357053138272,
+              0.6463352930211975,
+              0.7630535190528078
+            ],
+            [
+              0.99999998078234,
+              0.00019604927885639789,
+              1.3552527156068805e-20
+            ]
+          ],
+          "normal_relative_velocity_m_s": -1.8133971130671014,
+          "solref": [
+            0.006,
+            1.0
+          ],
+          "solimp": [
+            0.9,
+            0.95,
+            0.001,
+            0.5,
+            2.0
+          ],
+          "friction": [
+            1.0,
+            1.0,
+            0.005,
+            0.0001,
+            0.0001
+          ],
+          "force_contact_frame_N_Nm": [
+            59.073187324927545,
+            -20.648705906634074,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "force_world_on_geom2_N": [
+            -0.0062206467217304625,
+            31.730015221023514,
+            -53.93715427904791
+          ]
+        },
+        "max_penetration_time_s": 0.2910000000000002,
+        "steps": 2000,
+        "total_time_s": 1.9999999999998905,
+        "warning_counts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "contact_statistics": {
+          "asset_probe": {
+            "contact_records": 95,
+            "normal_impulse_N_s": 0.2613187859507686,
+            "world_impulse_on_probe_N_s": [
+              2.8098221601765164e-05,
+              -0.14132760235805847,
+              0.23746100524070185
+            ],
+            "peak_normal_force_N": 59.073187324927545,
+            "max_penetration_m": 0.0030423279482729437,
+            "first_contact_step": 287,
+            "last_contact_step": 413,
+            "first_contact_normal_velocity_m_s": -1.8133971130671014,
+            "max_separating_speed_during_contact_m_s": 0.19192107236511552,
+            "first_resolved_contact": {
+              "solref": [
+                0.006,
+                1.0
+              ],
+              "solimp": [
+                0.9,
+                0.95,
+                0.001,
+                0.5,
+                2.0
+              ],
+              "friction": [
+                1.0,
+                1.0,
+                0.005,
+                0.0001,
+                0.0001
+              ]
+            },
+            "contact_intervals": [
+              {
+                "first_step": 287,
+                "last_step": 312
+              },
+              {
+                "first_step": 345,
+                "last_step": 413
+              }
+            ],
+            "first_contact_time_s": 0.2860000000000002,
+            "last_contact_time_s": 0.4120000000000003,
+            "last_contact_normal_velocity_m_s": 0.029980940348560966,
+            "peak_normal_force_step": 287,
+            "max_penetration_step": 292
+          },
+          "ground_probe": {
+            "contact_records": 1296,
+            "normal_impulse_N_s": 1.7245389947592242,
+            "world_impulse_on_probe_N_s": [
+              6.59383455389928e-06,
+              -0.023133765979597973,
+              1.7245389947592242
+            ],
+            "peak_normal_force_N": 135.01353618685454,
+            "max_penetration_m": 0.007381736524375265,
+            "first_contact_step": 636,
+            "last_contact_step": 2000,
+            "first_contact_normal_velocity_m_s": -3.854739947592959,
+            "max_separating_speed_during_contact_m_s": 0.46530611170370834,
+            "first_resolved_contact": {
+              "solref": [
+                0.006,
+                1.0
+              ],
+              "solimp": [
+                0.9,
+                0.95,
+                0.001,
+                0.5,
+                2.0
+              ],
+              "friction": [
+                1.0,
+                1.0,
+                0.005,
+                0.0001,
+                0.0001
+              ]
+            },
+            "contact_intervals": [
+              {
+                "first_step": 636,
+                "last_step": 659
+              },
+              {
+                "first_step": 729,
+                "last_step": 2000
+              }
+            ],
+            "first_contact_time_s": 0.6350000000000005,
+            "last_contact_time_s": 1.9989999999998906,
+            "last_contact_normal_velocity_m_s": 1.0361513514428878e-15,
+            "peak_normal_force_step": 636,
+            "max_penetration_step": 641
+          }
+        },
+        "application_force_limit": "not_specified",
+        "contact_exists": true,
+        "threshold_passed": true,
+        "hashes": {
+          "fixture.xml": "41076cb89811856c221704dfb4be93b586d5b4ab72a2be061b333daf35c69dcc",
+          "contact_trace.jsonl": "511e297ff6f967e484b445d2ee3e1adfd67d29a4f23f9fccfc7cf490ca2d0684"
+        },
+        "execution_status": "completed"
+      }
+    },
+    {
+      "name": "dt_0005",
+      "directory": "/home/mcl/workspace/3D-Assets-Mujoco/outputs/m1_2_final_f563mbgm/experiments/profile-diagnostic-e34_t7yv/dt_0005",
+      "summary": {
+        "diagnostic": true,
+        "dt": 0.0005,
+        "requested_steps": 4000,
+        "requested_time_s": 2.0,
+        "threshold_m": 0.005,
+        "first_contact_step": 574,
+        "first_exceedance_step": null,
+        "max_penetration_step": 584,
+        "max_penetration_m": 0.003949254512022035,
+        "contact_record_count": 151,
+        "max_normal_force_N": 62.73737071788014,
+        "first_abnormal_step": null,
+        "numerically_stable": true,
+        "sampling": "step k: pre-integration t=(k-1)*dt; force/qacc from same step2 solve; post-state separately labeled",
+        "force_coordinates": "contact frame [normal,tangent1,tangent2], force then torque; world force on geom2",
+        "normal_velocity_definition": "dot(v_geom2_at_contact-v_geom1_at_contact, normal_geom1_to_geom2)",
+        "mujoco": "3.4.0",
+        "fixture_sha256": "ffec6311b275cc12956c50d08893673ea9eb106b8ead3dfd81e4a1049a9d2cf8",
+        "initial_qpos": [
+          0.0,
+          0.0,
+          1.2221956863999368,
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "initial_qvel": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "resolved_geoms": {
+          "asset_collision": {
+            "type": 7,
+            "size": [
+              0.3122404539932393,
+              0.3160960954496683,
+              0.5695715921033088
+            ],
+            "contype": 1,
+            "conaffinity": 1,
+            "solref": [
+              0.006,
+              1.0
+            ],
+            "solimp": [
+              0.9,
+              0.95,
+              0.001,
+              0.5,
+              2.0
+            ],
+            "solmix": 1.0,
+            "priority": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "margin": 0.0,
+            "gap": 0.0
+          },
+          "probe": {
+            "type": 2,
+            "size": [
+              0.02494276911020279,
+              0.0,
+              0.0
+            ],
+            "contype": 1,
+            "conaffinity": 1,
+            "solref": [
+              0.006,
+              1.0
+            ],
+            "solimp": [
+              0.9,
+              0.95,
+              0.001,
+              0.5,
+              2.0
+            ],
+            "solmix": 1.0,
+            "priority": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "margin": 0.0,
+            "gap": 0.0
+          }
+        },
+        "probe_mass_kg": 0.1,
+        "solver": {
+          "integrator": "Euler",
+          "solver": 2,
+          "iterations": 100,
+          "tolerance": 1e-08,
+          "enableflags": 2,
+          "disableflags": 65536
+        },
+        "first_contact_time_s": 0.2865000000000002,
+        "first_contact": {
+          "index": 0,
+          "geom1": "probe",
+          "geom2": "asset_collision",
+          "dist_m": -0.0007386593391943697,
+          "penetration_m": 0.0007386593391943697,
+          "point_world_m": [
+            -3.6760905107503763e-06,
+            0.0187508490800381,
+            0.8029969274133281
+          ],
+          "normal_world": [
+            -0.00014959609213987293,
+            0.7630535043887277,
+            -0.6463353054422227
+          ],
+          "frame_rows_world": [
+            [
+              -0.00014959609213987293,
+              0.7630535043887277,
+              -0.6463353054422227
+            ],
+            [
+              -0.00012671357053199475,
+              0.6463352930211707,
+              0.7630535190528307
+            ],
+            [
+              0.9999999807823401,
+              0.00019604927885735301,
+              0.0
+            ]
+          ],
+          "normal_relative_velocity_m_s": -1.8165673877402087,
+          "solref": [
+            0.006,
+            1.0
+          ],
+          "solimp": [
+            0.9,
+            0.95,
+            0.001,
+            0.5,
+            2.0
+          ],
+          "friction": [
+            1.0,
+            1.0,
+            0.005,
+            0.0001,
+            0.0001
+          ],
+          "force_contact_frame_N_Nm": [
+            62.73737071788014,
+            -21.425890355796277,
+            -1.7763568394002505e-15,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "force_world_on_geom2_N": [
+            -0.006670314421717162,
+            34.02366146106012,
+            -56.89847870041348
+          ]
+        },
+        "max_penetration_time_s": 0.2915000000000002,
+        "steps": 4000,
+        "total_time_s": 1.9999999999998352,
+        "warning_counts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "contact_statistics": {
+          "asset_probe": {
+            "contact_records": 151,
+            "normal_impulse_N_s": 0.2611071649431685,
+            "world_impulse_on_probe_N_s": [
+              2.8871516138900562e-05,
+              -0.14057608486491385,
+              0.23802096929589964
+            ],
+            "peak_normal_force_N": 62.73737071788014,
+            "max_penetration_m": 0.003949254512022035,
+            "first_contact_step": 574,
+            "last_contact_step": 825,
+            "first_contact_normal_velocity_m_s": -1.8165673877402087,
+            "max_separating_speed_during_contact_m_s": 0.24524288844319006,
+            "first_resolved_contact": {
+              "solref": [
+                0.006,
+                1.0
+              ],
+              "solimp": [
+                0.9,
+                0.95,
+                0.001,
+                0.5,
+                2.0
+              ],
+              "friction": [
+                1.0,
+                1.0,
+                0.005,
+                0.0001,
+                0.0001
+              ]
+            },
+            "contact_intervals": [
+              {
+                "first_step": 574,
+                "last_step": 624
+              },
+              {
+                "first_step": 726,
+                "last_step": 825
+              }
+            ],
+            "first_contact_time_s": 0.2865000000000002,
+            "last_contact_time_s": 0.4120000000000003,
+            "last_contact_normal_velocity_m_s": 0.029459565350597502,
+            "peak_normal_force_step": 574,
+            "max_penetration_step": 584
+          },
+          "ground_probe": {
+            "contact_records": 2592,
+            "normal_impulse_N_s": 1.7239790307039937,
+            "world_impulse_on_probe_N_s": [
+              6.069327889012245e-06,
+              -0.022927206854210323,
+              1.7239790307039937
+            ],
+            "peak_normal_force_N": 125.6182260894758,
+            "max_penetration_m": 0.0075432221369664855,
+            "first_contact_step": 1271,
+            "last_contact_step": 4000,
+            "first_contact_normal_velocity_m_s": -3.8491403070409493,
+            "max_separating_speed_during_contact_m_s": 0.4683415954892404,
+            "first_resolved_contact": {
+              "solref": [
+                0.006,
+                1.0
+              ],
+              "solimp": [
+                0.9,
+                0.95,
+                0.001,
+                0.5,
+                2.0
+              ],
+              "friction": [
+                1.0,
+                1.0,
+                0.005,
+                0.0001,
+                0.0001
+              ]
+            },
+            "contact_intervals": [
+              {
+                "first_step": 1271,
+                "last_step": 1321
+              },
+              {
+                "first_step": 1460,
+                "last_step": 4000
+              }
+            ],
+            "first_contact_time_s": 0.6349999999999855,
+            "last_contact_time_s": 1.9994999999998353,
+            "last_contact_normal_velocity_m_s": 1.5856749287943887e-15,
+            "peak_normal_force_step": 1271,
+            "max_penetration_step": 1282
+          }
+        },
+        "application_force_limit": "not_specified",
+        "contact_exists": true,
+        "threshold_passed": true,
+        "hashes": {
+          "fixture.xml": "ffec6311b275cc12956c50d08893673ea9eb106b8ead3dfd81e4a1049a9d2cf8",
+          "contact_trace.jsonl": "577c2c064fca39ace1f0f102e5965178a6e98b16c1d6f9c2e2c9f4ec9ee51d6a"
+        },
+        "execution_status": "completed"
+      }
+    },
+    {
+      "name": "analytic_plane",
+      "directory": "/home/mcl/workspace/3D-Assets-Mujoco/outputs/m1_2_final_f563mbgm/experiments/profile-diagnostic-e34_t7yv/analytic_plane",
+      "summary": {
+        "diagnostic": true,
+        "dt": 0.002,
+        "requested_steps": 1000,
+        "requested_time_s": 2.0,
+        "threshold_m": 0.005,
+        "first_contact_step": 144,
+        "first_exceedance_step": null,
+        "max_penetration_step": 146,
+        "max_penetration_m": 0.0023768926114387454,
+        "contact_record_count": 193,
+        "max_normal_force_N": 64.35565451271273,
+        "first_abnormal_step": null,
+        "numerically_stable": true,
+        "sampling": "step k: pre-integration t=(k-1)*dt; force/qacc from same step2 solve; post-state separately labeled",
+        "force_coordinates": "contact frame [normal,tangent1,tangent2], force then torque; world force on geom2",
+        "normal_velocity_definition": "dot(v_geom2_at_contact-v_geom1_at_contact, normal_geom1_to_geom2)",
+        "mujoco": "3.4.0",
+        "fixture_sha256": "d72b5ee2b6f91a311f5ce37df862dd854dd4092427e215085c0a9cc54846405e",
+        "initial_qpos": [
+          0.0,
+          0.0,
+          1.2221956863999368,
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "initial_qvel": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "resolved_geoms": {
+          "asset_collision": {
+            "type": 0,
+            "size": [
+              5.0,
+              5.0,
+              0.1
+            ],
+            "contype": 1,
+            "conaffinity": 1,
+            "solref": [
+              0.006,
+              1.0
+            ],
+            "solimp": [
+              0.9,
+              0.95,
+              0.001,
+              0.5,
+              2.0
+            ],
+            "solmix": 1.0,
+            "priority": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "margin": 0.0,
+            "gap": 0.0
+          },
+          "probe": {
+            "type": 2,
+            "size": [
+              0.02494276911020279,
+              0.0,
+              0.0
+            ],
+            "contype": 1,
+            "conaffinity": 1,
+            "solref": [
+              0.006,
+              1.0
+            ],
+            "solimp": [
+              0.9,
+              0.95,
+              0.001,
+              0.5,
+              2.0
+            ],
+            "solmix": 1.0,
+            "priority": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "margin": 0.0,
+            "gap": 0.0
+          }
+        },
+        "probe_mass_kg": 0.1,
+        "solver": {
+          "integrator": "Euler",
+          "solver": 2,
+          "iterations": 100,
+          "tolerance": 1e-08,
+          "enableflags": 2,
+          "disableflags": 65536
+        },
+        "first_contact_time_s": 0.2860000000000002,
+        "first_contact": {
+          "index": 0,
+          "geom1": "asset_collision",
+          "geom2": "probe",
+          "dist_m": -0.00119042348012521,
+          "penetration_m": 0.00119042348012521,
+          "point_world_m": [
+            -3.6422994357053498e-06,
+            0.01857848897459074,
+            0.802443960470335
+          ],
+          "normal_world": [
+            0.00014959609213909325,
+            -0.7630535043887144,
+            0.6463353054422385
+          ],
+          "frame_rows_world": [
+            [
+              0.00014959609213909325,
+              -0.7630535043887144,
+              0.6463353054422385
+            ],
+            [
+              -0.00012671357053133962,
+              0.6463352930211864,
+              0.7630535190528173
+            ],
+            [
+              -0.9999999807823401,
+              -0.00019604927885633462,
+              0.0
+            ]
+          ],
+          "normal_relative_velocity_m_s": -1.813397113067075,
+          "solref": [
+            0.006,
+            1.0
+          ],
+          "solimp": [
+            0.9,
+            0.95,
+            0.001,
+            0.5,
+            2.0
+          ],
+          "friction": [
+            1.0,
+            1.0,
+            0.005,
+            0.0001,
+            0.0001
+          ],
+          "force_contact_frame_N_Nm": [
+            64.35565451271273,
+            21.75471165137839,
+            3.552713678800501e-15,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "force_world_on_geom2_N": [
+            0.006870737232925982,
+            -35.04596977336976,
+            58.19534089797297
+          ]
+        },
+        "max_penetration_time_s": 0.2900000000000002,
+        "steps": 1000,
+        "total_time_s": 2.0000000000000013,
+        "warning_counts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "contact_statistics": {
+          "asset_probe": {
+            "contact_records": 193,
+            "normal_impulse_N_s": 0.43622979503151965,
+            "world_impulse_on_probe_N_s": [
+              4.6418238331173876e-05,
+              -0.23676821312434418,
+              0.3954030844103205
+            ],
+            "peak_normal_force_N": 64.35565451271273,
+            "max_penetration_m": 0.0023768926114387454,
+            "first_contact_step": 144,
+            "last_contact_step": 345,
+            "first_contact_normal_velocity_m_s": -1.813397113067075,
+            "max_separating_speed_during_contact_m_s": 0.15659902789477556,
+            "first_resolved_contact": {
+              "solref": [
+                0.006,
+                1.0
+              ],
+              "solimp": [
+                0.9,
+                0.95,
+                0.001,
+                0.5,
+                2.0
+              ],
+              "friction": [
+                1.0,
+                1.0,
+                0.005,
+                0.0001,
+                0.0001
+              ]
+            },
+            "contact_intervals": [
+              {
+                "first_step": 144,
+                "last_step": 156
+              },
+              {
+                "first_step": 166,
+                "last_step": 345
+              }
+            ],
+            "first_contact_time_s": 0.2860000000000002,
+            "last_contact_time_s": 0.6880000000000005,
+            "last_contact_normal_velocity_m_s": 1.3583969019070885e-15,
+            "peak_normal_force_step": 144,
+            "max_penetration_step": 146
+          },
+          "ground_probe": {
+            "contact_records": 640,
+            "normal_impulse_N_s": 1.5665969155896904,
+            "world_impulse_on_probe_N_s": [
+              7.519952807489461e-06,
+              -0.03843116655779598,
+              1.5665969155896904
+            ],
+            "peak_normal_force_N": 101.39823315035433,
+            "max_penetration_m": 0.00425872592783353,
+            "first_contact_step": 345,
+            "last_contact_step": 1000,
+            "first_contact_normal_velocity_m_s": -2.7952491558968053,
+            "max_separating_speed_during_contact_m_s": 0.285749863790372,
+            "first_resolved_contact": {
+              "solref": [
+                0.006,
+                1.0
+              ],
+              "solimp": [
+                0.9,
+                0.95,
+                0.001,
+                0.5,
+                2.0
+              ],
+              "friction": [
+                1.0,
+                1.0,
+                0.005,
+                0.0001,
+                0.0001
+              ]
+            },
+            "contact_intervals": [
+              {
+                "first_step": 345,
+                "last_step": 356
+              },
+              {
+                "first_step": 373,
+                "last_step": 1000
+              }
+            ],
+            "first_contact_time_s": 0.6880000000000005,
+            "last_contact_time_s": 1.9980000000000016,
+            "last_contact_normal_velocity_m_s": 4.789904644618204e-16,
+            "peak_normal_force_step": 345,
+            "max_penetration_step": 347
+          }
+        },
+        "application_force_limit": "not_specified",
+        "contact_exists": true,
+        "threshold_passed": true,
+        "hashes": {
+          "fixture.xml": "d72b5ee2b6f91a311f5ce37df862dd854dd4092427e215085c0a9cc54846405e",
+          "contact_trace.jsonl": "63e1e79eed0452e2aa362008ede7475d5c758f506fb7f8511b1f43b0669a0cf2"
+        },
+        "execution_status": "completed"
+      }
+    },
+    {
+      "name": "offset_x_005",
+      "directory": "/home/mcl/workspace/3D-Assets-Mujoco/outputs/m1_2_final_f563mbgm/experiments/profile-diagnostic-e34_t7yv/offset_x_005",
+      "summary": {
+        "diagnostic": true,
+        "dt": 0.002,
+        "requested_steps": 1000,
+        "requested_time_s": 2.0,
+        "threshold_m": 0.005,
+        "first_contact_step": 144,
+        "first_exceedance_step": null,
+        "max_penetration_step": 146,
+        "max_penetration_m": 0.002371259672166833,
+        "contact_record_count": 46,
+        "max_normal_force_N": 64.33487727769375,
+        "first_abnormal_step": null,
+        "numerically_stable": true,
+        "sampling": "step k: pre-integration t=(k-1)*dt; force/qacc from same step2 solve; post-state separately labeled",
+        "force_coordinates": "contact frame [normal,tangent1,tangent2], force then torque; world force on geom2",
+        "normal_velocity_definition": "dot(v_geom2_at_contact-v_geom1_at_contact, normal_geom1_to_geom2)",
+        "mujoco": "3.4.0",
+        "fixture_sha256": "3af3cc37179abccc5dfac42c216334d6951d5d7686fc278883280b2517f5b1ad",
+        "initial_qpos": [
+          0.05,
+          0.0,
+          1.2221956863999368,
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "initial_qvel": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "resolved_geoms": {
+          "asset_collision": {
+            "type": 7,
+            "size": [
+              0.3122404539932393,
+              0.3160960954496683,
+              0.5695715921033088
+            ],
+            "contype": 1,
+            "conaffinity": 1,
+            "solref": [
+              0.006,
+              1.0
+            ],
+            "solimp": [
+              0.9,
+              0.95,
+              0.001,
+              0.5,
+              2.0
+            ],
+            "solmix": 1.0,
+            "priority": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "margin": 0.0,
+            "gap": 0.0
+          },
+          "probe": {
+            "type": 2,
+            "size": [
+              0.02494276911020279,
+              0.0,
+              0.0
+            ],
+            "contype": 1,
+            "conaffinity": 1,
+            "solref": [
+              0.006,
+              1.0
+            ],
+            "solimp": [
+              0.9,
+              0.95,
+              0.001,
+              0.5,
+              2.0
+            ],
+            "solmix": 1.0,
+            "priority": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "margin": 0.0,
+            "gap": 0.0
+          }
+        },
+        "probe_mass_kg": 0.1,
+        "solver": {
+          "integrator": "Euler",
+          "solver": 2,
+          "iterations": 100,
+          "tolerance": 1e-08,
+          "enableflags": 2,
+          "disableflags": 65536
+        },
+        "first_contact_time_s": 0.2860000000000002,
+        "first_contact": {
+          "index": 0,
+          "geom1": "probe",
+          "geom2": "asset_collision",
+          "dist_m": -0.0011829436755182929,
+          "penetration_m": 0.0011829436755182929,
+          "point_world_m": [
+            0.049996357141089506,
+            0.01858134272014958,
+            0.8024415432394373
+          ],
+          "normal_world": [
+            -0.00014959609213767514,
+            0.7630535043887049,
+            -0.6463353054422496
+          ],
+          "frame_rows_world": [
+            [
+              -0.00014959609213767514,
+              0.7630535043887049,
+              -0.6463353054422496
+            ],
+            [
+              -0.0001267135705301422,
+              0.6463352930211975,
+              0.7630535190528079
+            ],
+            [
+              0.9999999807823401,
+              0.00019604927885447863,
+              1.3552527156068805e-20
+            ]
+          ],
+          "normal_relative_velocity_m_s": -1.813397113067106,
+          "solref": [
+            0.006,
+            1.0
+          ],
+          "solimp": [
+            0.9,
+            0.95,
+            0.001,
+            0.5,
+            2.0
+          ],
+          "friction": [
+            1.0,
+            1.0,
+            0.005,
+            0.0001,
+            0.0001
+          ],
+          "force_contact_frame_N_Nm": [
+            64.33487727769375,
+            -21.750147146327123,
+            -1.0302869668521453e-13,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "force_world_on_geom2_N": [
+            -0.006868207424535833,
+            35.033065832085974,
+            -58.17842887578914
+          ]
+        },
+        "max_penetration_time_s": 0.2900000000000002,
+        "steps": 1000,
+        "total_time_s": 2.0000000000000013,
+        "warning_counts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "contact_statistics": {
+          "asset_probe": {
+            "contact_records": 46,
+            "normal_impulse_N_s": 0.2547785548002479,
+            "world_impulse_on_probe_N_s": [
+              0.001935722772366891,
+              -0.133238901417435,
+              0.23876036905513173
+            ],
+            "peak_normal_force_N": 64.33487727769375,
+            "max_penetration_m": 0.002371259672166833,
+            "first_contact_step": 144,
+            "last_contact_step": 223,
+            "first_contact_normal_velocity_m_s": -1.813397113067106,
+            "max_separating_speed_during_contact_m_s": 0.15617892303306732,
+            "first_resolved_contact": {
+              "solref": [
+                0.006,
+                1.0
+              ],
+              "solimp": [
+                0.9,
+                0.95,
+                0.001,
+                0.5,
+                2.0
+              ],
+              "friction": [
+                1.0,
+                1.0,
+                0.005,
+                0.0001,
+                0.0001
+              ]
+            },
+            "contact_intervals": [
+              {
+                "first_step": 144,
+                "last_step": 156
+              },
+              {
+                "first_step": 166,
+                "last_step": 184
+              },
+              {
+                "first_step": 188,
+                "last_step": 188
+              },
+              {
+                "first_step": 194,
+                "last_step": 195
+              },
+              {
+                "first_step": 201,
+                "last_step": 204
+              },
+              {
+                "first_step": 207,
+                "last_step": 211
+              },
+              {
+                "first_step": 222,
+                "last_step": 223
+              }
+            ],
+            "first_contact_time_s": 0.2860000000000002,
+            "last_contact_time_s": 0.44400000000000034,
+            "last_contact_normal_velocity_m_s": 0.010472547869525783,
+            "peak_normal_force_step": 144,
+            "max_penetration_step": 146
+          },
+          "ground_probe": {
+            "contact_records": 665,
+            "normal_impulse_N_s": 1.7232396309448774,
+            "world_impulse_on_probe_N_s": [
+              0.001465307616364835,
+              -0.031191885378753302,
+              1.7232396309448774
+            ],
+            "peak_normal_force_N": 134.77959975114987,
+            "max_penetration_m": 0.004784913165955956,
+            "first_contact_step": 318,
+            "last_contact_step": 1000,
+            "first_contact_normal_velocity_m_s": -3.831936309448688,
+            "max_separating_speed_during_contact_m_s": 0.313663017191771,
+            "first_resolved_contact": {
+              "solref": [
+                0.006,
+                1.0
+              ],
+              "solimp": [
+                0.9,
+                0.95,
+                0.001,
+                0.5,
+                2.0
+              ],
+              "friction": [
+                1.0,
+                1.0,
+                0.005,
+                0.0001,
+                0.0001
+              ]
+            },
+            "contact_intervals": [
+              {
+                "first_step": 318,
+                "last_step": 329
+              },
+              {
+                "first_step": 348,
+                "last_step": 1000
+              }
+            ],
+            "first_contact_time_s": 0.6340000000000005,
+            "last_contact_time_s": 1.9980000000000016,
+            "last_contact_normal_velocity_m_s": 4.900894731740087e-16,
+            "peak_normal_force_step": 318,
+            "max_penetration_step": 320
+          }
+        },
+        "application_force_limit": "not_specified",
+        "contact_exists": true,
+        "threshold_passed": true,
+        "hashes": {
+          "fixture.xml": "3af3cc37179abccc5dfac42c216334d6951d5d7686fc278883280b2517f5b1ad",
+          "contact_trace.jsonl": "3e6a6d4466618a9825bc21843f05254eaaa2f990871aab20fe308ee6f5a6a3ce"
+        },
+        "execution_status": "completed"
+      }
+    },
+    {
+      "name": "mass_02",
+      "directory": "/home/mcl/workspace/3D-Assets-Mujoco/outputs/m1_2_final_f563mbgm/experiments/profile-diagnostic-e34_t7yv/mass_02",
+      "summary": {
+        "diagnostic": true,
+        "dt": 0.002,
+        "requested_steps": 1000,
+        "requested_time_s": 2.0,
+        "threshold_m": 0.005,
+        "first_contact_step": 144,
+        "first_exceedance_step": null,
+        "max_penetration_step": 146,
+        "max_penetration_m": 0.002376892611438749,
+        "contact_record_count": 55,
+        "max_normal_force_N": 128.711309025425,
+        "first_abnormal_step": null,
+        "numerically_stable": true,
+        "sampling": "step k: pre-integration t=(k-1)*dt; force/qacc from same step2 solve; post-state separately labeled",
+        "force_coordinates": "contact frame [normal,tangent1,tangent2], force then torque; world force on geom2",
+        "normal_velocity_definition": "dot(v_geom2_at_contact-v_geom1_at_contact, normal_geom1_to_geom2)",
+        "mujoco": "3.4.0",
+        "fixture_sha256": "2f17b887e16304977a3b611399d01609394153b4b42aced65e4522bbfd1cec07",
+        "initial_qpos": [
+          0.0,
+          0.0,
+          1.2221956863999368,
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "initial_qvel": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "resolved_geoms": {
+          "asset_collision": {
+            "type": 7,
+            "size": [
+              0.3122404539932393,
+              0.3160960954496683,
+              0.5695715921033088
+            ],
+            "contype": 1,
+            "conaffinity": 1,
+            "solref": [
+              0.006,
+              1.0
+            ],
+            "solimp": [
+              0.9,
+              0.95,
+              0.001,
+              0.5,
+              2.0
+            ],
+            "solmix": 1.0,
+            "priority": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "margin": 0.0,
+            "gap": 0.0
+          },
+          "probe": {
+            "type": 2,
+            "size": [
+              0.02494276911020279,
+              0.0,
+              0.0
+            ],
+            "contype": 1,
+            "conaffinity": 1,
+            "solref": [
+              0.006,
+              1.0
+            ],
+            "solimp": [
+              0.9,
+              0.95,
+              0.001,
+              0.5,
+              2.0
+            ],
+            "solmix": 1.0,
+            "priority": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "margin": 0.0,
+            "gap": 0.0
+          }
+        },
+        "probe_mass_kg": 0.2,
+        "solver": {
+          "integrator": "Euler",
+          "solver": 2,
+          "iterations": 100,
+          "tolerance": 1e-08,
+          "enableflags": 2,
+          "disableflags": 65536
+        },
+        "first_contact_time_s": 0.2860000000000002,
+        "first_contact": {
+          "index": 0,
+          "geom1": "probe",
+          "geom2": "asset_collision",
+          "dist_m": -0.001190423480125262,
+          "penetration_m": 0.001190423480125262,
+          "point_world_m": [
+            -3.6422994357053756e-06,
+            0.01857848897459088,
+            0.8024439604703351
+          ],
+          "normal_world": [
+            -0.00014959609213909323,
+            0.7630535043887143,
+            -0.6463353054422386
+          ],
+          "frame_rows_world": [
+            [
+              -0.00014959609213909323,
+              0.7630535043887143,
+              -0.6463353054422386
+            ],
+            [
+              -0.00012671357053133968,
+              0.6463352930211866,
+              0.7630535190528173
+            ],
+            [
+              0.9999999807823402,
+              0.00019604927885633468,
+              1.3552527156068805e-20
+            ]
+          ],
+          "normal_relative_velocity_m_s": -1.8133971130670752,
+          "solref": [
+            0.006,
+            1.0
+          ],
+          "solimp": [
+            0.9,
+            0.95,
+            0.001,
+            0.5,
+            2.0
+          ],
+          "friction": [
+            1.0,
+            1.0,
+            0.005,
+            0.0001,
+            0.0001
+          ],
+          "force_contact_frame_N_Nm": [
+            128.711309025425,
+            -43.50942330275602,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "force_world_on_geom2_N": [
+            -0.013741474465859091,
+            70.09193954673965,
+            -116.39068179594507
+          ]
+        },
+        "max_penetration_time_s": 0.2900000000000002,
+        "steps": 1000,
+        "total_time_s": 2.0000000000000013,
+        "warning_counts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "contact_statistics": {
+          "asset_probe": {
+            "contact_records": 55,
+            "normal_impulse_N_s": 0.5227561464676881,
+            "world_impulse_on_probe_N_s": [
+              5.688180869719584e-05,
+              -0.28287034756835794,
+              0.4748544196668526
+            ],
+            "peak_normal_force_N": 128.711309025425,
+            "max_penetration_m": 0.002376892611438749,
+            "first_contact_step": 144,
+            "last_contact_step": 207,
+            "first_contact_normal_velocity_m_s": -1.8133971130670752,
+            "max_separating_speed_during_contact_m_s": 0.1565990278947751,
+            "first_resolved_contact": {
+              "solref": [
+                0.006,
+                1.0
+              ],
+              "solimp": [
+                0.9,
+                0.95,
+                0.001,
+                0.5,
+                2.0
+              ],
+              "friction": [
+                1.0,
+                1.0,
+                0.005,
+                0.0001,
+                0.0001
+              ]
+            },
+            "contact_intervals": [
+              {
+                "first_step": 144,
+                "last_step": 156
+              },
+              {
+                "first_step": 166,
+                "last_step": 207
+              }
+            ],
+            "first_contact_time_s": 0.2860000000000002,
+            "last_contact_time_s": 0.4120000000000003,
+            "last_contact_normal_velocity_m_s": 0.03129622358574347,
+            "peak_normal_force_step": 144,
+            "max_penetration_step": 146
+          },
+          "ground_probe": {
+            "contact_records": 633,
+            "normal_impulse_N_s": 3.449145580333167,
+            "world_impulse_on_probe_N_s": [
+              1.719262607734667e-05,
+              -0.0479155968024654,
+              3.449145580333167
+            ],
+            "peak_normal_force_N": 299.4116774762198,
+            "max_penetration_m": 0.008960727379537663,
+            "first_contact_step": 319,
+            "last_contact_step": 1000,
+            "first_contact_normal_velocity_m_s": -3.8648879016657407,
+            "max_separating_speed_during_contact_m_s": 0.5948972945704026,
+            "first_resolved_contact": {
+              "solref": [
+                0.006,
+                1.0
+              ],
+              "solimp": [
+                0.9,
+                0.95,
+                0.001,
+                0.5,
+                2.0
+              ],
+              "friction": [
+                1.0,
+                1.0,
+                0.005,
+                0.0001,
+                0.0001
+              ]
+            },
+            "contact_intervals": [
+              {
+                "first_step": 319,
+                "last_step": 328
+              },
+              {
+                "first_step": 378,
+                "last_step": 1000
+              }
+            ],
+            "first_contact_time_s": 0.6360000000000005,
+            "last_contact_time_s": 1.9980000000000016,
+            "last_contact_normal_velocity_m_s": 4.896587645009208e-16,
+            "peak_normal_force_step": 319,
+            "max_penetration_step": 320
+          }
+        },
+        "application_force_limit": "not_specified",
+        "contact_exists": true,
+        "threshold_passed": true,
+        "hashes": {
+          "fixture.xml": "2f17b887e16304977a3b611399d01609394153b4b42aced65e4522bbfd1cec07",
+          "contact_trace.jsonl": "a2719078b14bc7a7f09f0675b4892c07a79273eafac851fb25452499cfccc476"
+        },
+        "execution_status": "completed"
+      }
+    },
+    {
+      "name": "radius_12",
+      "directory": "/home/mcl/workspace/3D-Assets-Mujoco/outputs/m1_2_final_f563mbgm/experiments/profile-diagnostic-e34_t7yv/radius_12",
+      "summary": {
+        "diagnostic": true,
+        "dt": 0.002,
+        "requested_steps": 1000,
+        "requested_time_s": 2.0,
+        "threshold_m": 0.005,
+        "first_contact_step": 143,
+        "first_exceedance_step": null,
+        "max_penetration_step": 144,
+        "max_penetration_m": 0.00347035263148035,
+        "contact_record_count": 42,
+        "max_normal_force_N": 67.71561676713728,
+        "first_abnormal_step": null,
+        "numerically_stable": true,
+        "sampling": "step k: pre-integration t=(k-1)*dt; force/qacc from same step2 solve; post-state separately labeled",
+        "force_coordinates": "contact frame [normal,tangent1,tangent2], force then torque; world force on geom2",
+        "normal_velocity_definition": "dot(v_geom2_at_contact-v_geom1_at_contact, normal_geom1_to_geom2)",
+        "mujoco": "3.4.0",
+        "fixture_sha256": "816aa0279b91f67cfbf8dd27f3301b6dee4da0e6c90dda5b04f5d941dd51e4f5",
+        "initial_qpos": [
+          0.0,
+          0.0,
+          1.2221956863999368,
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "initial_qvel": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "resolved_geoms": {
+          "asset_collision": {
+            "type": 7,
+            "size": [
+              0.3122404539932393,
+              0.3160960954496683,
+              0.5695715921033088
+            ],
+            "contype": 1,
+            "conaffinity": 1,
+            "solref": [
+              0.006,
+              1.0
+            ],
+            "solimp": [
+              0.9,
+              0.95,
+              0.001,
+              0.5,
+              2.0
+            ],
+            "solmix": 1.0,
+            "priority": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "margin": 0.0,
+            "gap": 0.0
+          },
+          "probe": {
+            "type": 2,
+            "size": [
+              0.02993132293224335,
+              0.0,
+              0.0
+            ],
+            "contype": 1,
+            "conaffinity": 1,
+            "solref": [
+              0.006,
+              1.0
+            ],
+            "solimp": [
+              0.9,
+              0.95,
+              0.001,
+              0.5,
+              2.0
+            ],
+            "solmix": 1.0,
+            "priority": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "margin": 0.0,
+            "gap": 0.0
+          }
+        },
+        "probe_mass_kg": 0.1,
+        "solver": {
+          "integrator": "Euler",
+          "solver": 2,
+          "iterations": 100,
+          "tolerance": 1e-08,
+          "enableflags": 2,
+          "disableflags": 65536
+        },
+        "first_contact_time_s": 0.2840000000000002,
+        "first_contact": {
+          "index": 0,
+          "geom1": "probe",
+          "geom2": "asset_collision",
+          "dist_m": -0.002552183076031722,
+          "penetration_m": 0.002552183076031722,
+          "point_world_m": [
+            -4.286710635930028e-06,
+            0.021865474734434974,
+            0.8052710786642312
+          ],
+          "normal_world": [
+            -0.00014959609213951764,
+            0.7630535043887243,
+            -0.6463353054422268
+          ],
+          "frame_rows_world": [
+            [
+              -0.00014959609213951764,
+              0.7630535043887243,
+              -0.6463353054422268
+            ],
+            [
+              -0.00012671357053169516,
+              0.6463352930211748,
+              0.763053519052827
+            ],
+            [
+              0.9999999807823401,
+              0.00019604927885688822,
+              0.0
+            ]
+          ],
+          "normal_relative_velocity_m_s": -1.8007160143742655,
+          "solref": [
+            0.006,
+            1.0
+          ],
+          "solimp": [
+            0.9,
+            0.95,
+            0.001,
+            0.5,
+            2.0
+          ],
+          "friction": [
+            1.0,
+            1.0,
+            0.005,
+            0.0001,
+            0.0001
+          ],
+          "force_contact_frame_N_Nm": [
+            67.71561676713728,
+            -22.18118869789572,
+            -3.552713678800501e-15,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "force_world_on_geom2_N": [
+            -0.007319334026636836,
+            37.33415357939556,
+            -60.69242793910057
+          ]
+        },
+        "max_penetration_time_s": 0.2860000000000002,
+        "steps": 1000,
+        "total_time_s": 2.0000000000000013,
+        "warning_counts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "contact_statistics": {
+          "asset_probe": {
+            "contact_records": 42,
+            "normal_impulse_N_s": 0.261473206281562,
+            "world_impulse_on_probe_N_s": [
+              2.8533558676958634e-05,
+              -0.140944067665237,
+              0.23815515648044397
+            ],
+            "peak_normal_force_N": 67.71561676713728,
+            "max_penetration_m": 0.00347035263148035,
+            "first_contact_step": 143,
+            "last_contact_step": 207,
+            "first_contact_normal_velocity_m_s": -1.8007160143742655,
+            "max_separating_speed_during_contact_m_s": 0.23245052794340026,
+            "first_resolved_contact": {
+              "solref": [
+                0.006,
+                1.0
+              ],
+              "solimp": [
+                0.9,
+                0.95,
+                0.001,
+                0.5,
+                2.0
+              ],
+              "friction": [
+                1.0,
+                1.0,
+                0.005,
+                0.0001,
+                0.0001
+              ]
+            },
+            "contact_intervals": [
+              {
+                "first_step": 143,
+                "last_step": 153
+              },
+              {
+                "first_step": 177,
+                "last_step": 207
+              }
+            ],
+            "first_contact_time_s": 0.2840000000000002,
+            "last_contact_time_s": 0.4120000000000003,
+            "last_contact_normal_velocity_m_s": 0.025717678334199127,
+            "peak_normal_force_step": 143,
+            "max_penetration_step": 144
+          },
+          "ground_probe": {
+            "contact_records": 633,
+            "normal_impulse_N_s": 1.7238448435195675,
+            "world_impulse_on_probe_N_s": [
+              9.651015677898959e-06,
+              -0.0237460321926146,
+              1.7238448435195675
+            ],
+            "peak_normal_force_N": 149.57958544992312,
+            "max_penetration_m": 0.00899312099201953,
+            "first_contact_step": 319,
+            "last_contact_step": 1000,
+            "first_contact_normal_velocity_m_s": -3.8576084351955826,
+            "max_separating_speed_during_contact_m_s": 0.5968879444689643,
+            "first_resolved_contact": {
+              "solref": [
+                0.006,
+                1.0
+              ],
+              "solimp": [
+                0.9,
+                0.95,
+                0.001,
+                0.5,
+                2.0
+              ],
+              "friction": [
+                1.0,
+                1.0,
+                0.005,
+                0.0001,
+                0.0001
+              ]
+            },
+            "contact_intervals": [
+              {
+                "first_step": 319,
+                "last_step": 328
+              },
+              {
+                "first_step": 378,
+                "last_step": 1000
+              }
+            ],
+            "first_contact_time_s": 0.6360000000000005,
+            "last_contact_time_s": 1.9980000000000016,
+            "last_contact_normal_velocity_m_s": 4.941875324520848e-16,
+            "peak_normal_force_step": 319,
+            "max_penetration_step": 320
+          }
+        },
+        "application_force_limit": "not_specified",
+        "contact_exists": true,
+        "threshold_passed": true,
+        "hashes": {
+          "fixture.xml": "816aa0279b91f67cfbf8dd27f3301b6dee4da0e6c90dda5b04f5d941dd51e4f5",
+          "contact_trace.jsonl": "bad33ab9e343e9662fa5f4a862e1a204f8ff172d2dd8b84cfb81610547111f37"
+        },
+        "execution_status": "completed"
+      }
+    },
+    {
+      "name": "counterparty_mismatch",
+      "directory": "/home/mcl/workspace/3D-Assets-Mujoco/outputs/m1_2_final_f563mbgm/experiments/profile-diagnostic-e34_t7yv/counterparty_mismatch",
+      "summary": {
+        "diagnostic": true,
+        "dt": 0.002,
+        "requested_steps": 1000,
+        "requested_time_s": 2.0,
+        "threshold_m": 0.005,
+        "first_contact_step": 144,
+        "first_exceedance_step": 146,
+        "max_penetration_step": 149,
+        "max_penetration_m": 0.007082760763421455,
+        "contact_record_count": 66,
+        "max_normal_force_N": 29.205161903805656,
+        "first_abnormal_step": null,
+        "numerically_stable": true,
+        "sampling": "step k: pre-integration t=(k-1)*dt; force/qacc from same step2 solve; post-state separately labeled",
+        "force_coordinates": "contact frame [normal,tangent1,tangent2], force then torque; world force on geom2",
+        "normal_velocity_definition": "dot(v_geom2_at_contact-v_geom1_at_contact, normal_geom1_to_geom2)",
+        "mujoco": "3.4.0",
+        "fixture_sha256": "18f697e5c88e424866ee30e5f38ae079f389472c3a5c5901160a98d1af46ee67",
+        "initial_qpos": [
+          0.0,
+          0.0,
+          1.2221956863999368,
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "initial_qvel": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "resolved_geoms": {
+          "asset_collision": {
+            "type": 7,
+            "size": [
+              0.3122404539932393,
+              0.3160960954496683,
+              0.5695715921033088
+            ],
+            "contype": 1,
+            "conaffinity": 1,
+            "solref": [
+              0.006,
+              1.0
+            ],
+            "solimp": [
+              0.9,
+              0.95,
+              0.001,
+              0.5,
+              2.0
+            ],
+            "solmix": 1.0,
+            "priority": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "margin": 0.0,
+            "gap": 0.0
+          },
+          "probe": {
+            "type": 2,
+            "size": [
+              0.02494276911020279,
+              0.0,
+              0.0
+            ],
+            "contype": 1,
+            "conaffinity": 1,
+            "solref": [
+              0.02,
+              1.0
+            ],
+            "solimp": [
+              0.9,
+              0.95,
+              0.001,
+              0.5,
+              2.0
+            ],
+            "solmix": 1.0,
+            "priority": 0,
+            "friction": [
+              1.0,
+              0.005,
+              0.0001
+            ],
+            "margin": 0.0,
+            "gap": 0.0
+          }
+        },
+        "probe_mass_kg": 0.1,
+        "solver": {
+          "integrator": "Euler",
+          "solver": 2,
+          "iterations": 100,
+          "tolerance": 1e-08,
+          "enableflags": 2,
+          "disableflags": 65536
+        },
+        "first_contact_time_s": 0.2860000000000002,
+        "first_contact": {
+          "index": 0,
+          "geom1": "probe",
+          "geom2": "asset_collision",
+          "dist_m": -0.001190423480125262,
+          "penetration_m": 0.001190423480125262,
+          "point_world_m": [
+            -3.6422994357053756e-06,
+            0.01857848897459088,
+            0.8024439604703351
+          ],
+          "normal_world": [
+            -0.00014959609213909323,
+            0.7630535043887143,
+            -0.6463353054422386
+          ],
+          "frame_rows_world": [
+            [
+              -0.00014959609213909323,
+              0.7630535043887143,
+              -0.6463353054422386
+            ],
+            [
+              -0.00012671357053133968,
+              0.6463352930211866,
+              0.7630535190528173
+            ],
+            [
+              0.9999999807823402,
+              0.00019604927885633468,
+              1.3552527156068805e-20
+            ]
+          ],
+          "normal_relative_velocity_m_s": -1.8133971130670752,
+          "solref": [
+            0.013000000000000001,
+            1.0
+          ],
+          "solimp": [
+            0.9,
+            0.95,
+            0.001,
+            0.5,
+            2.0
+          ],
+          "friction": [
+            1.0,
+            1.0,
+            0.005,
+            0.0001,
+            0.0001
+          ],
+          "force_contact_frame_N_Nm": [
+            29.205161903805656,
+            -10.156215565824223,
+            -8.881784197001252e-16,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "force_world_on_geom2_N": [
+            -0.003082047753668177,
+            15.720780573215347,
+            -26.626063267347433
+          ]
+        },
+        "max_penetration_time_s": 0.2960000000000002,
+        "first_exceedance_time_s": 0.2900000000000002,
+        "steps": 1000,
+        "total_time_s": 2.0000000000000013,
+        "warning_counts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "contact_statistics": {
+          "asset_probe": {
+            "contact_records": 66,
+            "normal_impulse_N_s": 0.26330620634284474,
+            "world_impulse_on_probe_N_s": [
+              3.721174354432547e-05,
+              -0.14006193599754305,
+              0.242040242731888
+            ],
+            "peak_normal_force_N": 29.205161903805656,
+            "max_penetration_m": 0.007082760763421455,
+            "first_contact_step": 144,
+            "last_contact_step": 209,
+            "first_contact_normal_velocity_m_s": -1.8133971130670752,
+            "max_separating_speed_during_contact_m_s": 0.20510187163523358,
+            "first_resolved_contact": {
+              "solref": [
+                0.013000000000000001,
+                1.0
+              ],
+              "solimp": [
+                0.9,
+                0.95,
+                0.001,
+                0.5,
+                2.0
+              ],
+              "friction": [
+                1.0,
+                1.0,
+                0.005,
+                0.0001,
+                0.0001
+              ]
+            },
+            "contact_intervals": [
+              {
+                "first_step": 144,
+                "last_step": 209
+              }
+            ],
+            "first_contact_time_s": 0.2860000000000002,
+            "last_contact_time_s": 0.4160000000000003,
+            "last_contact_normal_velocity_m_s": 0.06599583005313611,
+            "peak_normal_force_step": 144,
+            "max_penetration_step": 149
+          },
+          "ground_probe": {
+            "contact_records": 667,
+            "normal_impulse_N_s": 1.7199597572681204,
+            "world_impulse_on_probe_N_s": [
+              8.461200639632623e-06,
+              -0.022904877615385094,
+              1.7199597572681204
+            ],
+            "peak_normal_force_N": 60.391939605112285,
+            "max_penetration_m": 0.013782234006119514,
+            "first_contact_step": 320,
+            "last_contact_step": 1000,
+            "first_contact_normal_velocity_m_s": -3.8383775726811336,
+            "max_separating_speed_during_contact_m_s": 0.3999225362429117,
+            "first_resolved_contact": {
+              "solref": [
+                0.013000000000000001,
+                1.0
+              ],
+              "solimp": [
+                0.9,
+                0.95,
+                0.001,
+                0.5,
+                2.0
+              ],
+              "friction": [
+                1.0,
+                1.0,
+                0.005,
+                0.0001,
+                0.0001
+              ]
+            },
+            "contact_intervals": [
+              {
+                "first_step": 320,
+                "last_step": 350
+              },
+              {
+                "first_step": 365,
+                "last_step": 1000
+              }
+            ],
+            "first_contact_time_s": 0.6380000000000005,
+            "last_contact_time_s": 1.9980000000000016,
+            "last_contact_normal_velocity_m_s": 4.44496144410631e-16,
+            "peak_normal_force_step": 320,
+            "max_penetration_step": 326
+          }
+        },
+        "application_force_limit": "not_specified",
+        "contact_exists": true,
+        "threshold_passed": false,
+        "hashes": {
+          "fixture.xml": "18f697e5c88e424866ee30e5f38ae079f389472c3a5c5901160a98d1af46ee67",
+          "contact_trace.jsonl": "827941430a2399877b4ace88165148b48b6280e212d52349d4d28664611f6a92"
+        },
+        "execution_status": "completed"
+      }
+    }
+  ]
+}

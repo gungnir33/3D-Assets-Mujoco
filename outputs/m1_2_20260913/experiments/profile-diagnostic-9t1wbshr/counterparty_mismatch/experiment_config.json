@@ -1,0 +1,9 @@
+{
+  "name": "counterparty_mismatch",
+  "probe_solref": [
+    0.02,
+    1
+  ],
+  "diagnostic": true,
+  "plane": null
+}
