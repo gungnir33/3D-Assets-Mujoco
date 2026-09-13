@@ -13,12 +13,13 @@ from .manifest import checked_report,fingerprint,write_evidence
 
 DEFAULT_INPUT=Path('/home/mcl/workspace/3D-Assets-Agent/assets/20260909_210805_9dfdcdd0/model.glb')
 
-def run_acceptance(source,output):
+def run_acceptance(source,output,contact_profile='preserve'):
     source=Path(source)
     output=Path(output).resolve()
     output.mkdir(parents=True,exist_ok=True)
     root=Path(tempfile.mkdtemp(prefix='acceptance-',dir=output))
     report={'run_directory':str(root),'automatic_validation':'not_executed','exit_code':2,
+            'contact_profile':contact_profile,'application_force_limit':'not_specified',
             'appearance_review':'pending','host_integration':'pending'}
     if not source.is_file():
         report['reason']='REAL_INPUT_UNAVAILABLE'
@@ -34,7 +35,8 @@ def run_acceptance(source,output):
     try:
         try:
             package=convert(ConversionRequest(input=source,output=root/'packages',name='penguin',
-                source_up='y',yaw_deg=180,scale=.5,body_mode='static',collision_mode='hull',validation_level='full'))
+                source_up='y',yaw_deg=180,scale=.5,body_mode='static',collision_mode='hull',validation_level='full',
+                contact_profile=contact_profile))
         except ValidationFailed as error:
             # 仅为保留路径和继续迁移诊断；下方仍非零失败，绝不改算成功。
             package=error.package
@@ -49,7 +51,7 @@ def run_acceptance(source,output):
         shutil.copytree(package,relocated)
         rows=[]
         for location in (package,relocated):
-            for name in ('model.xml','scene.xml'):
+            for name in ('model.xml','scene.xml')+(('contact_scene.xml',) if (package/'contact_scene.xml').is_file() else ()):
                 model=mujoco.MjModel.from_xml_path(str(location/name))
                 mujoco.mj_forward(model,mujoco.MjData(model))
                 rows.append({'path':str(location/name),'compile':'passed','forward':'passed'})
@@ -71,8 +73,9 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--input',type=Path,default=DEFAULT_INPUT)
     parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--contact-profile',choices=['preserve','engineering_static_v1'],default='preserve')
     args=parser.parse_args()
-    report=run_acceptance(args.input,args.output)
+    report=run_acceptance(args.input,args.output,args.contact_profile)
     print(json.dumps(report,ensure_ascii=False))
     return report['exit_code']
 
