@@ -33,3 +33,24 @@ def test_profile_diagnostics_preserves_package_and_records_all_cases(tmp_path):
     plan=json.loads((Path(result['directory'])/'experiment_plan.json').read_text())
     assert plan['application_force_limit']=='not_specified'
     assert all(r['summary']['diagnostic'] for r in result['results'])
+    assert result['exit_code']==0 and result['execution_status']=='completed'
+    assert all(json.loads((Path(r['directory'])/'contact_summary.json').read_text())['execution_status']=='completed' for r in result['results'])
+
+def test_nonbaseline_execution_error_keeps_remaining_cases_and_exits_nonzero(tmp_path,monkeypatch,capsys):
+    import asset_mujoco.profile_diagnostics as diagnostics
+    source=tmp_path/'box.glb'; trimesh.creation.box().export(source)
+    request=ConversionRequest(input=source,output=tmp_path/'packages',source_up='z',
+        validation_level='compile',contact_profile='engineering_static_v1')
+    package=convert(request)
+    validate_physics(package,request,[1,1,1])
+    monkeypatch.setattr(diagnostics,'CASES',[
+        {'name':'baseline'}, {'name':'invalid_dt','dt':.003}, {'name':'after_error','mass_kg':.2}])
+    monkeypatch.setattr('sys.argv',['profile_diagnostics','--package',str(package),'--output',str(tmp_path/'diagnostics')])
+    assert diagnostics.main()==5
+    result=json.loads(capsys.readouterr().out)
+    assert result['execution_status']=='completed_with_errors'
+    assert result['exit_code']==5
+    assert [r['summary']['execution_status'] for r in result['results']]==['completed','error','completed']
+    saved=json.loads((Path(result['directory'])/'diagnosis.json').read_text())
+    assert saved['execution_status']=='completed_with_errors'
+    assert saved['results'][1]['summary']['error']['type']=='ValueError'

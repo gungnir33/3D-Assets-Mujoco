@@ -73,7 +73,7 @@ def run_profile_diagnostics(package, output):
         except Exception as error:
             summary = {'diagnostic': True, 'execution_status': 'error',
                        'error': {'type': type(error).__name__, 'message': str(error)}}
-            write_evidence(directory, 'contact_summary.json', summary)
+        write_evidence(directory, 'contact_summary.json', summary)
         results.append({'name': config['name'], 'directory': str(directory), 'summary': summary})
         write_evidence(directory, 'output_hashes.json', {
             str(p.relative_to(directory)): sha(p) for p in sorted(directory.rglob('*')) if p.is_file()})
@@ -88,7 +88,12 @@ def run_profile_diagnostics(package, output):
             normal = np.array(contact['normal_world']) * (1 if contact['geom1'] == 'asset_collision' else -1)
             plane = {'point_world': (np.array(contact['point_world_m'])-normal*contact['dist_m']/2).tolist(),
                      'normal_world': normal.tolist()}
-    return {'directory': str(root), 'diagnostic': True, 'results': results}
+    incomplete = any(row['summary']['execution_status'] != 'completed' for row in results)
+    result = {'directory': str(root), 'diagnostic': True, 'results': results,
+              'execution_status': 'completed_with_errors' if incomplete else 'completed',
+              'exit_code': 5 if incomplete else 0}
+    write_evidence(root, 'diagnosis.json', result)
+    return result
 
 
 def main():
@@ -96,8 +101,10 @@ def main():
     parser.add_argument('--package', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
-    print(json.dumps(run_profile_diagnostics(args.package, args.output), ensure_ascii=False))
+    result = run_profile_diagnostics(args.package, args.output)
+    print(json.dumps(result, ensure_ascii=False))
+    return result['exit_code']
 
 
 if __name__ == '__main__':
-    main()
+    raise SystemExit(main())
