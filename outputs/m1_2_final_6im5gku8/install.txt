@@ -1,0 +1,15 @@
+Processing ./.
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: asset-mujoco
+  Building wheel for asset-mujoco (pyproject.toml): started
+  Building wheel for asset-mujoco (pyproject.toml): finished with status 'done'
+  Created wheel for asset-mujoco: filename=asset_mujoco-0.1.0-py3-none-any.whl size=38366 sha256=0d8a12524d48eec9f8ca9c14fae055fa2bda42d72926f611235c9476445b74fc
+  Stored in directory: /tmp/pip-ephem-wheel-cache-dn_zx7y1/wheels/24/39/1b/f1fc8880b2fdbe653d7f0f1aed11ff2faa3b033469da46778f
+Successfully built asset-mujoco
+Installing collected packages: asset-mujoco
+  Attempting uninstall: asset-mujoco
+    Found existing installation: asset-mujoco 0.1.0
+    Uninstalling asset-mujoco-0.1.0:
+      Successfully uninstalled asset-mujoco-0.1.0
+Successfully installed asset-mujoco-0.1.0

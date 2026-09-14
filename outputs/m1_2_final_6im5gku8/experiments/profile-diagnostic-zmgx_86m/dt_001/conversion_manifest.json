@@ -1,0 +1,167 @@
+{
+  "request": {
+    "input": "/home/mcl/workspace/3D-Assets-Agent/assets/20260909_210805_9dfdcdd0/model.glb",
+    "output": "/home/mcl/workspace/3D-Assets-Mujoco/outputs/m1_2_final_6im5gku8/engineering_static_v1/acceptance-5ljztt1b/packages",
+    "name": "penguin",
+    "source_up": "y",
+    "scale": 0.5,
+    "target_size_m": null,
+    "yaw_deg": 180.0,
+    "scale_mode": "uniform",
+    "body_mode": "static",
+    "collision_mode": "hull",
+    "validation_level": "full",
+    "contact_profile": "engineering_static_v1",
+    "mass": null,
+    "inertia_mode": null,
+    "supplied_inertia": null,
+    "seed": 12345
+  },
+  "source_sha256": "12f1ed66a874efbdb3c350d819c1f6e076de469e7dc191d236de82073fdd2e12",
+  "transform": [
+    [
+      -0.5,
+      0.0,
+      6.123233995736766e-17,
+      -0.0012958943843841553
+    ],
+    [
+      6.123233995736766e-17,
+      0.0,
+      0.5,
+      0.011736556887626648
+    ],
+    [
+      0.0,
+      0.5,
+      0.0,
+      0.500032365322113
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "final_size_m": [
+    0.6319856643676758,
+    0.6949711740016937,
+    0.9977107644081116
+  ],
+  "converter_mujoco": "3.4.0",
+  "host_compatibility": "pending",
+  "visuals": [
+    {
+      "name": "visual_000",
+      "mesh": "meshes/visual_000.obj",
+      "rgba": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "texture": "textures/visual_000.png",
+      "shell": false
+    }
+  ],
+  "hole_validation": "not_tested",
+  "tolerances": {
+    "target": {
+      "rtol": 0.02,
+      "atol_m": 1e-07
+    },
+    "geometry": {
+      "rtol": 1e-06,
+      "atol_m": 1e-07
+    },
+    "inertia": {
+      "rtol": 1e-08,
+      "atol_kg_m2": 1e-12
+    }
+  },
+  "physical_scale_verified": false,
+  "contact_profile": {
+    "id": "engineering_static_v1",
+    "source": "explicit_project_engineering_convention_not_measured_material",
+    "scope": "static+hull",
+    "counterparty_contract": "same_parameters_on_both_geoms_no_priority_override",
+    "parameters": {
+      "solref": "0.006 1.0",
+      "solimp": "0.9 0.95 0.001 0.5 2.0"
+    },
+    "users": {
+      "asset_collision": [
+        "model.xml",
+        "scene.xml",
+        "contact_scene.xml"
+      ],
+      "ground": [
+        "scene.xml",
+        "contact_scene.xml"
+      ],
+      "probe": [
+        "contact_scene.xml"
+      ]
+    },
+    "runtime_resolution_manifest": "contact_result_manifest.json",
+    "application_force_limit": "not_specified",
+    "material_calibration": "not_performed",
+    "robot_contact_safety": "not_validated",
+    "host_integration": "pending"
+  },
+  "scale_evidence": {
+    "source": "user_multiplier",
+    "multiplier": 0.5,
+    "target_size_m": null,
+    "applied": true,
+    "confirmation": null
+  },
+  "uniform_rule": "dot(current_size,target_size)/dot(current_size,current_size)",
+  "material_approximations": [
+    "\u4ec5\u4fdd\u7559\u57fa\u7840\u989c\u8272/\u8d34\u56fe\uff1bmetallic\u3001roughness \u6807\u91cf\u4e0e MuJoCo \u5149\u7167\u5e76\u975e\u5b8c\u6574 PBR \u7b49\u4ef7\u6620\u5c04"
+  ],
+  "input_dependencies": [
+    {
+      "path": "/home/mcl/workspace/3D-Assets-Agent/assets/20260909_210805_9dfdcdd0/model.glb",
+      "sha256": "12f1ed66a874efbdb3c350d819c1f6e076de469e7dc191d236de82073fdd2e12",
+      "size": 3076972
+    }
+  ],
+  "normal_provenance": [
+    {
+      "node": "tmp1i3me809.ply",
+      "primitive_geometry": "tmp1i3me809.ply",
+      "normals_source": "computed",
+      "count": 23575,
+      "mapping": "vertex_and_face_corner_indices",
+      "combined_transform": [
+        [
+          -0.5,
+          0.0,
+          6.123233995736766e-17,
+          -0.0012958943843841553
+        ],
+        [
+          6.123233995736766e-17,
+          0.0,
+          0.5,
+          0.011736556887626648
+        ],
+        [
+          0.0,
+          0.5,
+          0.0,
+          0.500032365322113
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "mirrored": false
+    }
+  ]
+}

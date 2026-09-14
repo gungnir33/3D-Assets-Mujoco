@@ -163,6 +163,7 @@ class ConversionRequest:
     collision_proxy_path: Path | None  # collision=supplied 时必需
     supplied_inertia: SuppliedInertia | None
     validation_level: str   # compile / physics / full，默认 full
+    contact_profile: str    # 默认 preserve；engineering_static_v1 仅 static+hull
     mass_kg: float | None
     inertia_mode: str | None # static 可省略；free 强制惯量策略及正质量
     seed: int
@@ -324,10 +325,12 @@ is_watertight、方向一致、正体积只是必要条件，不足以证明积�
 outputs/<name>_<short-id>/
 ├── model.xml                  # 单资产独立可编译，无全局地面/灯光
 ├── scene.xml                  # 带地面、灯光、相机的演示场景
+├── contact_scene.xml          # M1.2候选可选：公开双方同参数的探针场景
 ├── meshes/visual_000.obj
 ├── meshes/collision_000.obj
 ├── textures/basecolor_000.png
 ├── conversion_manifest.json
+├── contact_result_manifest.json # 运行native后记录实际参数、范围和统计
 ├── validation_report.json
 ├── conversion.log
 └── previews/{front.png,side.png,iso.png,collision.png}

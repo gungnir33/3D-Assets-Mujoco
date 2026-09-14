@@ -1,0 +1,8 @@
+{
+  "compile": "passed",
+  "physics": "passed",
+  "render": "passed",
+  "appearance_review": "pending",
+  "asset_physics_sha256": "f71cd828f71a291a1c1653af5ae16cfa5ffbcd11e1f80d455806c2d05c158b08",
+  "evidence_issues": []
+}

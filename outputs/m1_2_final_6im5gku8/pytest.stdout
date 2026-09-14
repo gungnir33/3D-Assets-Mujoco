@@ -1,0 +1,13 @@
+........................................................................ [ 60%]
+s...............................................                         [100%]
+=========================== short test summary info ============================
+SKIPPED [1] tests/integration/test_render_backend.py:13: osmesa 不可用或探测失败: _init__.py", line 4, in <module>
+    from OpenGL.GL.VERSION.GL_1_1 import *
+  File "/home/mcl/anaconda3/envs/asset_mujoco_m1_1_rebuild/lib/python3.10/site-packages/OpenGL/GL/VERSION/GL_1_1.py", line 14, in <module>
+    from OpenGL.raw.GL.VERSION.GL_1_1 import *
+  File "/home/mcl/anaconda3/envs/asset_mujoco_m1_1_rebuild/lib/python3.10/site-packages/OpenGL/raw/GL/VERSION/GL_1_1.py", line 7, in <module>
+    from OpenGL.raw.GL import _errors
+  File "/home/mcl/anaconda3/envs/asset_mujoco_m1_1_rebuild/lib/python3.10/site-packages/OpenGL/raw/GL/_errors.py", line 4, in <module>
+    _error_checker = _ErrorChecker( _p, _p.GL.glGetError )
+AttributeError: 'NoneType' object has no attribute 'glGetError'
+119 passed, 1 skipped in 24.56s

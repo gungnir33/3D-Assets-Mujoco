@@ -1,0 +1,57 @@
+{
+  "diagnostic": true,
+  "contact_profile": "engineering_static_v1",
+  "cases": [
+    {
+      "name": "baseline"
+    },
+    {
+      "name": "dt_001",
+      "dt": 0.001
+    },
+    {
+      "name": "dt_0005",
+      "dt": 0.0005
+    },
+    {
+      "name": "analytic_plane",
+      "geometry": "tangent_plane"
+    },
+    {
+      "name": "offset_x_005",
+      "offset_x_m": 0.05
+    },
+    {
+      "name": "mass_02",
+      "mass_kg": 0.2
+    },
+    {
+      "name": "radius_12",
+      "radius_multiplier": 1.2
+    },
+    {
+      "name": "counterparty_mismatch",
+      "probe_solref": [
+        0.02,
+        1
+      ]
+    }
+  ],
+  "total_time_s": 2.0,
+  "threshold_m": 0.005,
+  "source": "/home/mcl/workspace/3D-Assets-Mujoco/outputs/m1_2_final_6im5gku8/engineering_static_v1/acceptance-5ljztt1b/packages/penguin_fb9002dbf5e8",
+  "source_hashes": {
+    "contact_scene.xml": "2af80a672fdd917468bea9eb50527320b3b1ddcfad9c034f398c34a0661dfd02",
+    "conversion_manifest.json": "f68dfb5c5e0f5805153abdadfbb1428e377078cda841374c6ad6e01764cf2eec",
+    "meshes/collision.obj": "887a8c2d70b76d21b50dc1d0a596fc51fd3d094b93bb8423a860471db70f5de6",
+    "meshes/visual_000.obj": "270db08ce25e523b76816ba335cd4c83fa523f87225fc277c201a923dbac722b",
+    "model.xml": "717ecbad38c19844d7d2b5478ff808813fefa7346aacf446736d71f5737e235c",
+    "scene.xml": "074a89b9ac4dd3f212218821600d2d1506e340064f5dc863652eccc662fbfc35",
+    "textures/visual_000.png": "d5ed04dc65d06e127a02ec5c1ecfefe0234f4363525123fd6dfdd35e8bc833b4"
+  },
+  "application_force_limit": "not_specified",
+  "limits": "individual observed conditions only; no material or robot safety calibration",
+  "analytic_geometry": "infinite plane tangent at baseline first contact; curvature and finite boundary differ",
+  "mass_radius": "sphere explicit inertia updated consistently; initial position otherwise unchanged",
+  "mismatch": "probe only .02; delivered asset and ground remain .006; not a compliant profile case"
+}

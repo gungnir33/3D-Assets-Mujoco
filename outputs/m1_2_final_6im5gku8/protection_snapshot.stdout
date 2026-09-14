@@ -1,0 +1,41 @@
+{
+  "head": "cdf39ba9d131b735572a2a74767410c5e9d2ae2d",
+  "branch": "main",
+  "remote": "origin\thttps://github.com/gungnir33/3D-Assets-Mujoco.git (fetch)\norigin\thttps://github.com/gungnir33/3D-Assets-Mujoco.git (push)",
+  "status": "M deployment_manifest.json\n M docs/design/M1_2_IMPLEMENTATION_PLAN.md\n M docs/design/PHASE2_MUJOCO_DESIGN.md\n?? PHASE2_M1_1_CODEX_FIX_INSTRUCTIONS.md\n?? docs/design/M1_2_CONTACT_PROFILE_REPORT.md\n?? outputs/m1_2_final_6im5gku8/",
+  "phase1_head": "c78d96ea41a692917918af3d9ce4d3821be64f2b",
+  "phase1_status": "",
+  "source_sha256": "12f1ed66a874efbdb3c350d819c1f6e076de469e7dc191d236de82073fdd2e12",
+  "history": {
+    "conversion.log": "bb7aabda0da186606488ac64b8db3933767fda184494b6c28e8878a5cb54db57",
+    "conversion_manifest.json": "f4a9f3acc4a1b6233aab101015deaa0b86debec13ee42b722001283611386ad1",
+    "evidence_manifest.json": "281066f8b21c5a0ee5a223680d9f0587730f83f88a1905062125954f2c4dc0ca",
+    "failure.json": "e88c4f9f32a70ee49d0d53d92d5847cce20f7e591eb86a00cfe953a8a21be2a0",
+    "meshes/collision.obj": "887a8c2d70b76d21b50dc1d0a596fc51fd3d094b93bb8423a860471db70f5de6",
+    "meshes/visual_000.obj": "270db08ce25e523b76816ba335cd4c83fa523f87225fc277c201a923dbac722b",
+    "model.xml": "f1a31838bb5acf4107dc8b4cbf2825febc1d08a23cb472d8f3e22cf7798c5785",
+    "physics_benchmark.xml": "1a66853a94ed399f60119270f04eba0940d2b0dbf285708d7c0c2c392e42432c",
+    "physics_evidence.json": "d44106b8d2b975d98c211b3fddfc88ba60aa80c3798590fec78000513a63c25f",
+    "physics_native.xml": "3e0095c9ae8c28049e9ded98e4a2f2c3ef0179a754889687485adad925801ee6",
+    "previews/collision.png": "bee48d1522217ef6cdf35a273e974f3ad77873b83d4187af70e3c3ee2f2deebe",
+    "previews/front.png": "71e4ff5e0dd9db6849b32b6906ce4e57cfbe87487037825fb0c72f2450f01215",
+    "previews/iso.png": "00d4f8a792dcc1ae74259658af3ad67dcd91edd24c65c23c5023ba8eb184cf6c",
+    "previews/side.png": "9f90ed6c2fc36814e342794479cafbd4674e135416d4052941fa7c55f3ed9b0d",
+    "render_config.json": "fe9a94be6c0a82bca251b0579b11742cfefea0752f6ff3166daa6e95e7b68a48",
+    "render_evidence.json": "80d85df351d0f2c6c64991e9e874b872ee8650d5742ce76f5e2355eee2bec4df",
+    "scene.xml": "294c793c43e53a533959afe0fad41fb9b13c45fdf2104d0489f63cdb3f874d62",
+    "textures/visual_000.png": "d5ed04dc65d06e127a02ec5c1ecfefe0234f4363525123fd6dfdd35e8bc833b4",
+    "validation_report.json": "f629d6adffee5bdb29ea864b348fd1a17e49950135ac2ecce86a5374518feca1"
+  },
+  "python": "3.10.21 (main, Aug 27 2026, 14:42:07) [GCC 14.3.0]",
+  "dependencies": {
+    "asset-mujoco": "0.1.0",
+    "mujoco": "3.4.0",
+    "trimesh": "4.7.4",
+    "numpy": "2.2.6",
+    "Pillow": "11.3.0",
+    "pytest": "8.4.1",
+    "pydantic": "2.11.7",
+    "scipy": "1.15.3"
+  }
+}
