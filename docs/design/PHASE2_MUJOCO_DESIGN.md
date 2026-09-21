@@ -277,6 +277,8 @@ decompose：使用 CoACD 在清理后的碰撞副本上作近似凸分解。提�
 
 supplied：必须提供 collision_proxy_path，逐 component 检查闭合凸性；节点展开后用视觉决定的全局 G（第 6 节）。代理只是候选几何，保留孔道仍须当前资产探针实测。
 
+任务 8A 实现契约：最多 32 部件、50,000 总三角面、每部件 10,000 顶点；仅实例内零容差焊接，不修面/简化。physics/full 必须显式指定 validation_collision_part，只验证该部件与 probe（static）或 ground（free）的必需对；其他部件观察不能代替目标。所有资源均绑定证据，限制 SELECTED_COLLISION_PART_ONLY。engineering_static_v1 不扩展到 supplied。详见 [8A 使用说明](../usage/COLLISION_PROXY.md) 和 [实施记录](TASK8A_IMPLEMENTATION_REPORT.md)。本增补依据用户明确授权 8A+9，不扩大为 CoACD/质量积分/孔洞专项授权。
+
 none：仅 static 且用户显式 validation_level=compile 允许，标记 VISUAL_ONLY；physics/full 请求拒绝，不能标物理成功。可单独渲染预览。
 
 孔洞测试依赖 MJCF、仿真夹具，安排任务 8（任务 7 和首里程碑之后）。分别记录标准夹具回归和当前资产 hole_validation；当前资产未配置探针路径时必须为 not_tested，不借用标准夹具结论。

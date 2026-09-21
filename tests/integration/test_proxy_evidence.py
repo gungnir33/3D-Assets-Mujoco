@@ -135,3 +135,25 @@ def test_free_proxy_observations_do_not_claim_force_on_probe(tmp_path):
     for name, stats in observations.items():
         assert stats['force_object'] == name
         assert 'world_impulse_on_probe_N_s' not in stats
+
+
+def test_installed_proxy_cli_reports_actual_full_outcome(tmp_path):
+    import subprocess
+    import sys
+    package, base = package_with_proxy(tmp_path)
+    command = [sys.executable, '-I', '-B', '-m', 'asset_mujoco.cli', 'convert', str(base.input),
+               '--output', str(tmp_path / 'cli'), '--source-up', 'z', '--collision-mode', 'supplied',
+               '--collision-proxy', str(base.collision_proxy_path), '--validation-collision-part', '0',
+               '--validation-level', 'full']
+    run = subprocess.run(command, capture_output=True, text=True, timeout=120)
+    result = json.loads(run.stdout)
+    assert result['compile'] == 'passed' and result['render'] == 'passed'
+    assert result['validation_scope']['evidence_status'] == 'verified'
+    assert result['validation_scope']['required_pairs'] == [['asset_collision_000', 'probe']]
+    assert result['physics'] in ('passed', 'failed')
+    assert run.returncode == (0 if result['physics'] == 'passed' else 5)
+    report = subprocess.run([sys.executable, '-I', '-B', '-m', 'asset_mujoco.cli', 'report', result['package']],
+                            capture_output=True, text=True, timeout=30)
+    queried = json.loads(report.stdout)
+    for key in ('compile', 'physics', 'render', 'validation_scope', 'limitations', 'status'):
+        assert queried[key] == result[key]

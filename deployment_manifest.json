@@ -1,4 +1,15 @@
 {
+  "task8a": {
+    "code_commit": "db42a76",
+    "environment": "/home/mcl/anaconda3/envs/asset_mujoco_m1_1_rebuild_8a9_20260921_5Ibcv05j",
+    "installed_source_files_matched": 22,
+    "pip_check": "passed",
+    "installed_regression": {"passed": 226, "skipped": 1, "duration_s": 43.77, "skip_reason": "OSMesa OpenGL loader unavailable"},
+    "additional_installed_cli_test": {"passed": 1},
+    "user_proxy_validation": "not_tested",
+    "hole_validation": "not_tested",
+    "report": "docs/design/TASK8A_IMPLEMENTATION_REPORT.md"
+  },
   "schema_version": 3,
   "project_code_commit": "f1b91b05f310a6f906a92df542956bcd86774d9a",
   "remote": "https://github.com/gungnir33/3D-Assets-Mujoco.git",

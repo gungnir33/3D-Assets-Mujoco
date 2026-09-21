@@ -116,6 +116,8 @@ diagnostics先重测基线、一致后运行预先保存的小规模A–D参数�
 
 ## M1.2 可选工程接触配置（受限使用）
 
+任务 8A 新增自备闭合凸碰撞代理：[使用说明](docs/usage/COLLISION_PROXY.md)、[实施证据](docs/design/TASK8A_IMPLEMENTATION_REPORT.md)。代理共享视觉坐标变换，physics/full 必须显式指定验证部件；不表示整个任务 8 或孔洞专项完成。
+
 默认 `--contact-profile preserve`，不改变原始行为。仅 static+hull 可显式选择 `engineering_static_v1`：
 
 ```bash
