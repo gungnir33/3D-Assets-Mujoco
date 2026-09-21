@@ -15,7 +15,7 @@ from .collision import hull
 from .materials import export_visual
 from .mjcf import document
 from .contracts import ValidationResult
-from .manifest import record_layer,compile_resources,EvidenceIOError
+from .manifest import record_layer,compile_resources,EvidenceIOError,refresh_report
 from .contact_profiles import contact_scene,profile_manifest
 
 class ValidationFailed(ValueError):
@@ -64,6 +64,7 @@ def convert(request):
                   "transform":info["matrix"],"final_size_m":info["final_size_m"],"converter_mujoco":mujoco.__version__,
                   "host_compatibility":"pending","visuals":visuals,"hole_validation":"not_tested"}
         metadata["tolerances"]={"target":{"rtol":.02,"atol_m":1e-7},"geometry":{"rtol":1e-6,"atol_m":1e-7},"inertia":{"rtol":1e-8,"atol_kg_m2":1e-12}}
+        metadata["scope_reporting_version"]=1
         metadata["physical_scale_verified"]=False
         metadata['contact_profile']=profile_manifest(request.contact_profile)
         metadata["scale_evidence"]={
@@ -79,6 +80,7 @@ def convert(request):
         resources=compile_resources(staging)
         record_layer(staging,"compile","passed",resources,{"mujoco":mujoco.__version__,"forward":True})
         (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
+        result=refresh_report(staging)
         if request.validation_level!="compile":
             from .validation import validate_physics
             try:
@@ -107,6 +109,7 @@ def convert(request):
             record_layer(staging,"render","passed",resources+["render_config.json","render_evidence.json"]+render_report["images"],
                          {"mujoco":mujoco.__version__,"backend":render_report["backend"]})
         (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
+        result=refresh_report(staging)
         (staging/"conversion.log").write_text("duration_s="+str(time.monotonic()-started)+"\n")
         if result.physics=="failed":
             raise ValidationFailed(staging,result)

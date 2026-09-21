@@ -51,13 +51,14 @@ def test_legacy_evidence_is_insufficient(tmp_path,capsys):
 
 def test_render_and_review_bound_to_previews(tmp_path,capsys):
     from asset_mujoco.rendering import render_package
-    from asset_mujoco.manifest import record_layer,compile_resources,save_review
+    from asset_mujoco.manifest import record_layer,compile_resources,save_review,refresh_report
     from asset_mujoco.contracts import ValidationResult
     package=compiled_package(tmp_path)
     rendered=render_package(package,[1,1,1])
     record_layer(package,"render","passed",compile_resources(package)+["render_config.json","render_evidence.json"]+rendered["images"],{"backend":rendered["backend"]})
     state=ValidationResult(compile="passed",render="passed")
     (package/"validation_report.json").write_text(state.model_dump_json())
+    refresh_report(package)
     save_review(package,"synthetic-test-reviewer","approved",["previews/iso.png"])
     before=report(package,capsys)
     assert before["appearance_review"]=="approved"

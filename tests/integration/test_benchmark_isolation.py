@@ -57,7 +57,9 @@ def test_native_exception_keeps_compile_never_passes(tmp_path,monkeypatch):
     package=caught.value.package
     state=checked_report(package)
     assert state.compile==state.render=='passed'
-    assert state.physics=='failed' and not state.evidence_issues
+    assert state.physics=='failed'
+    assert state.validation_scope.evidence_status=='missing'
+    assert state.evidence_issues==['scope: required_scope_files_not_bound']
     native=json.loads((package/'physics_native_evidence.json').read_text())['native']
     assert native['exception']['type']=='ValueError'
     assert native['status']=='failed'

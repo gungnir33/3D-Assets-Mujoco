@@ -2,7 +2,7 @@
 import xml.etree.ElementTree as ET
 import mujoco
 import numpy as np
-from .manifest import record_layer,compile_resources,write_evidence,EvidenceIOError
+from .manifest import record_layer,compile_resources,write_evidence,EvidenceIOError,refresh_report
 from .contact_profiles import ENGINEERING_SOLREF,ENGINEERING_SOLIMP
 from .contact_statistics import ContactStatistics
 
@@ -154,6 +154,7 @@ def validate_physics(package,request,size):
     state.physics=native['status']
     state.asset_physics_sha256=entry['sha256'] if native['status']=='passed' else None
     write_evidence(package,'validation_report.json',state.model_dump())
+    refresh_report(package)
     # 此处native及其hash已经持久化，benchmark不是physics层的依赖。
     benchmark=run('benchmark')
     write_evidence(package,'benchmark_evidence.json',benchmark)

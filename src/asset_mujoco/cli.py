@@ -54,11 +54,17 @@ def main(argv=None):
         if args["supplied_inertia"]:
             args["supplied_inertia"]=json.loads(args["supplied_inertia"].read_text())
         request=ConversionRequest(**args)
-        from .pipeline import convert as run
-        package=run(request)
-        result=ValidationResult.model_validate_json((package/"validation_report.json").read_text())
+        from .pipeline import convert as run,ValidationFailed
+        try:
+            package=run(request)
+        except ValidationFailed as error:
+            result=checked_report(error.package)
+            print(json.dumps({"package":str(error.package),**result.model_dump(),
+                "error":{"code":"VALIDATION_FAILED","message":str(error)}}))
+            return 5
+        result=checked_report(package)
         print(json.dumps({"package":str(package),"status":result.aggregate(),**result.model_dump()}))
-        return 0
+        return 5 if result.evidence_issues or result.aggregate() in ('FAILED','INVALID_EVIDENCE') else 0
     except (ValidationError,FileNotFoundError) as error:
         print(json.dumps({"error":{"code":"INVALID_INPUT","message":str(error)}}))
         return 2

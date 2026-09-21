@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from datetime import datetime,timezone
 import xml.etree.ElementTree as ET
+import math
 
 class EvidenceIOError(OSError):
     """证据未可靠保存；不能以物理通过发布包。"""
@@ -57,10 +58,115 @@ def record_layer(root,layer,status,paths,context):
     write_evidence(root,target.name,document)
     return entry
 
+SCOPE_FIELDS=('contact_profile','validation_scope','followup_ground','application_force_limit',
+              'host_integration','robot_contact_safety','physics_error','limitations')
+
+def _scope_projection(root,result,verified,document):
+    """只从已核对的层取事实；无引擎调用、无写入、无按名称补签。"""
+    from .contracts import ValidationScope,GroundObservation
+    result.contact_profile=None
+    result.validation_scope=ValidationScope()
+    result.followup_ground=GroundObservation()
+    result.physics_error=None
+    result.application_force_limit='not_specified'
+    result.host_integration='pending'
+    result.robot_contact_safety='not_validated'
+    result.limitations=['SCOPED_TO_DECLARED_CONTACT_CASE','WHOLE_SCENE_NOT_VALIDATED',
+        'HOST_INTEGRATION_PENDING','ROBOT_CONTACT_SAFETY_NOT_VALIDATED','APPLICATION_FORCE_LIMIT_NOT_SPECIFIED']
+
+    def insufficient(status,reason):
+        result.validation_scope.evidence_status=status
+        result.evidence_issues.append('scope: '+reason)
+        result.limitations.append('SCOPE_EVIDENCE_INSUFFICIENT')
+
+    if 'compile' not in verified:
+        insufficient('stale' if document.get('layers') else 'missing','compile_basis_unavailable')
+        return
+    meta=json.loads((root/'conversion_manifest.json').read_text())
+    request=meta.get('request',{})
+    profile=request.get('contact_profile')
+    declared=meta.get('contact_profile',{}).get('id')
+    result.contact_profile=profile if profile is not None else declared
+    body=request.get('body_mode')
+    pair=['asset_collision','probe'] if body=='static' else ['asset_collision','ground'] if body=='free' else []
+    result.validation_scope=ValidationScope(
+        case_id='native_asset_probe_v1' if body=='static' else 'native_asset_ground_v1' if body=='free' else None,
+        required_pairs=[pair] if pair and request.get('collision_mode')!='none' else [],
+        evidence_status='declared',evidence_refs={'conversion_manifest.json':verified['compile']['files']['conversion_manifest.json']})
+    if 'physics' not in verified:
+        if any(s.startswith('physics:') for s in result.evidence_issues):
+            insufficient('stale','native_layer_unavailable')
+        return
+    entry=verified['physics']
+    primary=entry['context'].get('native_evidence','physics_evidence.json')
+    native=json.loads((root/primary).read_text()).get('native',{})
+    result.physics_error=native.get('error')
+    needed={primary,'physics_native.xml','contact_result_manifest.json','conversion_manifest.json'}
+    if result.contact_profile=='engineering_static_v1':
+        needed.add('contact_scene.xml')
+    if not needed.issubset(entry['files']):
+        insufficient('missing','required_scope_files_not_bound')
+        return
+    contact=json.loads((root/'contact_result_manifest.json').read_text())
+    result.validation_scope.evidence_refs={p:entry['files'][p] for p in sorted(needed)}
+    try:
+        if not pair or not result.contact_profile or (profile is not None and declared is not None and profile!=declared):
+            raise ValueError('missing_or_conflicting_declaration')
+        if native.get('kind')!='native' or native.get('status')!=entry['status'] or native['expected_pair']!=pair:
+            raise ValueError('native_case_conflict')
+        if native['profile_contract']['id']!=result.contact_profile or contact['contact_profile']!=result.contact_profile:
+            raise ValueError('profile_conflict')
+        mirror={'acceptance_scope':'acceptance_scope','followup_ground':'followup_ground',
+                'contact_statistics':'contact_statistics','resolved_geoms':'objects',
+                'first_resolved_contact':'resolved_contact','profile_contract':'contract'}
+        if any(native[a]!=contact[b] for a,b in mirror.items()):
+            raise ValueError('native_contact_manifest_conflict')
+        if not native['acceptance_scope'].startswith(':'.join(pair)+';'):
+            raise ValueError('scope_pair_conflict')
+        for key in ('dt','steps','time','penetration_limit_m'):
+            if not isinstance(native[key],(int,float)) or not math.isfinite(native[key]) or native[key]<=0:
+                raise ValueError('invalid_native_condition_'+key)
+        if not math.isclose(native['time'],native['steps']*native['dt'],rel_tol=1e-8,abs_tol=1e-10):
+            raise ValueError('native_duration_conflict')
+        ground=native['followup_ground']
+        if ground['mandatory_for_physics'] is not False or ground['comparison_threshold_m']!=native['penetration_limit_m']:
+            raise ValueError('ground_contract_conflict')
+        if contact.get('application_force_limit')!='not_specified':
+            raise ValueError('unsupported_force_limit_claim')
+        fixture=ET.parse(root/'physics_native.xml').getroot()
+        option=fixture.find('option')
+        probe=fixture.find(".//body[@name='probe_body']")
+        result.validation_scope.conditions={
+            key:native[key] for key in ('dt','steps','time','initial_position','penetration_limit_m','mujoco',
+                                      'resolved_geoms','first_resolved_contact')}
+        result.validation_scope.conditions.update(
+            fixture='physics_native.xml',acceptance_scope=native['acceptance_scope'],
+            option=dict(option.attrib) if option is not None else {},
+            option_flags=dict(option.find('flag').attrib) if option is not None and option.find('flag') is not None else {},
+            probe_fixture=ET.tostring(probe,encoding='unicode') if probe is not None else None)
+        result.followup_ground=GroundObservation(status=ground['status'],mandatory_for_physics=False,
+            comparison_threshold_m=ground['comparison_threshold_m'],
+            evidence_refs={p:entry['files'][p] for p in (primary,'contact_result_manifest.json')})
+        result.validation_scope.evidence_status='verified'
+        if ground['status']=='failed':
+            result.limitations.append('FOLLOWUP_GROUND_FAILED')
+    except (KeyError,TypeError,ValueError,ET.ParseError) as error:
+        insufficient('contradictory',str(error))
+
 def checked_report(root):
+    return _build_report(Path(root),check_projection=True)
+
+def refresh_report(root):
+    """仅供新包引擎写路径；派生投影不重签层证据。历史report禁止调用。"""
+    result=_build_report(Path(root),check_projection=False)
+    write_evidence(root,'validation_report.json',result.model_dump())
+    return result
+
+def _build_report(root,*,check_projection):
     from .contracts import ValidationResult
-    root=Path(root)
-    result=ValidationResult.model_validate_json((root/"validation_report.json").read_text())
+    raw=json.loads((root/'validation_report.json').read_text())
+    result=ValidationResult.model_validate(raw)
+    result.evidence_issues=[]
     target=root/"evidence_manifest.json"
     try:
         document=json.loads(target.read_text())
@@ -68,6 +174,7 @@ def checked_report(root):
             raise ValueError("不支持的证据格式")
     except (OSError,ValueError):
         document={"layers":{}}
+    verified={}
     for layer in ("compile","physics","render"):
         state=getattr(result,layer)
         if state not in ("passed","failed"):
@@ -90,15 +197,29 @@ def checked_report(root):
                 if layer=="physics" and state=="passed":
                     evidence=json.loads((root/primary).read_text())
                     valid=valid and evidence.get("native",{}).get("status")=="passed"
+                    valid=valid and result.asset_physics_sha256==entry['sha256']
             except (OSError,ValueError,KeyError):
                 valid=False
         if not valid:
             setattr(result,layer,"not_run")
             result.evidence_issues.append(layer+": missing_or_stale_evidence")
+        else:
+            verified[layer]=entry
     if result.compile!="passed":
         for layer in ("physics","render"):
             if getattr(result,layer)=="passed":
                 setattr(result,layer,"not_run")
+    _scope_projection(root,result,verified,document)
+    bound_scope_version=None
+    if 'compile' in verified:
+        bound_scope_version=json.loads((root/'conversion_manifest.json').read_text()).get('scope_reporting_version')
+    if check_projection and (raw.get('scope_report_version')==1 or bound_scope_version==1) and not result.evidence_issues:
+        derived=result.model_dump()
+        if any(raw.get(key)!=derived[key] for key in SCOPE_FIELDS):
+            result.validation_scope.evidence_status='contradictory'
+            result.evidence_issues.append('scope: cached_projection_conflicts_with_bound_evidence')
+            result.limitations.append('SCOPE_EVIDENCE_INSUFFICIENT')
+    result.scope_report_version=1
     review=root/"appearance_review.json"
     result.appearance_review=review_status(root,json.loads(review.read_text())) if review.exists() else "pending"
     if result.evidence_issues:

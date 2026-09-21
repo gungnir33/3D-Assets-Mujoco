@@ -44,9 +44,11 @@ def run_acceptance(source,output,contact_profile='preserve'):
         state=checked_report(package)
         report.update(state.model_dump())
         report['package']=str(package)
-        evidence=json.loads((package/'physics_evidence.json').read_text())
-        report['benchmark']=evidence['benchmark']
-        report['native']=evidence['native']
+        layers=json.loads((package/'evidence_manifest.json').read_text())['layers']
+        primary=layers.get('physics',{}).get('context',{}).get('native_evidence','physics_evidence.json')
+        report['native']=json.loads((package/primary).read_text())['native']
+        benchmark=package/'benchmark_evidence.json'
+        report['benchmark']=json.loads(benchmark.read_text()) if benchmark.is_file() else {'status':'unknown'}
         relocated=root/'relocated_package'
         shutil.copytree(package,relocated)
         rows=[]
@@ -60,7 +62,8 @@ def run_acceptance(source,output,contact_profile='preserve'):
         report['package_sha256']=fingerprint(package)
         report['source_unchanged']=report['source_sha256']==hashlib.sha256(source.read_bytes()).hexdigest()
         passed=all(getattr(state,k)=='passed' for k in ('compile','physics','render'))
-        passed=passed and evidence['native']['status']=='passed' and equal and report['source_unchanged'] and not state.evidence_issues
+        passed=passed and state.aggregate() in ('SCOPED_PHYSICS_VALIDATED','SCOPED_FULLY_VALIDATED')
+        passed=passed and report['native']['status']=='passed' and equal and report['source_unchanged'] and not state.evidence_issues
         report['automatic_validation']='passed' if passed else 'failed'
         report['exit_code']=0 if passed else 5
     except Exception as error:
