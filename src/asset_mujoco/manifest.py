@@ -88,9 +88,10 @@ def _scope_projection(root,result,verified,document):
     declared=meta.get('contact_profile',{}).get('id')
     result.contact_profile=profile if profile is not None else declared
     body=request.get('body_mode')
-    from .collision_scope import resolve_collision_case
+    from .collision_scope import resolve_collision_case,validate_collision_mapping
     try:
         case=resolve_collision_case(meta)
+        validate_collision_mapping(root,meta,('model.xml','scene.xml'))
     except (ValueError,KeyError,TypeError) as error:
         insufficient('contradictory','collision_case_conflict: '+str(error))
         return
@@ -127,6 +128,24 @@ def _scope_projection(root,result,verified,document):
                 'first_resolved_contact':'resolved_contact','profile_contract':'contract'}
         if any(native[a]!=contact[b] for a,b in mirror.items()):
             raise ValueError('native_contact_manifest_conflict')
+        if request.get('collision_mode')=='supplied':
+            validate_collision_mapping(root,meta,('physics_native.xml',))
+            for key, expected in (('collision_case',case),('body_mode',body),
+                                  ('target_index',request['validation_collision_part'])):
+                if native.get(key)!=expected or contact.get(key)!=expected:
+                    raise ValueError('supplied_case_manifest_conflict')
+            observations=native['contact_statistics']['per_collision_part']
+            if set(observations)!=set(case['collision_geoms']):
+                raise ValueError('supplied_observation_set_conflict')
+            if not set(case['collision_geoms']).issubset(native['resolved_geoms']):
+                raise ValueError('supplied_resolved_geoms_conflict')
+            for name, observation in observations.items():
+                if observation.get('force_object')!=name or observation.get('mandatory')!=(name==case['target_geom']):
+                    raise ValueError('supplied_observation_target_conflict')
+            selected=observations[case['target_geom']]
+            if selected['contact_records']!=native['contact_count'] or not math.isclose(
+                    selected['max_penetration_m'],native['max_penetration_m'],rel_tol=1e-9,abs_tol=1e-12):
+                raise ValueError('supplied_observation_native_conflict')
         if not native['acceptance_scope'].startswith(':'.join(pair)+';'):
             raise ValueError('scope_pair_conflict')
         for key in ('dt','steps','time','penetration_limit_m'):

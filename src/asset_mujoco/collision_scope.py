@@ -29,3 +29,27 @@ def resolve_collision_case(metadata: dict) -> dict:
     return {'case_id': 'native_supplied_part_probe_v1' if body == 'static' else 'native_supplied_part_ground_v1',
             'target_geom': selected, 'required_pairs': [] if selected is None else [[selected, other]],
             'collision_geoms': names, 'limitations': ['SELECTED_COLLISION_PART_ONLY']}
+
+
+def validate_collision_mapping(root, metadata, filenames):
+    """已绑定清单仍须与所有 XML 的实际 geom→mesh→file 关系一致。"""
+    import hashlib
+    import xml.etree.ElementTree as ET
+    if metadata['request'].get('collision_mode') != 'supplied':
+        return
+    case = resolve_collision_case(metadata)
+    for part in metadata['collision_proxy']['parts']:
+        if hashlib.sha256((root / part['file']).read_bytes()).hexdigest() != part.get('sha256'):
+            raise ValueError('COLLISION_SCOPE_RESOURCE_DIGEST_CONFLICT')
+    for filename in filenames:
+        xml = ET.parse(root / filename).getroot()
+        all_geoms = [g.get('name') for g in xml.findall('.//geom')
+                     if (g.get('name') or '').startswith('asset_collision')]
+        if sorted(all_geoms) != sorted(case['collision_geoms']):
+            raise ValueError('COLLISION_SCOPE_GEOM_SET_CONFLICT')
+        for part in metadata['collision_proxy']['parts']:
+            geoms = xml.findall(".//geom[@name='" + part['geom_name'] + "']")
+            meshes = xml.findall("./asset/mesh[@name='" + part['mesh_name'] + "']")
+            if (len(geoms) != 1 or len(meshes) != 1 or geoms[0].get('mesh') != part['mesh_name']
+                    or meshes[0].get('file') != part['file']):
+                raise ValueError('COLLISION_SCOPE_XML_MAPPING_CONFLICT')

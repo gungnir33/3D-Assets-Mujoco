@@ -1,5 +1,6 @@
 """原始碰撞配置是验收；强制 contact pair 只属于独立 benchmark。"""
 import xml.etree.ElementTree as ET
+import json
 import mujoco
 import numpy as np
 from .manifest import record_layer,compile_resources,write_evidence,EvidenceIOError,refresh_report
@@ -16,6 +17,12 @@ def check_state(model,data,step,expected_time):
         raise ValueError("SIMULATION_WARNING first_step="+str(step)+" counters="+str(data.warning.number))
 
 def run_contact_case(package,request,size,*,benchmark=False,initial_position=None):
+    from .collision_scope import resolve_collision_case
+    case=resolve_collision_case(json.loads((package/'conversion_manifest.json').read_text()))
+    if not case['required_pairs']:
+        raise ValueError('COLLISION_SCOPE_TARGET_REQUIRED')
+    pair=tuple(case['required_pairs'][0])
+    supplied=request.collision_mode=='supplied'
     engineering=request.contact_profile!='preserve'
     root=ET.parse(package/('contact_scene.xml' if engineering else 'scene.xml')).getroot()
     world=root.find("worldbody")
@@ -23,7 +30,6 @@ def run_contact_case(package,request,size,*,benchmark=False,initial_position=Non
         if initial_position is not None:
             raise ValueError('candidate native validation must use delivered probe conditions')
         initial_position=np.fromstring(world.find("body[@name='probe_body']").get('pos'),sep=' ').tolist()
-        pair=('asset_collision','probe')
     elif request.body_mode=="static":
         radius=max(size)*.025
         initial_position=list(initial_position) if initial_position is not None else [0,0,size[2]+max(size)*.2+radius]
@@ -32,12 +38,10 @@ def run_contact_case(package,request,size,*,benchmark=False,initial_position=Non
         inertia=.4*.1*radius**2
         ET.SubElement(body,"inertial",pos="0 0 0",mass=".1",diaginertia=f"{inertia} {inertia} {inertia}")
         ET.SubElement(body,"geom",name="probe",type="sphere",size=str(radius),mass=".1")
-        pair=("asset_collision","probe")
     else:
         body=world.find("body")
         initial_position=list(initial_position) if initial_position is not None else [0,0,max(size)*.1]
         body.set("pos"," ".join(map(str,initial_position)))
-        pair=("asset_collision","ground")
     if root.find(".//pair") is not None:
         raise ValueError("原始配置验收不接受已有强制接触 pair")
     if benchmark:
@@ -67,7 +71,8 @@ def run_contact_case(package,request,size,*,benchmark=False,initial_position=Non
     error=None
     step=0
     limit=min(.005,.02*size[2])
-    statistics=ContactStatistics()
+    statistics=ContactStatistics(collision_geoms=case['collision_geoms'] if supplied else None,
+                                 target_geom=case['target_geom'])
     for step in range(1,1001):
         try:
             qvel_before=data.qvel.copy()
@@ -95,7 +100,7 @@ def run_contact_case(package,request,size,*,benchmark=False,initial_position=Non
     if -worst>limit:
         error=error or "ASSET_CONTACT_FAILED: penetration="+str(-worst)
     geoms={}
-    for name in set(pair)|({'ground'} if engineering else set()):
+    for name in set(pair)|set(case['collision_geoms'])|({'ground'} if engineering else set()):
         i=model.geom(name).id
         geoms[name]={k:np.asarray(getattr(model,"geom_"+k)[i]).tolist() for k in ("contype","conaffinity","friction","solref","solimp","pos","priority","solmix")}
     contract={'id':request.contact_profile,'matched':None,'application_force_limit':'not_specified'}
@@ -109,6 +114,8 @@ def run_contact_case(package,request,size,*,benchmark=False,initial_position=Non
                    ('passed' if ground['max_penetration_m']<=limit and not np.any(data.warning.number) and
                     all(np.isfinite(a).all() for a in (data.qpos,data.qvel,data.qacc,data.energy)) else 'failed'))
     return {"kind":kind,"status":"failed" if error else "passed","error":error,
+            **({'collision_case':case,'body_mode':request.body_mode,
+                'target_index':request.validation_collision_part} if supplied else {}),
             'acceptance_scope':':'.join(pair)+'; unchanged baseline conditions',
             'followup_ground':{'status':ground_status,'mandatory_for_physics':False,
                 'scope':'additional observation, not the baseline asset contact gate',
@@ -143,7 +150,9 @@ def validate_physics(package,request,size):
         'resolved_contact':native.get('first_resolved_contact'),'contract':native.get('profile_contract'),
         'contact_statistics':native.get('contact_statistics',{}),
         'acceptance_scope':native.get('acceptance_scope'),'followup_ground':native.get('followup_ground'),
-        'application_force_limit':'not_specified'})
+        'application_force_limit':'not_specified',
+        **({key:native.get(key) for key in ('collision_case','body_mode','target_index')}
+           if request.collision_mode=='supplied' else {})})
     write_evidence(package,'physics_native_evidence.json',{'status':native['status'],'native':native})
     paths=compile_resources(package)+['physics_native_evidence.json','contact_result_manifest.json']
     if (package/'physics_native.xml').is_file():

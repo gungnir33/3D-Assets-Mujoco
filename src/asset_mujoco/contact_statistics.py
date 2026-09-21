@@ -4,7 +4,9 @@ import numpy as np
 
 
 class ContactStatistics:
-    def __init__(self):
+    def __init__(self, collision_geoms=None, target_geom='asset_collision'):
+        self.collision_geoms = collision_geoms
+        self.target_geom = target_geom
         self.results = {name: {
             'contact_records': 0, 'normal_impulse_N_s': 0.,
             'world_impulse_on_probe_N_s': [0., 0., 0.],
@@ -14,12 +16,42 @@ class ContactStatistics:
             'max_separating_speed_during_contact_m_s': 0.,
             'first_resolved_contact': None, 'contact_intervals': [],
         } for name in ('asset_probe', 'ground_probe')}
+        if collision_geoms is not None:
+            self.results['per_collision_part'] = {name: {
+                'contact_records': 0, 'max_penetration_m': 0., 'first_contact_step': None,
+                'last_contact_step': None, 'peak_normal_force_N': 0., 'normal_impulse_N_s': 0.,
+                'world_impulse_on_collision_part_N_s': [0., 0., 0.],
+                'force_object': name, 'observed_pairs': [], 'first_resolved_contact': None,
+                'mandatory': name == target_geom,
+            } for name in collision_geoms}
 
     def sample(self, model, data, qvel_before, step, sample_time, dt):
         records = []
         for index, contact in enumerate(data.contact):
             names = [model.geom(int(i)).name for i in (contact.geom1, contact.geom2)]
-            if set(names) == {'asset_collision', 'probe'}:
+            if self.collision_geoms is not None:
+                for part in self.collision_geoms:
+                    other = 'probe' if 'probe' in names else 'ground'
+                    if set(names) != {part, other}:
+                        continue
+                    stats = self.results['per_collision_part'][part]
+                    force = np.zeros(6)
+                    mujoco.mj_contactForce(model, data, index, force)
+                    frame = np.asarray(contact.frame).reshape(3, 3)
+                    world_force = frame.T @ force[:3] * (1 if names[1] == part else -1)
+                    stats['contact_records'] += 1
+                    stats['max_penetration_m'] = max(stats['max_penetration_m'], -float(contact.dist))
+                    stats['peak_normal_force_N'] = max(stats['peak_normal_force_N'], float(force[0]))
+                    stats['normal_impulse_N_s'] += float(force[0]) * dt
+                    stats['world_impulse_on_collision_part_N_s'] = (
+                        np.asarray(stats['world_impulse_on_collision_part_N_s']) + world_force * dt).tolist()
+                    if stats['first_contact_step'] is None:
+                        stats['first_contact_step'] = step
+                        stats['first_resolved_contact'] = {k: getattr(contact,k).tolist() for k in ('solref','solimp','friction')}
+                    stats['last_contact_step'] = step
+                    if [part, other] not in stats['observed_pairs']:
+                        stats['observed_pairs'].append([part, other])
+            if set(names) == {self.target_geom, 'probe'}:
                 key = 'asset_probe'
             elif set(names) == {'ground', 'probe'}:
                 key = 'ground_probe'

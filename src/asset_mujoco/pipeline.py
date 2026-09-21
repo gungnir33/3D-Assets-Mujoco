@@ -81,8 +81,6 @@ def atomic_publish(staging,final):
 def convert(request):
     if request.collision_mode not in ("hull","none","supplied"):
         raise ValueError("复杂碰撞策略尚未实现（任务8）")
-    if request.collision_mode=='supplied' and request.validation_level!='compile':
-        raise ValueError('COLLISION_PROXY_PHYSICS_PENDING: 尚未接入显式部件验证')
     started=time.monotonic()
     parent=request.output.resolve()
     parent.mkdir(parents=True,exist_ok=True)
