@@ -36,6 +36,41 @@ def diagnostic_io_error(package,stage,original,persistence):
     error.persistence_error={'type':type(persistence).__name__,'message':str(persistence)}
     return error
 
+def publication_report(package,request):
+    """核心发布准入：从磁盘核对证据，不能用聚合标签代替请求层级。"""
+    try:
+        result=checked_report(package)
+    except (OSError,ValueError,KeyError,TypeError) as error:
+        result=ValidationResult(evidence_issues=['report: unreadable_evidence: '+str(error)])
+        raise ValidationFailed(package,result,code='EVIDENCE_INVALID',stage='publication',
+                               reason='无法核对最终报告: '+str(error)) from error
+    def reject(code,reason,exit_code=5):
+        raise ValidationFailed(package,result,code=code,stage='publication',reason=reason,exit_code=exit_code)
+    if result.physics=='failed':
+        reject('ASSET_CONTACT_FAILED',result.physics_error or '原生物理验收失败')
+    if result.evidence_issues or result.status=='INVALID_EVIDENCE':
+        reject('EVIDENCE_INVALID','; '.join(result.evidence_issues) or '范围或必需物理证据无效')
+    if result.status=='FAILED':
+        reject('VALIDATION_FAILED',result.render_error or '必需验证层失败')
+    missing=[]
+    if result.compile!='passed':
+        missing.append('compile=passed')
+    if request.collision_mode=='none':
+        if result.physics!='not_applicable':
+            missing.append('physics=not_applicable')
+    elif request.validation_level in ('physics','full'):
+        if result.physics!='passed':
+            missing.append('physics=passed')
+        if result.validation_scope.evidence_status!='verified':
+            missing.append('validation_scope=verified')
+    if request.validation_level=='full' and result.render!='passed':
+        missing.append('render=passed')
+    if missing:
+        unavailable=request.validation_level=='full' and result.render=='unavailable'
+        reject('RENDER_UNAVAILABLE' if unavailable else 'VALIDATION_INCOMPLETE',
+               '请求'+request.validation_level+'未完成: '+', '.join(missing),7 if unavailable else 5)
+    return result
+
 def atomic_publish(staging,final):
     libc=ctypes.CDLL(None,use_errno=True)
     # Linux renameat2 RENAME_NOREPLACE: 并发情况下也禁止覆盖。
@@ -125,13 +160,15 @@ def convert(request):
                 raise ValidationFailed(staging,result,code='RENDER_UNAVAILABLE' if result.render=='unavailable' else 'RENDER_FAILED',
                     stage='render',reason=str(error),exit_code=7 if result.render=='unavailable' else 5) from error
             result.render="passed"
-            record_layer(staging,"render","passed",resources+["render_config.json","render_evidence.json"]+render_report["images"],
-                         {"mujoco":mujoco.__version__,"backend":render_report["backend"]})
+            try:
+                record_layer(staging,"render","passed",resources+["render_config.json","render_evidence.json"]+render_report["images"],
+                             {"mujoco":mujoco.__version__,"backend":render_report["backend"]})
+            except OSError as error:
+                raise diagnostic_io_error(staging,'render.evidence',error,error) from error
         (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
         result=refresh_report(staging)
         (staging/"conversion.log").write_text("duration_s="+str(time.monotonic()-started)+"\n")
-        if result.physics=="failed":
-            raise ValidationFailed(staging,result)
+        result=publication_report(staging,request)
         atomic_publish(staging,final)
         for name in ("model.xml","scene.xml"):
             model=mujoco.MjModel.from_xml_path(str(final/name))

@@ -69,7 +69,7 @@ def test_render_cli_preserves_report_and_exit(tmp_path,monkeypatch,capsys,messag
     assert query==(0 if state=='unavailable' else 5)
     assert read['physics']=='passed' and not read['evidence_issues']
 
-@pytest.mark.parametrize('failed_file',['validation_report.json','failure.json'])
+@pytest.mark.parametrize('failed_file',['validation_report.json','failure.json','render_failure.json','evidence_manifest.json'])
 def test_render_diagnostic_io_retains_both_causes(tmp_path,monkeypatch,failed_file):
     message='RENDER_UNAVAILABLE: original backend outage'
     request,calls=setup_case(tmp_path,monkeypatch,message)
@@ -78,7 +78,7 @@ def test_render_diagnostic_io_retains_both_causes(tmp_path,monkeypatch,failed_fi
         if path.name==failed_file and (path.parent/'physics_native_evidence.json').exists():
             # validation报告只在渲染异常写入时故障，native持久化阶段不故障。
             content=args[0] if args else kwargs.get('data','')
-            if failed_file=='failure.json' or 'original backend outage' in content:
+            if failed_file=='failure.json' or 'original backend outage' in content or (failed_file=='evidence_manifest.json' and '"render"' in content):
                 raise OSError('injected diagnostic disk full')
         return write(path,*args,**kwargs)
     monkeypatch.setattr(Path,'write_text',fail)
@@ -99,3 +99,40 @@ def test_acceptance_render_unavailable_never_counts_full_pass(tmp_path,monkeypat
     assert report['exit_code']!=0 and not calls
     assert report['physics']=='passed' and report['render']=='unavailable'
     assert report['validation_scope']['evidence_status']=='verified'
+
+def test_successful_render_evidence_io_failure_is_not_physics_failure(tmp_path,monkeypatch):
+    source=tmp_path/'box.glb'; trimesh.creation.box().export(source)
+    request=ConversionRequest(input=source,output=tmp_path/'out',contact_profile='engineering_static_v1')
+    record=pipeline.record_layer
+    def fail(package,layer,*args,**kwargs):
+        if layer=='render':
+            raise OSError('injected render evidence storage outage')
+        return record(package,layer,*args,**kwargs)
+    monkeypatch.setattr(pipeline,'record_layer',fail)
+    calls=[]
+    monkeypatch.setattr(pipeline,'atomic_publish',lambda *args:calls.append(args))
+    with pytest.raises(EvidenceIOError,match='render evidence storage outage') as caught:
+        pipeline.convert(request)
+    assert not calls and not list(request.output.glob('asset_*'))
+    package=next(request.output.glob('.staging-*'))
+    result=checked_report(package)
+    assert result.physics=='passed' and result.validation_scope.evidence_status=='verified'
+    assert result.render=='not_run'
+    assert caught.value.stage=='render.evidence'
+
+def test_cli_diagnostic_io_reports_original_and_storage_error(tmp_path,monkeypatch,capsys):
+    request,calls=setup_case(tmp_path,monkeypatch,'RENDER_UNAVAILABLE: original backend outage')
+    write=Path.write_text
+    def fail(path,*args,**kwargs):
+        if path.name=='render_failure.json':
+            raise OSError('injected storage failure')
+        return write(path,*args,**kwargs)
+    monkeypatch.setattr(Path,'write_text',fail)
+    code=main(['convert',str(request.input),'--output',str(request.output),
+               '--contact-profile','engineering_static_v1'])
+    report=json.loads(capsys.readouterr().out)
+    assert code==3 and report['error']['code']=='EVIDENCE_IO_ERROR'
+    assert report['diagnostic_persisted'] is False
+    assert 'original backend outage' in report['error']['original_error']['message']
+    assert 'storage failure' in report['error']['persistence_error']['message']
+    assert Path(report['package']).is_dir() and not calls

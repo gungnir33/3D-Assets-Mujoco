@@ -58,7 +58,11 @@ def main(argv=None):
         try:
             package=run(request)
         except ValidationFailed as error:
-            result=checked_report(error.package)
+            try:
+                result=checked_report(error.package)
+            except (OSError,ValueError,KeyError,TypeError):
+                # 不可读报告也应保留核心拒绝原因，不能误分类为输入不存在。
+                result=error.result
             print(json.dumps({"package":str(error.package),**result.model_dump(),
                 "error":{"code":error.code,"stage":error.stage,"message":str(error)}}))
             return error.exit_code
