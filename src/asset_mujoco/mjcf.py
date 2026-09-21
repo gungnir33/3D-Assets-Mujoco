@@ -45,7 +45,7 @@ def merge_host(root,package,prefix,output_parent):
             target=ET.SubElement(root,tag)
         target.append(item)
 
-def document(request,visuals,size,scene=False):
+def document(request,visuals,size,scene=False,collisions=None):
     root=ET.Element("mujoco",model=request.name)
     ET.SubElement(root,"compiler",angle="radian",inertiafromgeom="false")
     if scene:
@@ -85,6 +85,14 @@ def document(request,visuals,size,scene=False):
     if request.collision_mode=="hull":
         ET.SubElement(asset,"mesh",name="collision_mesh",file="meshes/collision.obj")
         ET.SubElement(body,"geom",name="asset_collision",type="mesh",mesh="collision_mesh",mass="0",contype="1",conaffinity="1",group="3",rgba="0 1 0 .25",**contact_attributes(request.contact_profile))
+    elif request.collision_mode=='supplied':
+        if not collisions:
+            raise ValueError('COLLISION_PROXY_EMPTY')
+        for part in collisions:
+            ET.SubElement(asset,'mesh',name=part['mesh_name'],file=part['file'])
+            ET.SubElement(body,'geom',name=part['geom_name'],type='mesh',mesh=part['mesh_name'],
+                          mass='0',contype='1',conaffinity='1',group='3',rgba='0 1 0 .25',
+                          **contact_attributes(request.contact_profile))
     if scene:
         ET.SubElement(world,"geom",name="ground",type="plane",size="5 5 .1",rgba=".65 .65 .65 1",**contact_attributes(request.contact_profile))
         ET.SubElement(world,"light",pos="2 -3 5",dir="-2 3 -5")

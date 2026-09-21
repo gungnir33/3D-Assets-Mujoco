@@ -157,3 +157,22 @@ def load_collision_proxy(path: Path, global_transform: np.ndarray) -> CollisionP
     if not parts:
         _reject('EMPTY')
     return CollisionProxy(parts, decoded.dependencies, matrix.tolist(), records)
+
+
+def export_collision_proxy(proxy: CollisionProxy, root: Path) -> dict:
+    import hashlib
+    root = Path(root)
+    (root / 'meshes').mkdir(parents=True, exist_ok=True)
+    parts = []
+    for part in proxy.parts:
+        relative = f'meshes/collision_{part.index:03d}.obj'
+        part.mesh.export(root / relative)
+        parts.append({'index': part.index, 'node': part.node, 'geometry': part.geometry,
+            'first_face': part.first_face, 'bounds_m': part.mesh.bounds.tolist(),
+            'vertices': len(part.mesh.vertices), 'faces': len(part.mesh.faces), 'checks': part.checks,
+            'file': relative, 'sha256': hashlib.sha256((root / relative).read_bytes()).hexdigest(),
+            'geom_name': f'asset_collision_{part.index:03d}',
+            'mesh_name': f'collision_mesh_{part.index:03d}'})
+    return {'schema_version': 1, 'source_dependencies': proxy.dependencies,
+            'transform': proxy.transform, 'weld_records': proxy.weld_records,
+            'parts': parts, 'collision_fidelity': 'user_supplied'}

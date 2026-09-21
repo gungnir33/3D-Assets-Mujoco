@@ -30,6 +30,8 @@ class ConversionRequest(BaseModel):
     scale_mode: Literal["uniform","fit_axes"] = "uniform"
     body_mode: Literal["static","free"] = "static"
     collision_mode: Literal["hull","none","supplied","decompose"] = "hull"
+    collision_proxy_path: Path | None = None
+    validation_collision_part: int | None = Field(default=None, strict=True, ge=0)
     validation_level: Literal["compile","physics","full"] = "full"
     contact_profile: Literal['preserve','engineering_static_v1'] = 'preserve'
     mass: float | None = Field(default=None, gt=0)
@@ -39,6 +41,13 @@ class ConversionRequest(BaseModel):
 
     @model_validator(mode="after")
     def constraints(self):
+        if self.collision_mode == 'supplied':
+            if self.collision_proxy_path is None or self.collision_proxy_path.suffix.lower() not in ('.glb', '.obj'):
+                raise ValueError('supplied 碰撞必须提供 GLB/OBJ 代理')
+            if self.validation_level != 'compile' and self.validation_collision_part is None:
+                raise ValueError('supplied 物理验证必须显式指定 validation_collision_part')
+        elif self.collision_proxy_path is not None or self.validation_collision_part is not None:
+            raise ValueError('只有 supplied 碰撞接受代理及部件索引')
         if self.contact_profile!='preserve' and (self.body_mode!='static' or self.collision_mode!='hull'):
             raise ValueError('engineering_static_v1 only supports static+hull')
         if self.scale is not None and self.target_size_m is not None:

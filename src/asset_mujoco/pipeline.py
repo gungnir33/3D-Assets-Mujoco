@@ -79,8 +79,10 @@ def atomic_publish(staging,final):
         raise OSError(ctypes.get_errno(),"原子发布失败，未覆盖",str(final))
 
 def convert(request):
-    if request.collision_mode not in ("hull","none"):
+    if request.collision_mode not in ("hull","none","supplied"):
         raise ValueError("复杂碰撞策略尚未实现（任务8）")
+    if request.collision_mode=='supplied' and request.validation_level!='compile':
+        raise ValueError('COLLISION_PROXY_PHYSICS_PENDING: 尚未接入显式部件验证')
     started=time.monotonic()
     parent=request.output.resolve()
     parent.mkdir(parents=True,exist_ok=True)
@@ -88,6 +90,15 @@ def convert(request):
     final=parent/(request.name+"_"+uuid.uuid4().hex[:12])
     try:
         meshes,info=load_scene(request)
+        collisions,proxy_manifest=None,None
+        if request.collision_mode=='supplied':
+            from .collision_proxy import load_collision_proxy,export_collision_proxy
+            proxy=load_collision_proxy(request.collision_proxy_path,np.asarray(info['matrix']))
+            if request.validation_collision_part is not None and request.validation_collision_part>=len(proxy.parts):
+                raise ValueError('COLLISION_PROXY_TARGET_OUT_OF_RANGE')
+            proxy_manifest=export_collision_proxy(proxy,staging)
+            proxy_manifest['target_index']=request.validation_collision_part
+            collisions=proxy_manifest['parts']
         visuals=[]
         for i,mesh in enumerate(meshes):
             if len(mesh.vertices)<4:
@@ -98,7 +109,7 @@ def convert(request):
         if request.collision_mode=="hull":
             hull(meshes).export(staging/"meshes/collision.obj")
         for name,is_scene in (("model.xml",False),("scene.xml",True)):
-            ET.ElementTree(document(request,visuals,info["final_size_m"],is_scene)).write(staging/name,encoding="utf-8",xml_declaration=True)
+            ET.ElementTree(document(request,visuals,info["final_size_m"],is_scene,collisions)).write(staging/name,encoding="utf-8",xml_declaration=True)
             model=mujoco.MjModel.from_xml_path(str(staging/name))
             mujoco.mj_forward(model,mujoco.MjData(model))
         if request.contact_profile!='preserve':
@@ -122,6 +133,8 @@ def convert(request):
         metadata["material_approximations"]=["仅保留基础颜色/贴图；metallic、roughness 标量与 MuJoCo 光照并非完整 PBR 等价映射"]
         metadata["input_dependencies"]=info["input_dependencies"]
         metadata["normal_provenance"]=info["normal_provenance"]
+        if proxy_manifest is not None:
+            metadata['collision_proxy']=proxy_manifest
         metadata["source_sha256"]=info["input_dependencies"][0]["sha256"]
         (staging/"conversion_manifest.json").write_text(json.dumps(metadata,indent=2))
         resources=compile_resources(staging)

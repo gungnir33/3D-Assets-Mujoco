@@ -88,10 +88,16 @@ def _scope_projection(root,result,verified,document):
     declared=meta.get('contact_profile',{}).get('id')
     result.contact_profile=profile if profile is not None else declared
     body=request.get('body_mode')
-    pair=['asset_collision','probe'] if body=='static' else ['asset_collision','ground'] if body=='free' else []
+    from .collision_scope import resolve_collision_case
+    try:
+        case=resolve_collision_case(meta)
+    except (ValueError,KeyError,TypeError) as error:
+        insufficient('contradictory','collision_case_conflict: '+str(error))
+        return
+    pair=case['required_pairs'][0] if case['required_pairs'] else []
+    result.limitations.extend(case['limitations'])
     result.validation_scope=ValidationScope(
-        case_id='native_asset_probe_v1' if body=='static' else 'native_asset_ground_v1' if body=='free' else None,
-        required_pairs=[pair] if pair and request.get('collision_mode')!='none' else [],
+        case_id=case['case_id'],required_pairs=case['required_pairs'],
         evidence_status='declared',evidence_refs={'conversion_manifest.json':verified['compile']['files']['conversion_manifest.json']})
     if 'physics' not in verified:
         if any(s.startswith('physics:') for s in result.evidence_issues):

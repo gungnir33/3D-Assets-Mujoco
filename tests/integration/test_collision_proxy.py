@@ -185,3 +185,82 @@ def test_proxy_valid_texture_dependency_hashes(tmp_path):
     records = {entry['path']: entry['sha256'] for entry in result.dependencies}
     for file in (path, sub / 'material.mtl', sub / 'white.png'):
         assert records[str(file)] == hashlib.sha256(file.read_bytes()).hexdigest()
+
+
+def test_compile_exports_all_proxy_parts(tmp_path):
+    import json
+    import shutil
+    import mujoco
+    from asset_mujoco.contracts import ConversionRequest
+    from asset_mujoco.pipeline import convert
+    from asset_mujoco.manifest import checked_report, fingerprint
+    visual, proxy = tmp_path / 'visual.glb', tmp_path / 'proxy.glb'
+    trimesh.creation.box(extents=[4, 1, 1]).export(visual)
+    scene = trimesh.Scene()
+    for i, offset in enumerate([-1, 1]):
+        box = trimesh.creation.box()
+        box.apply_translation([offset, 0, 0])
+        scene.add_geometry(box, node_name=f'n{i}', geom_name=f'g{i}')
+    scene.export(proxy)
+    package = convert(ConversionRequest(input=visual, output=tmp_path / 'out', source_up='z',
+        collision_mode='supplied', collision_proxy_path=proxy, validation_level='compile'))
+    for filename in ('model.xml', 'scene.xml'):
+        model = mujoco.MjModel.from_xml_path(str(package / filename))
+        mujoco.mj_forward(model, mujoco.MjData(model))
+        assert model.geom('asset_collision_000').id != model.geom('asset_collision_001').id
+    data = json.loads((package / 'conversion_manifest.json').read_text())
+    assert len(data['collision_proxy']['parts']) == 2
+    assert data['hole_validation'] == 'not_tested'
+    report = checked_report(package)
+    assert report.status == 'COMPILE_VALIDATED'
+    assert report.validation_scope.evidence_status == 'declared'
+    assert report.validation_scope.required_pairs == []
+    moved = tmp_path / 'relocated'
+    shutil.copytree(package, moved)
+    assert fingerprint(package) == fingerprint(moved)
+    assert checked_report(moved).model_dump() == report.model_dump()
+    for filename in ('model.xml', 'scene.xml'):
+        model = mujoco.MjModel.from_xml_path(str(moved / filename))
+        mujoco.mj_forward(model, mujoco.MjData(model))
+
+
+@pytest.mark.parametrize('options', [
+    {'collision_mode': 'supplied'},
+    {'collision_mode': 'supplied', 'collision_proxy_path': 'p.glb', 'validation_level': 'physics'},
+    {'collision_mode': 'hull', 'collision_proxy_path': 'p.glb'},
+    {'collision_mode': 'none', 'validation_collision_part': 0},
+    {'collision_mode': 'supplied', 'collision_proxy_path': 'p.glb', 'validation_collision_part': -1},
+    {'collision_mode': 'supplied', 'collision_proxy_path': 'p.glb', 'validation_collision_part': True},
+    {'collision_mode': 'supplied', 'collision_proxy_path': 'p.glb', 'validation_collision_part': 1.5},
+    {'collision_mode': 'supplied', 'collision_proxy_path': 'p.glb', 'contact_profile': 'engineering_static_v1'},
+])
+def test_proxy_request_constraints(tmp_path, options):
+    from pydantic import ValidationError
+    from asset_mujoco.contracts import ConversionRequest
+    with pytest.raises(ValidationError):
+        ConversionRequest(input=tmp_path / 'v.glb', output=tmp_path / 'out',
+                          **({'validation_level': 'compile'} | options))
+
+
+def test_proxy_compile_cli_and_visual_bytes_unchanged(tmp_path, monkeypatch, capsys):
+    import json
+    from asset_mujoco.cli import main
+    from asset_mujoco.contracts import ConversionRequest
+    from asset_mujoco.pipeline import convert
+    visual = tmp_path / 'visual.glb'
+    trimesh.creation.box().export(visual)
+    common = dict(input=visual, output=tmp_path / 'out', source_up='z', validation_level='compile')
+    old = convert(ConversionRequest(**common))
+    result = main(['convert', str(visual), '--output', str(tmp_path / 'out'),
+        '--source-up', 'z', '--validation-level', 'compile', '--collision-mode', 'supplied',
+        '--collision-proxy', str(visual)])
+    report = json.loads(capsys.readouterr().out)
+    assert result == 0 and report['status'] == 'COMPILE_VALIDATED'
+    from pathlib import Path
+    new = Path(report['package'])
+    for file in old.rglob('*'):
+        if file.is_file() and file.suffix in ('.obj', '.png') and 'collision' not in file.name:
+            assert file.read_bytes() == (new / file.relative_to(old)).read_bytes()
+    with pytest.raises(ValueError, match='TARGET_OUT_OF_RANGE'):
+        convert(ConversionRequest(**common, collision_mode='supplied', collision_proxy_path=visual,
+                                  validation_collision_part=5))
