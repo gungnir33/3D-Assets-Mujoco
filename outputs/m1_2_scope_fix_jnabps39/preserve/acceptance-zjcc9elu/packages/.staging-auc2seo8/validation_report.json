@@ -1,0 +1,147 @@
+{
+  "compile": "passed",
+  "physics": "failed",
+  "render": "passed",
+  "appearance_review": "pending",
+  "asset_physics_sha256": null,
+  "evidence_issues": [],
+  "scope_report_version": 1,
+  "contact_profile": "preserve",
+  "validation_scope": {
+    "case_id": "native_asset_probe_v1",
+    "required_pairs": [
+      [
+        "asset_collision",
+        "probe"
+      ]
+    ],
+    "evidence_status": "verified",
+    "evidence_refs": {
+      "contact_result_manifest.json": "ae916991dce11c973e9bd52c222c03c5db5e9bf998ccf75d0451d248cd50982d",
+      "conversion_manifest.json": "bd9b4b66ed1eb9f70f1ff5dba0828ab677771e1ed5098ded36c68ea27a414d38",
+      "physics_native.xml": "91367006aff8dfaa2c27f08de890bad05e28305d8426f380df1534482c2aed92",
+      "physics_native_evidence.json": "eb67e8e072ee8f28b070a005917f5f17600982a09b287d3556e321dba985a6a8"
+    },
+    "conditions": {
+      "dt": 0.002,
+      "steps": 1000,
+      "time": 2.0000000000000013,
+      "initial_position": [
+        0,
+        0,
+        1.2221956863999368
+      ],
+      "penetration_limit_m": 0.005,
+      "mujoco": "3.4.0",
+      "resolved_geoms": {
+        "asset_collision": {
+          "contype": 1,
+          "conaffinity": 1,
+          "friction": [
+            1.0,
+            0.005,
+            0.0001
+          ],
+          "solref": [
+            0.02,
+            1.0
+          ],
+          "solimp": [
+            0.9,
+            0.95,
+            0.001,
+            0.5,
+            2.0
+          ],
+          "pos": [
+            0.00016546711219603939,
+            0.0661531426600358,
+            0.44440318439264304
+          ],
+          "priority": 0,
+          "solmix": 1.0
+        },
+        "probe": {
+          "contype": 1,
+          "conaffinity": 1,
+          "friction": [
+            1.0,
+            0.005,
+            0.0001
+          ],
+          "solref": [
+            0.02,
+            1.0
+          ],
+          "solimp": [
+            0.9,
+            0.95,
+            0.001,
+            0.5,
+            2.0
+          ],
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "priority": 0,
+          "solmix": 1.0
+        }
+      },
+      "first_resolved_contact": {
+        "solref": [
+          0.02,
+          1.0
+        ],
+        "solimp": [
+          0.9,
+          0.95,
+          0.001,
+          0.5,
+          2.0
+        ],
+        "friction": [
+          1.0,
+          1.0,
+          0.005,
+          0.0001,
+          0.0001
+        ]
+      },
+      "fixture": "physics_native.xml",
+      "acceptance_scope": "asset_collision:probe; unchanged baseline conditions",
+      "option": {
+        "timestep": "0.002"
+      },
+      "option_flags": {
+        "energy": "enable",
+        "autoreset": "disable"
+      },
+      "probe_fixture": "<body name=\"probe_body\" pos=\"0 0 1.2221956863999368\"><freejoint /><inertial pos=\"0 0 0\" mass=\".1\" diaginertia=\"2.4885669235395467e-05 2.4885669235395467e-05 2.4885669235395467e-05\" /><geom name=\"probe\" type=\"sphere\" size=\"0.02494276911020279\" mass=\".1\" /></body>"
+    }
+  },
+  "followup_ground": {
+    "status": "failed",
+    "mandatory_for_physics": false,
+    "comparison_threshold_m": 0.005,
+    "evidence_refs": {
+      "physics_native_evidence.json": "eb67e8e072ee8f28b070a005917f5f17600982a09b287d3556e321dba985a6a8",
+      "contact_result_manifest.json": "ae916991dce11c973e9bd52c222c03c5db5e9bf998ccf75d0451d248cd50982d"
+    },
+    "last_recorded_status": null
+  },
+  "application_force_limit": "not_specified",
+  "host_integration": "pending",
+  "robot_contact_safety": "not_validated",
+  "physics_error": "ASSET_CONTACT_FAILED: penetration=0.011795154509838177",
+  "limitations": [
+    "SCOPED_TO_DECLARED_CONTACT_CASE",
+    "WHOLE_SCENE_NOT_VALIDATED",
+    "HOST_INTEGRATION_PENDING",
+    "ROBOT_CONTACT_SAFETY_NOT_VALIDATED",
+    "APPLICATION_FORCE_LIMIT_NOT_SPECIFIED",
+    "FOLLOWUP_GROUND_FAILED"
+  ],
+  "status": "FAILED"
+}

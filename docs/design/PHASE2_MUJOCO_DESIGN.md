@@ -433,13 +433,17 @@ warning 按枚举名称分类：BADQPOS/BADQVEL/BADQACC、BADCTRL、惯量/求�
 | validation_level | 必需自动检查 | 退出与最高聚合状态 |
 |---|---|---|
 | compile | 两份 XML 编译 + mj_forward | 成功 0 / COMPILE_VALIDATED，physics/render=not_run |
-| physics | compile + 物理夹具 | 成功 0 / PHYSICS_VALIDATED，render 可 not_run |
-| full（默认） | compile + physics + render | 自动全部成功 0；人工 pending 时仍 PHYSICS_VALIDATED，automatic_validation=passed |
-| full 且 render unavailable | 已做检查各自保留 | 退出 7；物理已过仍 PHYSICS_VALIDATED |
+| physics | compile + 当前资产指定工况夹具 | 成功 0 / SCOPED_PHYSICS_VALIDATED，render 可 not_run |
+| full（默认） | compile + physics + render | 指定工况自动成功 0；人工 pending 时 SCOPED_PHYSICS_VALIDATED，automatic_validation=passed |
+| full 且 render unavailable | 已做检查各自保留 | 退出 7；指定物理工况已过仍 SCOPED_PHYSICS_VALIDATED |
 | full 且 render passed 但 physics failed | 保留 render=passed | 退出 5，不能升级物理状态 |
-| full 且全部通过且人工 approved | 所有证据齐备 | FULLY_VALIDATED |
+| full 且指定工况通过且人工 approved | 所有范围证据齐备 | 最多 SCOPED_FULLY_VALIDATED |
 
-CONVERTED 仅转换阶段完成，不表示任何引擎测试通过；编译失败时保留该阶段事实及失败原因。人工审查不影响自动命令退出码，但决定最终 FULLY_VALIDATED。compile 允许 passed/failed/not_run；physics 允许 passed/failed/not_run/not_applicable；render 允许 passed/failed/not_run/unavailable；appearance_review 为 pending/approved/rejected。渲染不可用不推翻物理通过，人工 rejected 则不能最终通过。
+CONVERTED 仅转换阶段完成，不表示任何引擎测试通过；编译失败时保留该阶段事实及失败原因。人工审查不影响自动命令退出码，只能批准外观，最多决定 SCOPED_FULLY_VALIDATED。compile 允许 passed/failed/not_run；physics 允许 passed/failed/not_run/not_applicable；render 允许 passed/failed/not_run/unavailable；appearance_review 为 pending/approved/rejected。渲染不可用不推翻物理通过，人工 rejected 则不能最终通过。不得输出无范围的 PHYSICS_VALIDATED/FULLY_VALIDATED。
+
+M1.2 范围修订：唯一 ValidationResult/aggregate 与 checked_report 为所有入口的共同契约。validation_scope 包含稳定 case_id、required_pairs、实际 conditions、相对路径 evidence_refs 和 evidence_status（unknown/declared/verified/missing/stale/contradictory）。static 的当前范围为 native_asset_probe_v1，非资产名称；阈值、步长、时长、探针/初态/版本来自本包 native 与 XML，不硬编码企鹅或5毫米。compile-only 仅 declared。followup_ground 独立保留 status、mandatory_for_physics=false、比较阈值和证据引用，失败不否定已验证的指定接触对，也不允许宣称全场景通过。application_force_limit=not_specified、host_integration=pending、robot_contact_safety=not_validated 与 limitations 同时序列化。
+
+写入顺序：conversion_manifest 中 scope_reporting_version=1 → 编译证据 → native/contact结果及物理证据 → 派生范围摘要 → 独立渲染证据及最终摘要。范围投影不纳入自身哈希；读取时重新核对已有哈希和 native/contact 语义一致性，并核对新包缓存。删除缓存版本不能取消受绑定版本契约。旧包完整依据允许只读派生，不回填、不补签；证据不足保留可核实层事实，禁止受限通过或退回裸通过。人工审核仍独立绑定包指纹，不参与范围构造，不得扩大工况或改写地面结果。迁移使用相对资源哈希不失效。
 
 collision=none 必须 static+显式 compile，asset_kind=VISUAL_ONLY、physics=not_applicable，不得 PHYSICS_VALIDATED/FULLY_VALIDATED。用户可另行渲染预览但不升级物理状态。
 
@@ -466,7 +470,7 @@ M1.2 的 physics 判定范围明确为既定当前资产—探针工况，`accep
 test_real_asset_native_failure_is_reported只验证已知失败被正确处理；独立python -m asset_mujoco.acceptance才执行真实GLB的compile/native/render/迁移达标门槛。缺原始输入报告not_executed，不达标非零退出，不以回归全绿或诊断达标替代。
 独立contact_diagnostics只操作新副本，执行前保存有限参数组，先验证未改基线再做控制变量实验。trace明确积分前采样和积分后时间，分列首次接触、首次超限、最大穿透步；累计接触记录不等于独立撞击次数。正式参数调整必须用户另行批准，未来native验收应测试新交付XML，不在验证器覆盖配置。
 
-人工审查保存于 appearance_review.json：reviewer、UTC 时间、结论、审查图片相对路径与哈希、package_content_sha256。对包内排序的相对路径和内容 SHA256 列表计算包指纹，包含 XML/资源/预览/转换配置/验证证据，仅排除审查文件本身及可重算 aggregate_status.json，避免循环。inspect/validate/report 每次重算指纹，改变受绑定内容后旧 approved 失效为 pending，保留旧记录用于审计。没有有效人工批准不得 FULLY_VALIDATED。
+人工审查保存于 appearance_review.json：reviewer、UTC 时间、结论、审查图片相对路径与哈希、package_content_sha256。对包内排序的相对路径和内容 SHA256 列表计算包指纹，包含 XML/资源/预览/转换配置/验证证据，仅排除审查文件本身及可重算 aggregate_status.json，避免循环。report 每次重算指纹，改变受绑定内容后旧 approved 失效为 pending，保留旧记录用于审计。没有有效人工批准不得 SCOPED_FULLY_VALIDATED；有批准也不允许无范围的 FULLY_VALIDATED。
 
 ## 14. manifest 和可追溯性
 
@@ -557,7 +561,7 @@ manifest 额外记录 yaw、最终 X/Y/Z、scale 是否显式、代理共用矩�
 - [ ] energy 显式开启、autoreset 禁用并核对；每步 qpos/qvel/qacc/energy/time/warning 检查，异常记录首步，注入测试验证自动重置不能伪通过。
 - [ ] 合成落体与 static 动态探针断言具体 geom 对、预期接触时段和穿透；此时不实施孔洞专项。
 - [ ] EGL/OSMesa 各独立进程、导入前设置后端；GLFW 单独。三视图与碰撞显隐，OSMesa 通过等同有效 render。
-- [ ] 测试 compile/physics/full 退出码矩阵，physics passed + render unavailable 保留物理通过，appearance pending 不得 FULLY_VALIDATED，VISUAL_ONLY 不升级。
+- [ ] 测试 compile/physics/full 退出码矩阵，physics passed + render unavailable 保留指定物理工况通过，appearance pending 不得 SCOPED_FULLY_VALIDATED，VISUAL_ONLY 不升级。
 - [ ] 用已有真实带纹理 GLB 建立 M1：inspect 确认方向→明确 scale/XYZ→static+hull→model/scene 编译→动态探针正确→原生渲染颜色/贴图正确→迁移后重载。用户人工审查结果单列，不自动批准。
 - [ ] 通过标准：M1 上述自动闭环全部有证据，人工外观审核记录独立状态；pytest 对应三文件通过。提交 test: validate baseline real asset pipeline。
 
@@ -591,7 +595,7 @@ manifest 额外记录 yaw、最终 X/Y/Z、scale 是否显式、代理共用矩�
 - [ ] 再检查三份输入的实际原始材质/顶点色/扩展及哈希，缺失报告，不重生成。
 - [ ] 独立环境且 phase1 不可达下执行三份转换，验证灰色/纹理各自预期，static/free 及碰撞模式明确标注证据；复制包重载，最小宿主兼容测试独立记录。
 - [ ] 记录 converter 版本、实际验证版本、目标宿主及兼容状态；未指定/未测试版本 pending，不能宣称全版本兼容。
-- [ ] 人工审查记录与自动结果分开，FULLY_VALIDATED 只能证据齐全时使用；CoACD 参数、质量假设、孔洞状态完整报告。
+- [ ] 人工审查记录与自动结果分开，SCOPED_FULLY_VALIDATED 只能指定范围证据齐全时使用，不允许裸 FULLY_VALIDATED；后续任务涉及的 CoACD 参数、质量假设、孔洞状态须完整报告。
 - [ ] 对比第一阶段仓库状态与既有输入 SHA，新的显式串联 job 独立列出。
 - [ ] 通过标准：tests/unit、tests/integration 与显式 E2E 报告完整；限制与未实测内容如实记录，源码/合成 fixture 可提交、真实资产不提交。提交 docs: document validated conversion and compatibility。
 

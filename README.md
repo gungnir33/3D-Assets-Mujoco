@@ -53,7 +53,7 @@ python -m asset_mujoco.cli report ./outputs/package_name
 python -B -m pytest -p no:cacheprovider -q
 ```
 
-compile/physics/full 为请求的自动验证等级，正常资产默认 **full**；compile-only 必须显式指定。渲染不可用返回 7，不自动降级 compile。full 自动通过仍为 PHYSICS_VALIDATED，人工审核默认 pending。
+compile/physics/full 为请求的自动验证等级，正常资产默认 **full**；compile-only 必须显式指定。渲染不可用返回 7，不自动降级 compile。指定工况自动通过为 SCOPED_PHYSICS_VALIDATED，人工审核默认 pending；外观有效批准且渲染通过后最多 SCOPED_FULLY_VALIDATED，不表示整个场景或机器人安全通过。
 物理验收运行当前导出资产的原始碰撞配置，不添加强制 contact/pair，不修改资产碰撞位、摩擦或接触参数。受控 benchmark 独立记录，不能覆盖原始配置失败。
 native完成后立即保存独立结果和哈希；benchmark为非强制诊断项，其异常不覆盖native、不阻止独立渲染。证据I/O失败单独报EVIDENCE_IO_ERROR并禁止发布。新physics层不绑定benchmark或可变汇总文件。
 人工查看 previews 后才可记录：
@@ -68,8 +68,13 @@ python -m asset_mujoco.cli review ./outputs/package_name \
 `evidence_manifest.json` 分别绑定编译资源、物理夹具/结果、渲染配置/预览；`report` 仅检查旧证据，不重新编译或仿真，不给变化后的内容补签通过。缺少新证据的旧包保守显示 not_run。原样迁移不失效。
 VISUAL_ONLY 仅 --collision-mode none --validation-level compile，physics=not_applicable。
 
+资源包、convert/report 和独立 acceptance 共用范围报告：`contact_profile`、`validation_scope`（稳定工况 ID、必需接触对、条件与证据哈希）、`followup_ground`、`application_force_limit`、`host_integration`、`robot_contact_safety`、`limitations`。地面非必需观察失败不会被外观批准清除，也不临时升级为必需门槛；真实宿主 pending、安全 not_validated、应用力限 not_specified 必须一起读取。compile-only 的 declared 不等于物理 verified。
+
+新包将范围版本约定写入受编译/物理证据绑定的 conversion_manifest；范围摘要只是已核对 native/contact 证据的投影。删除版本字段或篡改缓存不能绕过核对。旧包依据完整时只读派生，缺失/过期/矛盾时不能返回任何受限通过。详见 [本轮报告](docs/design/M1_2_SCOPE_FIX_REPORT.md)。
+
 退出码：0 请求自动等级通过（不等于人工批准）；2 输入错误；3 转换错误；4 XML 编译错误；
 5 物理/渲染内容失败；7 渲染后端不可用。失败 staging 保留诊断，未发布包不能作为成功输出。
+`report` 仍为只读查询，但发现 FAILED、INVALID_EVIDENCE 或证据问题返回 5；指定工况通过且人工 pending 返回 0。缓存不能把受绑定的 native failed 降级成未运行。范围还核对实际夹具的 geom 对、步长、初态、能量/autoreset 设置以及候选的公开 contact_scene，一致哈希不代替语义一致性。
 
 ## 当前边界与故障排查
 

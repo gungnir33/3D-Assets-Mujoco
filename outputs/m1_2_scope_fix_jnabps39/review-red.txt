@@ -1,0 +1,208 @@
+FFFFFFF                                                                  [100%]
+=================================== FAILURES ===================================
+____________ test_cached_layer_cannot_hide_native_failure[not_run] _____________
+
+tmp_path = PosixPath('/tmp/pytest-of-mcl/pytest-11/test_cached_layer_cannot_hide_0')
+cached = 'not_run'
+
+    @pytest.mark.parametrize('cached',['not_run','not_applicable','passed'])
+    def test_cached_layer_cannot_hide_native_failure(tmp_path,cached):
+        from asset_mujoco.pipeline import ValidationFailed
+        source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+        with pytest.raises(ValidationFailed) as caught:
+            convert(ConversionRequest(input=source,output=tmp_path/'out',validation_level='physics'))
+        package=caught.value.package
+        path=package/'validation_report.json'; report=json.loads(path.read_text())
+        report['physics']=cached
+        path.write_text(json.dumps(report))
+        result=checked_report(package)
+>       assert result.physics=='failed' and result.status=='FAILED'
+E       AssertionError: assert ('not_run' == 'failed'
+E         
+E         - failed
+E         + not_run)
+
+tests/integration/test_scoped_reporting.py:206: AssertionError
+_________ test_cached_layer_cannot_hide_native_failure[not_applicable] _________
+
+tmp_path = PosixPath('/tmp/pytest-of-mcl/pytest-11/test_cached_layer_cannot_hide_1')
+cached = 'not_applicable'
+
+    @pytest.mark.parametrize('cached',['not_run','not_applicable','passed'])
+    def test_cached_layer_cannot_hide_native_failure(tmp_path,cached):
+        from asset_mujoco.pipeline import ValidationFailed
+        source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+        with pytest.raises(ValidationFailed) as caught:
+            convert(ConversionRequest(input=source,output=tmp_path/'out',validation_level='physics'))
+        package=caught.value.package
+        path=package/'validation_report.json'; report=json.loads(path.read_text())
+        report['physics']=cached
+        path.write_text(json.dumps(report))
+        result=checked_report(package)
+>       assert result.physics=='failed' and result.status=='FAILED'
+E       AssertionError: assert ('not_applicable' == 'failed'
+E         
+E         - failed
+E         + not_applicable)
+
+tests/integration/test_scoped_reporting.py:206: AssertionError
+_____________ test_cached_layer_cannot_hide_native_failure[passed] _____________
+
+tmp_path = PosixPath('/tmp/pytest-of-mcl/pytest-11/test_cached_layer_cannot_hide_2')
+cached = 'passed'
+
+    @pytest.mark.parametrize('cached',['not_run','not_applicable','passed'])
+    def test_cached_layer_cannot_hide_native_failure(tmp_path,cached):
+        from asset_mujoco.pipeline import ValidationFailed
+        source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+        with pytest.raises(ValidationFailed) as caught:
+            convert(ConversionRequest(input=source,output=tmp_path/'out',validation_level='physics'))
+        package=caught.value.package
+        path=package/'validation_report.json'; report=json.loads(path.read_text())
+        report['physics']=cached
+        path.write_text(json.dumps(report))
+        result=checked_report(package)
+>       assert result.physics=='failed' and result.status=='FAILED'
+E       AssertionError: assert ('not_run' == 'failed'
+E         
+E         - failed
+E         + not_run)
+
+tests/integration/test_scoped_reporting.py:206: AssertionError
+_____________ test_hash_valid_fixture_contradiction_rejected[name] _____________
+
+legacy = PosixPath('/tmp/pytest-of-mcl/pytest-11/test_hash_valid_fixture_contra0/isolated-test-copy')
+mutation = 'name'
+
+    @pytest.mark.parametrize('mutation',['name','timestep','position','forced_pair'])
+    def test_hash_valid_fixture_contradiction_rejected(legacy,mutation):
+        import xml.etree.ElementTree as ET
+        from asset_mujoco.manifest import record_layer
+        path=legacy/'physics_native.xml'; tree=ET.parse(path)
+        if mutation=='name':
+            tree.find(".//geom[@name='probe']").set('name','not_probe')
+        elif mutation=='timestep':
+            tree.find('option').set('timestep','0.01')
+        elif mutation=='position':
+            tree.find(".//body[@name='probe_body']").set('pos','9 9 9')
+        else:
+            ET.SubElement(ET.SubElement(tree.getroot(),'contact'),'pair',geom1='asset_collision',geom2='probe')
+        tree.write(path)
+        evidence=json.loads((legacy/'evidence_manifest.json').read_text())['layers']['physics']
+        entry=record_layer(legacy,'physics',evidence['status'],evidence['files'],evidence['context'])
+        report=json.loads((legacy/'validation_report.json').read_text())
+        report['asset_physics_sha256']=entry['sha256']
+        (legacy/'validation_report.json').write_text(json.dumps(report))
+        result=checked_report(legacy)
+>       assert result.status=='INVALID_EVIDENCE'
+E       AssertionError: assert 'SCOPED_PHYSICS_VALIDATED' == 'INVALID_EVIDENCE'
+E         
+E         - INVALID_EVIDENCE
+E         + SCOPED_PHYSICS_VALIDATED
+
+tests/integration/test_scoped_reporting.py:231: AssertionError
+___________ test_hash_valid_fixture_contradiction_rejected[timestep] ___________
+
+legacy = PosixPath('/tmp/pytest-of-mcl/pytest-11/test_hash_valid_fixture_contra1/isolated-test-copy')
+mutation = 'timestep'
+
+    @pytest.mark.parametrize('mutation',['name','timestep','position','forced_pair'])
+    def test_hash_valid_fixture_contradiction_rejected(legacy,mutation):
+        import xml.etree.ElementTree as ET
+        from asset_mujoco.manifest import record_layer
+        path=legacy/'physics_native.xml'; tree=ET.parse(path)
+        if mutation=='name':
+            tree.find(".//geom[@name='probe']").set('name','not_probe')
+        elif mutation=='timestep':
+            tree.find('option').set('timestep','0.01')
+        elif mutation=='position':
+            tree.find(".//body[@name='probe_body']").set('pos','9 9 9')
+        else:
+            ET.SubElement(ET.SubElement(tree.getroot(),'contact'),'pair',geom1='asset_collision',geom2='probe')
+        tree.write(path)
+        evidence=json.loads((legacy/'evidence_manifest.json').read_text())['layers']['physics']
+        entry=record_layer(legacy,'physics',evidence['status'],evidence['files'],evidence['context'])
+        report=json.loads((legacy/'validation_report.json').read_text())
+        report['asset_physics_sha256']=entry['sha256']
+        (legacy/'validation_report.json').write_text(json.dumps(report))
+        result=checked_report(legacy)
+>       assert result.status=='INVALID_EVIDENCE'
+E       AssertionError: assert 'SCOPED_PHYSICS_VALIDATED' == 'INVALID_EVIDENCE'
+E         
+E         - INVALID_EVIDENCE
+E         + SCOPED_PHYSICS_VALIDATED
+
+tests/integration/test_scoped_reporting.py:231: AssertionError
+___________ test_hash_valid_fixture_contradiction_rejected[position] ___________
+
+legacy = PosixPath('/tmp/pytest-of-mcl/pytest-11/test_hash_valid_fixture_contra2/isolated-test-copy')
+mutation = 'position'
+
+    @pytest.mark.parametrize('mutation',['name','timestep','position','forced_pair'])
+    def test_hash_valid_fixture_contradiction_rejected(legacy,mutation):
+        import xml.etree.ElementTree as ET
+        from asset_mujoco.manifest import record_layer
+        path=legacy/'physics_native.xml'; tree=ET.parse(path)
+        if mutation=='name':
+            tree.find(".//geom[@name='probe']").set('name','not_probe')
+        elif mutation=='timestep':
+            tree.find('option').set('timestep','0.01')
+        elif mutation=='position':
+            tree.find(".//body[@name='probe_body']").set('pos','9 9 9')
+        else:
+            ET.SubElement(ET.SubElement(tree.getroot(),'contact'),'pair',geom1='asset_collision',geom2='probe')
+        tree.write(path)
+        evidence=json.loads((legacy/'evidence_manifest.json').read_text())['layers']['physics']
+        entry=record_layer(legacy,'physics',evidence['status'],evidence['files'],evidence['context'])
+        report=json.loads((legacy/'validation_report.json').read_text())
+        report['asset_physics_sha256']=entry['sha256']
+        (legacy/'validation_report.json').write_text(json.dumps(report))
+        result=checked_report(legacy)
+>       assert result.status=='INVALID_EVIDENCE'
+E       AssertionError: assert 'SCOPED_PHYSICS_VALIDATED' == 'INVALID_EVIDENCE'
+E         
+E         - INVALID_EVIDENCE
+E         + SCOPED_PHYSICS_VALIDATED
+
+tests/integration/test_scoped_reporting.py:231: AssertionError
+_________ test_hash_valid_fixture_contradiction_rejected[forced_pair] __________
+
+legacy = PosixPath('/tmp/pytest-of-mcl/pytest-11/test_hash_valid_fixture_contra3/isolated-test-copy')
+mutation = 'forced_pair'
+
+    @pytest.mark.parametrize('mutation',['name','timestep','position','forced_pair'])
+    def test_hash_valid_fixture_contradiction_rejected(legacy,mutation):
+        import xml.etree.ElementTree as ET
+        from asset_mujoco.manifest import record_layer
+        path=legacy/'physics_native.xml'; tree=ET.parse(path)
+        if mutation=='name':
+            tree.find(".//geom[@name='probe']").set('name','not_probe')
+        elif mutation=='timestep':
+            tree.find('option').set('timestep','0.01')
+        elif mutation=='position':
+            tree.find(".//body[@name='probe_body']").set('pos','9 9 9')
+        else:
+            ET.SubElement(ET.SubElement(tree.getroot(),'contact'),'pair',geom1='asset_collision',geom2='probe')
+        tree.write(path)
+        evidence=json.loads((legacy/'evidence_manifest.json').read_text())['layers']['physics']
+        entry=record_layer(legacy,'physics',evidence['status'],evidence['files'],evidence['context'])
+        report=json.loads((legacy/'validation_report.json').read_text())
+        report['asset_physics_sha256']=entry['sha256']
+        (legacy/'validation_report.json').write_text(json.dumps(report))
+        result=checked_report(legacy)
+>       assert result.status=='INVALID_EVIDENCE'
+E       AssertionError: assert 'SCOPED_PHYSICS_VALIDATED' == 'INVALID_EVIDENCE'
+E         
+E         - INVALID_EVIDENCE
+E         + SCOPED_PHYSICS_VALIDATED
+
+tests/integration/test_scoped_reporting.py:231: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/test_scoped_reporting.py::test_cached_layer_cannot_hide_native_failure[not_run]
+FAILED tests/integration/test_scoped_reporting.py::test_cached_layer_cannot_hide_native_failure[not_applicable]
+FAILED tests/integration/test_scoped_reporting.py::test_cached_layer_cannot_hide_native_failure[passed]
+FAILED tests/integration/test_scoped_reporting.py::test_hash_valid_fixture_contradiction_rejected[name]
+FAILED tests/integration/test_scoped_reporting.py::test_hash_valid_fixture_contradiction_rejected[timestep]
+FAILED tests/integration/test_scoped_reporting.py::test_hash_valid_fixture_contradiction_rejected[position]
+FAILED tests/integration/test_scoped_reporting.py::test_hash_valid_fixture_contradiction_rejected[forced_pair]
+7 failed, 18 deselected in 1.54s

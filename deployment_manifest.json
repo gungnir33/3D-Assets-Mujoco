@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "project_code_commit": "cdf39ba9d131b735572a2a74767410c5e9d2ae2d",
+  "project_code_commit": "8db4eef7356cc7a060f6941248d9ff5960097ead",
   "remote": "https://github.com/gungnir33/3D-Assets-Mujoco.git",
   "environment": "/home/mcl/anaconda3/envs/asset_mujoco_m1_1_rebuild",
   "python": "3.10.21",
@@ -9,14 +9,15 @@
   "installed_source_hash_match": true,
   "pip_check": "passed",
   "tests": {
-    "passed": 119,
+    "passed": 153,
     "skipped": 1,
-    "duration_s": 24.56,
+    "duration_s": 33.18,
     "skipped_reason": "OSMesa OpenGL loader unavailable; EGL passed"
   },
   "default_contact_profile": "preserve",
   "profiles": {
     "preserve": {
+      "status": "FAILED",
       "automatic_validation": "failed",
       "native_max_penetration_m": 0.011795154509838177,
       "compile": "passed",
@@ -24,6 +25,7 @@
       "migration": "passed"
     },
     "engineering_static_v1": {
+      "status": "SCOPED_PHYSICS_VALIDATED",
       "scope": "static+hull; specified penguin asset-probe baseline only",
       "automatic_validation": "passed_within_specified_asset_contact_scope",
       "native_max_penetration_m": 0.002376892611438749,
@@ -42,8 +44,12 @@
   "fully_validated": false,
   "first_stage_modified": false,
   "pushed": false,
-  "evidence": "outputs/m1_2_final_6im5gku8/final_evidence.json",
-  "report": "docs/design/M1_2_CONTACT_PROFILE_REPORT.md",
+  "evidence": "outputs/m1_2_scope_fix_jnabps39/real_results.json",
+  "report": "docs/design/M1_2_SCOPE_FIX_REPORT.md",
+  "scope_reporting_version": 1,
+  "robot_contact_safety": "not_validated",
+  "historical_m1_2_evidence": "outputs/m1_2_final_6im5gku8/final_evidence.json",
+  "historical_m1_2_report": "docs/design/M1_2_CONTACT_PROFILE_REPORT.md",
   "historical_m1_1_deployment": {
     "schema_version": 2,
     "project_code_commit": "830556e02ceb0bf35979e137fdf4cf44056cf402",

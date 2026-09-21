@@ -1,0 +1,25 @@
+{
+  "executable": "/home/mcl/anaconda3/envs/asset_mujoco_m1_1_rebuild/bin/python",
+  "import_path": "/home/mcl/anaconda3/envs/asset_mujoco_m1_1_rebuild/lib/python3.10/site-packages/asset_mujoco",
+  "matches": {
+    "__init__.py": true,
+    "cli.py": true,
+    "pipeline.py": true,
+    "contact_profiles.py": true,
+    "contact_diagnostics.py": true,
+    "acceptance.py": true,
+    "scene.py": true,
+    "profile_diagnostics.py": true,
+    "contact_statistics.py": true,
+    "rendering.py": true,
+    "transforms.py": true,
+    "validation.py": true,
+    "manifest.py": true,
+    "inertia.py": true,
+    "mjcf.py": true,
+    "inputs.py": true,
+    "collision.py": true,
+    "materials.py": true,
+    "contracts.py": true
+  }
+}

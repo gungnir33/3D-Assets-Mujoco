@@ -1,0 +1,66 @@
+{
+  "schema_version": 2,
+  "layers": {
+    "compile": {
+      "status": "passed",
+      "files": {
+        "contact_scene.xml": "2af80a672fdd917468bea9eb50527320b3b1ddcfad9c034f398c34a0661dfd02",
+        "conversion_manifest.json": "bec7050537b004a2dbab48f94ec817cd0db19a4a5f32cd4f193f5a8c6c6641aa",
+        "meshes/collision.obj": "887a8c2d70b76d21b50dc1d0a596fc51fd3d094b93bb8423a860471db70f5de6",
+        "meshes/visual_000.obj": "270db08ce25e523b76816ba335cd4c83fa523f87225fc277c201a923dbac722b",
+        "model.xml": "717ecbad38c19844d7d2b5478ff808813fefa7346aacf446736d71f5737e235c",
+        "scene.xml": "074a89b9ac4dd3f212218821600d2d1506e340064f5dc863652eccc662fbfc35",
+        "textures/visual_000.png": "d5ed04dc65d06e127a02ec5c1ecfefe0234f4363525123fd6dfdd35e8bc833b4"
+      },
+      "context": {
+        "mujoco": "3.4.0",
+        "forward": true
+      },
+      "sha256": "e0ee5a73067f5d9b7c52fbac66affb163d1cedee845df21290b03e8a52273b25"
+    },
+    "physics": {
+      "status": "passed",
+      "files": {
+        "contact_result_manifest.json": "a5a6e3d7d853a8e4e2f8797aa92277af436127fa7e9b0530824c3960544670d3",
+        "contact_scene.xml": "2af80a672fdd917468bea9eb50527320b3b1ddcfad9c034f398c34a0661dfd02",
+        "conversion_manifest.json": "bec7050537b004a2dbab48f94ec817cd0db19a4a5f32cd4f193f5a8c6c6641aa",
+        "meshes/collision.obj": "887a8c2d70b76d21b50dc1d0a596fc51fd3d094b93bb8423a860471db70f5de6",
+        "meshes/visual_000.obj": "270db08ce25e523b76816ba335cd4c83fa523f87225fc277c201a923dbac722b",
+        "model.xml": "717ecbad38c19844d7d2b5478ff808813fefa7346aacf446736d71f5737e235c",
+        "physics_native.xml": "2af80a672fdd917468bea9eb50527320b3b1ddcfad9c034f398c34a0661dfd02",
+        "physics_native_evidence.json": "f1f139a3555c993b3b64880f36108aaa3c30fca40f386914d8a7090abf15b3d4",
+        "scene.xml": "074a89b9ac4dd3f212218821600d2d1506e340064f5dc863652eccc662fbfc35",
+        "textures/visual_000.png": "d5ed04dc65d06e127a02ec5c1ecfefe0234f4363525123fd6dfdd35e8bc833b4"
+      },
+      "context": {
+        "mujoco": "3.4.0",
+        "required_case": "native",
+        "native_evidence": "physics_native_evidence.json"
+      },
+      "sha256": "29b8179a57fd6c2fcad33e73853d9e0756604b4c09972c28ea7b355b5aad8029"
+    },
+    "render": {
+      "status": "passed",
+      "files": {
+        "contact_scene.xml": "2af80a672fdd917468bea9eb50527320b3b1ddcfad9c034f398c34a0661dfd02",
+        "conversion_manifest.json": "bec7050537b004a2dbab48f94ec817cd0db19a4a5f32cd4f193f5a8c6c6641aa",
+        "meshes/collision.obj": "887a8c2d70b76d21b50dc1d0a596fc51fd3d094b93bb8423a860471db70f5de6",
+        "meshes/visual_000.obj": "270db08ce25e523b76816ba335cd4c83fa523f87225fc277c201a923dbac722b",
+        "model.xml": "717ecbad38c19844d7d2b5478ff808813fefa7346aacf446736d71f5737e235c",
+        "previews/collision.png": "23bd6080115ffcc2e9e5c0ab7fdca9c182a5886f5f32cce9f31118e840d671dc",
+        "previews/front.png": "04d53e4e12aea494aab2ec30a375c6f1aa496dfe4bdbed6773eab12ea3b9a0d2",
+        "previews/iso.png": "00d4f8a792dcc1ae74259658af3ad67dcd91edd24c65c23c5023ba8eb184cf6c",
+        "previews/side.png": "1e330ba595c35a1d6c8b8b96ed80d9db99ff7a6661a0809dd8bd53214a136b40",
+        "render_config.json": "fe9a94be6c0a82bca251b0579b11742cfefea0752f6ff3166daa6e95e7b68a48",
+        "render_evidence.json": "80d85df351d0f2c6c64991e9e874b872ee8650d5742ce76f5e2355eee2bec4df",
+        "scene.xml": "074a89b9ac4dd3f212218821600d2d1506e340064f5dc863652eccc662fbfc35",
+        "textures/visual_000.png": "d5ed04dc65d06e127a02ec5c1ecfefe0234f4363525123fd6dfdd35e8bc833b4"
+      },
+      "context": {
+        "mujoco": "3.4.0",
+        "backend": "egl"
+      },
+      "sha256": "cfd2283162427d0e42b1f2067884911f8d60b2e70a4fc3909f87bbb7b58e1797"
+    }
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "protected_files_unchanged": {
+    "dependencies": true,
+    "phase1_head": true,
+    "phase1_status": true,
+    "source_sha256": true,
+    "history": true
+  },
+  "historical_tracked_output_file_count": 922,
+  "same_geometry_textures_xml_render_configuration": {
+    "preserve": {
+      "scene.xml": true,
+      "physics_native.xml": true,
+      "render_config.json": true,
+      "model.xml": true,
+      "meshes/visual_000.obj": true,
+      "meshes/collision.obj": true,
+      "textures/visual_000.png": true
+    },
+    "engineering_static_v1": {
+      "scene.xml": true,
+      "contact_scene.xml": true,
+      "physics_native.xml": true,
+      "render_config.json": true,
+      "model.xml": true,
+      "meshes/visual_000.obj": true,
+      "meshes/collision.obj": true,
+      "textures/visual_000.png": true
+    }
+  },
+  "preview_differences": {
+    "preserve": {
+      "collision.png": {
+        "max_channel_delta": 1,
+        "mean_channel_delta": 1.7801920572916668e-05,
+        "note": "independent native render; not a byte-identity acceptance requirement"
+      },
+      "side.png": {
+        "max_channel_delta": 1,
+        "mean_channel_delta": 6.357828776041667e-06,
+        "note": "independent native render; not a byte-identity acceptance requirement"
+      },
+      "iso.png": {
+        "max_channel_delta": 1,
+        "mean_channel_delta": 3.814697265625e-06,
+        "note": "independent native render; not a byte-identity acceptance requirement"
+      },
+      "front.png": {
+        "max_channel_delta": 1,
+        "mean_channel_delta": 3.9418538411458336e-05,
+        "note": "independent native render; not a byte-identity acceptance requirement"
+      }
+    },
+    "engineering_static_v1": {
+      "collision.png": {
+        "max_channel_delta": 1,
+        "mean_channel_delta": 1.2715657552083334e-05,
+        "note": "independent native render; not a byte-identity acceptance requirement"
+      },
+      "side.png": {
+        "max_channel_delta": 1,
+        "mean_channel_delta": 1.1444091796875e-05,
+        "note": "independent native render; not a byte-identity acceptance requirement"
+      },
+      "iso.png": {
+        "max_channel_delta": 1,
+        "mean_channel_delta": 1.2715657552083333e-06,
+        "note": "independent native render; not a byte-identity acceptance requirement"
+      },
+      "front.png": {
+        "max_channel_delta": 1,
+        "mean_channel_delta": 7.375081380208333e-05,
+        "note": "independent native render; not a byte-identity acceptance requirement"
+      }
+    }
+  },
+  "source_sha256": "12f1ed66a874efbdb3c350d819c1f6e076de469e7dc191d236de82073fdd2e12",
+  "dependencies": {
+    "asset-mujoco": "0.1.0",
+    "mujoco": "3.4.0",
+    "trimesh": "4.7.4",
+    "numpy": "2.2.6",
+    "Pillow": "11.3.0",
+    "pydantic": "2.11.7",
+    "pytest": "8.4.1",
+    "scipy": "1.15.3"
+  },
+  "head": "7519f3c663ef65d63d174feeba9eea64854b2fa9",
+  "branch": "main",
+  "remote": "origin\thttps://github.com/gungnir33/3D-Assets-Mujoco.git (fetch)\norigin\thttps://github.com/gungnir33/3D-Assets-Mujoco.git (push)"
+}
