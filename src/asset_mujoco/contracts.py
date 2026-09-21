@@ -89,6 +89,7 @@ class ValidationResult(BaseModel):
     host_integration: Literal['pending'] = 'pending'
     robot_contact_safety: Literal['not_validated'] = 'not_validated'
     physics_error: str | None = None
+    render_error: str | None = None
     limitations: list[str] = Field(default_factory=list)
 
     @model_validator(mode='before')

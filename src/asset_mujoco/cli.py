@@ -6,7 +6,7 @@ import sys
 from pydantic import ValidationError
 from .contracts import ConversionRequest,ValidationResult
 from .inputs import inspect_input
-from .manifest import save_review,checked_report
+from .manifest import save_review,checked_report,EvidenceIOError
 
 def main(argv=None):
     parser=argparse.ArgumentParser()
@@ -60,11 +60,17 @@ def main(argv=None):
         except ValidationFailed as error:
             result=checked_report(error.package)
             print(json.dumps({"package":str(error.package),**result.model_dump(),
-                "error":{"code":"VALIDATION_FAILED","message":str(error)}}))
-            return 5
+                "error":{"code":error.code,"stage":error.stage,"message":str(error)}}))
+            return error.exit_code
         result=checked_report(package)
         print(json.dumps({"package":str(package),"status":result.aggregate(),**result.model_dump()}))
         return 5 if result.evidence_issues or result.aggregate() in ('FAILED','INVALID_EVIDENCE') else 0
+    except EvidenceIOError as error:
+        print(json.dumps({'package':str(getattr(error,'package','')),'diagnostic_persisted':False,
+            'error':{'code':'EVIDENCE_IO_ERROR','stage':getattr(error,'stage','evidence'),
+                     'message':str(error),'original_error':getattr(error,'original_error',None),
+                     'persistence_error':getattr(error,'persistence_error',None)}}))
+        return 3
     except (ValidationError,FileNotFoundError) as error:
         print(json.dumps({"error":{"code":"INVALID_INPUT","message":str(error)}}))
         return 2

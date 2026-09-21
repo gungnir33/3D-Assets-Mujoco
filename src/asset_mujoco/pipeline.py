@@ -15,14 +15,26 @@ from .collision import hull
 from .materials import export_visual
 from .mjcf import document
 from .contracts import ValidationResult
-from .manifest import record_layer,compile_resources,EvidenceIOError,refresh_report
+from .manifest import record_layer,compile_resources,EvidenceIOError,refresh_report,checked_report,write_evidence
 from .contact_profiles import contact_scene,profile_manifest
 
 class ValidationFailed(ValueError):
-    def __init__(self,package,result):
+    def __init__(self,package,result,*,code='ASSET_CONTACT_FAILED',stage='physics',reason=None,exit_code=5):
         self.package=package
         self.result=result
-        super().__init__("ASSET_CONTACT_FAILED: 原始配置验收未通过；诊断目录 "+str(package))
+        self.code=code
+        self.stage=stage
+        self.reason=reason or result.physics_error or '原始配置验收未通过'
+        self.exit_code=exit_code
+        super().__init__(f'{code}: {self.reason}；诊断目录 {package}')
+
+def diagnostic_io_error(package,stage,original,persistence):
+    error=EvidenceIOError(f'EVIDENCE_IO_ERROR: {stage}; original={type(original).__name__}: {original}; persistence={persistence}; 诊断目录 {package}')
+    error.package=package
+    error.stage=stage
+    error.original_error={'type':type(original).__name__,'message':str(original)}
+    error.persistence_error={'type':type(persistence).__name__,'message':str(persistence)}
+    return error
 
 def atomic_publish(staging,final):
     libc=ctypes.CDLL(None,use_errno=True)
@@ -84,18 +96,13 @@ def convert(request):
         if request.validation_level!="compile":
             from .validation import validate_physics
             try:
-                evidence=validate_physics(staging,request,info["final_size_m"])
+                validate_physics(staging,request,info["final_size_m"])
             except OSError as error:
                 if isinstance(error,EvidenceIOError):
                     raise
                 raise EvidenceIOError(f'EVIDENCE_IO_ERROR: physics persistence: {error}') from error
-            except Exception:
-                result.physics="failed"
-                (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
-                raise
-            result.physics=evidence["status"]
-            if result.physics=="passed":
-                result.asset_physics_sha256=evidence["asset_sha256"]
+            # native已持久化完整范围，不能只更新旧对象的physics/hash。
+            result=checked_report(staging)
         if request.validation_level=="full":
             from .rendering import render_package
             (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
@@ -103,8 +110,20 @@ def convert(request):
                 render_report=render_package(staging,info["final_size_m"])
             except Exception as error:
                 result.render="unavailable" if "RENDER_UNAVAILABLE" in str(error) else "failed"
-                (staging/"validation_report.json").write_text(result.model_dump_json(indent=2))
-                raise
+                result.render_error=str(error)
+                try:
+                    write_evidence(staging,'render_failure.json',{'status':result.render,'stage':'render',
+                        'error':{'type':type(error).__name__,'message':str(error)}})
+                    record_layer(staging,'render',result.render,resources+['render_failure.json'],
+                        {'mujoco':mujoco.__version__,'failure_evidence':'render_failure.json'})
+                    write_evidence(staging,'validation_report.json',result.model_dump())
+                    result=checked_report(staging)
+                except OSError as persistence:
+                    raise diagnostic_io_error(staging,'render.diagnostics',error,persistence) from error
+                if isinstance(error,OSError):
+                    raise diagnostic_io_error(staging,'render',error,error) from error
+                raise ValidationFailed(staging,result,code='RENDER_UNAVAILABLE' if result.render=='unavailable' else 'RENDER_FAILED',
+                    stage='render',reason=str(error),exit_code=7 if result.render=='unavailable' else 5) from error
             result.render="passed"
             record_layer(staging,"render","passed",resources+["render_config.json","render_evidence.json"]+render_report["images"],
                          {"mujoco":mujoco.__version__,"backend":render_report["backend"]})
@@ -121,7 +140,12 @@ def convert(request):
     except Exception as error:
         if staging.exists():
             try:
-                (staging/"failure.json").write_text(json.dumps({"error":str(error),'type':type(error).__name__}))
-            except OSError:
-                pass  # 不让二次磁盘错误掩盖最初的证据I/O故障。
+                diagnostic={'error':str(error),'type':type(error).__name__,'stage':getattr(error,'stage','conversion')}
+                if isinstance(error,ValidationFailed):
+                    diagnostic.update(code=error.code,result=error.result.model_dump())
+                if isinstance(error,EvidenceIOError):
+                    diagnostic.update(original_error=getattr(error,'original_error',None),persistence_error=getattr(error,'persistence_error',None))
+                write_evidence(staging,'failure.json',diagnostic)
+            except OSError as persistence:
+                raise diagnostic_io_error(staging,'failure.diagnostics',error,persistence) from error
         raise

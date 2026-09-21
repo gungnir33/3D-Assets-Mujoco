@@ -184,6 +184,7 @@ def _build_report(root,*,check_projection):
     raw=json.loads((root/'validation_report.json').read_text())
     result=ValidationResult.model_validate(raw)
     result.evidence_issues=[]
+    result.render_error=None
     target=root/"evidence_manifest.json"
     try:
         document=json.loads(target.read_text())
@@ -197,7 +198,7 @@ def _build_report(root,*,check_projection):
         cached_state=getattr(result,layer)
         entry=document.get("layers",{}).get(layer)
         state=entry.get('status') if entry else cached_state
-        if state not in ("passed","failed"):
+        if state not in (("passed","failed","unavailable") if layer=='render' else ("passed","failed")):
             continue
         valid=False
         if entry and entry.get("files"):
@@ -211,7 +212,15 @@ def _build_report(root,*,check_projection):
                     if state=='passed' or primary=='physics_evidence.json':
                         required.add('physics_native.xml')
                 if layer=="render":
-                    required|={"render_config.json","render_evidence.json","previews/front.png","previews/side.png","previews/iso.png","previews/collision.png"}
+                    failure=entry['context'].get('failure_evidence')
+                    if state in ('failed','unavailable') and failure=='render_failure.json':
+                        required.add(failure)
+                        diagnostic=json.loads((root/failure).read_text())
+                        valid=valid and diagnostic.get('status')==state and isinstance(diagnostic.get('error'),dict)
+                        if valid:
+                            result.render_error=diagnostic['error']['message']
+                    else:
+                        required|={"render_config.json","render_evidence.json","previews/front.png","previews/side.png","previews/iso.png","previews/collision.png"}
                 valid=valid and required.issubset(entry["files"])
                 if layer=="physics":
                     evidence=json.loads((root/primary).read_text())
