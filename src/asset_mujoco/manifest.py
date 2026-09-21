@@ -199,6 +199,10 @@ def _build_report(root,*,check_projection):
         entry=document.get("layers",{}).get(layer)
         state=entry.get('status') if entry else cached_state
         if state not in (("passed","failed","unavailable") if layer=='render' else ("passed","failed")):
+            if entry:
+                # 非终态/未知状态的绑定层不能跳过核对后沿用缓存passed。
+                setattr(result,layer,'not_run')
+                result.evidence_issues.append(layer+': invalid_bound_layer_status')
             continue
         valid=False
         if entry and entry.get("files"):

@@ -132,3 +132,23 @@ def test_normal_requested_levels_publish(tmp_path,level,collision,expected):
     assert result.appearance_review==result.host_integration=='pending'
     assert result.robot_contact_safety=='not_validated'
     assert json.loads((package/'validation_report.json').read_text())==result.model_dump()
+
+@pytest.mark.parametrize('damaged_status',['not_run','unexpected',None])
+def test_nonterminal_bound_render_status_never_inherits_cached_pass(tmp_path,monkeypatch,damaged_status):
+    source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+    request=ConversionRequest(input=source,output=tmp_path/'out',contact_profile='engineering_static_v1')
+    def mutate(package):
+        path=package/'evidence_manifest.json'; evidence=json.loads(path.read_text())
+        assert evidence['layers']['render']['status']=='passed'
+        evidence['layers']['render']['status']=damaged_status
+        path.write_text(json.dumps(evidence))  # 不重签，必须发现证据损坏。
+    calls=intercept_boundary(monkeypatch,mutate)
+    with pytest.raises(pipeline.ValidationFailed) as caught:
+        pipeline.convert(request)
+    assert not calls and not list(request.output.glob('asset_*'))
+    package=next(request.output.glob('.staging-*'))
+    report=checked_report(package)
+    assert report.render=='not_run' and report.evidence_issues
+    assert report.physics=='passed' and report.validation_scope.evidence_status=='verified'
+    assert caught.value.code=='EVIDENCE_INVALID' and caught.value.stage=='publication'
+    assert caught.value.package==package and (package/'failure.json').is_file()
