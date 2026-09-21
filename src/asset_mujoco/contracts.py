@@ -1,7 +1,7 @@
 """输入和分层验证契约。几何、尺寸、惯量容差互不替代。"""
 from pathlib import Path
 from typing import Literal
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator, computed_field
 
 TARGET_RTOL, TARGET_ATOL = 0.02, 1e-7
 GEOMETRY_RTOL, GEOMETRY_ATOL = 1e-6, 1e-7
@@ -57,6 +57,22 @@ class ConversionRequest(BaseModel):
             raise ValueError("VISUAL_ONLY 仅 static/compile")
         return self
 
+class ValidationScope(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    case_id: str | None = None
+    required_pairs: list[list[str]] = Field(default_factory=list)
+    evidence_status: Literal['unknown','declared','verified','missing','stale','contradictory'] = 'unknown'
+    evidence_refs: dict[str,str] = Field(default_factory=dict)
+    conditions: dict = Field(default_factory=dict)
+
+class GroundObservation(BaseModel):
+    model_config = ConfigDict(extra='forbid',allow_inf_nan=False)
+    status: Literal['passed','failed','not_tested','unknown'] = 'unknown'
+    mandatory_for_physics: Literal[False] = False
+    comparison_threshold_m: float | None = Field(default=None,gt=0)
+    evidence_refs: dict[str,str] = Field(default_factory=dict)
+    last_recorded_status: str | None = None
+
 class ValidationResult(BaseModel):
     model_config = ConfigDict(extra="forbid", validate_assignment=True)
     compile: Literal["passed","failed","not_run"] = "not_run"
@@ -65,6 +81,29 @@ class ValidationResult(BaseModel):
     appearance_review: Literal["pending","approved","rejected"] = "pending"
     asset_physics_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     evidence_issues: list[str] = Field(default_factory=list)
+    scope_report_version: Literal[1] | None = None
+    contact_profile: str | None = None
+    validation_scope: ValidationScope = Field(default_factory=ValidationScope)
+    followup_ground: GroundObservation = Field(default_factory=GroundObservation)
+    application_force_limit: Literal['not_specified'] = 'not_specified'
+    host_integration: Literal['pending'] = 'pending'
+    robot_contact_safety: Literal['not_validated'] = 'not_validated'
+    physics_error: str | None = None
+    limitations: list[str] = Field(default_factory=list)
+
+    @model_validator(mode='before')
+    @classmethod
+    def ignore_cached_aggregate(cls,values):
+        # status始终由当前事实聚合；持久化的展示缓存不是输入授权。
+        if isinstance(values,dict) and 'status' in values:
+            values=dict(values)
+            values.pop('status')
+        return values
+
+    @computed_field
+    @property
+    def status(self) -> str:
+        return self.aggregate()
 
     def aggregate(self):
         if "failed" in (self.compile,self.physics,self.render):
@@ -74,9 +113,10 @@ class ValidationResult(BaseModel):
         if self.physics=="not_applicable":
             return "VISUAL_ONLY"
         if self.physics=="passed":
-            if not self.asset_physics_sha256:
+            scope=self.validation_scope
+            if not self.asset_physics_sha256 or scope.evidence_status!='verified' or not scope.case_id or not scope.required_pairs or not scope.evidence_refs:
                 return "INVALID_EVIDENCE"
             if self.render=="passed" and self.appearance_review=="approved":
-                return "FULLY_VALIDATED"
-            return "PHYSICS_VALIDATED"
+                return "SCOPED_FULLY_VALIDATED"
+            return "SCOPED_PHYSICS_VALIDATED"
         return "COMPILE_VALIDATED"

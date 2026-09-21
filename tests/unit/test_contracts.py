@@ -18,6 +18,7 @@ def test_physics_requires_asset_evidence():
     r = ValidationResult(compile="passed", physics="passed")
     assert r.aggregate() == "INVALID_EVIDENCE"
     r.asset_physics_sha256 = "a"*64
-    assert r.aggregate() == "PHYSICS_VALIDATED"
+    # 有物理哈希但没有可靠工况范围，不能再裸输出物理通过。
+    assert r.aggregate() == "INVALID_EVIDENCE"
     r.render = "passed"
     assert r.aggregate() != "FULLY_VALIDATED"
