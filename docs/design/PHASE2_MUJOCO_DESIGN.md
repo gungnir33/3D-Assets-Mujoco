@@ -346,6 +346,8 @@ XML 使用 ElementTree 构建，禁止字符串拼接用户名称。显式指定
 
 --output 仅为父目录。验证通过才将唯一 staging 原子发布为唯一包；发布后从最终路径与另一工作目录重新加载。报告的 package 内路径都相对化，不能残留 staging 加载依赖；来源字段允许源绝对路径。
 
+M1.2 发布门槛修订：Python convert 在 atomic_publish 前调用统一准入，重新使用 checked_report 核对磁盘证据，不只看 physics 字段或聚合字符串。compile 要求 compile=passed、无 evidence_issues；physics 另要求 physics=passed、scope=verified 及必需物理依据；full 另要求 render=passed 且渲染证据有效。VISUAL_ONLY 仍必须 static+显式compile、physics=not_applicable。人工approved不是自动发布条件，非必需ground failed不新增阻塞。任何 FAILED、INVALID_EVIDENCE、必需层未完成或证据问题均拒绝发布，不创建成功目录；ValidationFailed 保留 package/result/stage/code/reason，分别报告物理失败、EVIDENCE_INVALID、VALIDATION_INCOMPLETE 等原因，沿用现有退出码。原子防覆盖实现不变。
+
 ## 11. CLI 和串联契约
 
 以下均为拟实现命令，审核前不可当作已有工具运行。
@@ -467,6 +469,8 @@ M1.2 经显式批准增加可选 `contact_profile=engineering_static_v1`，仅 s
 M1.2 的 physics 判定范围明确为既定当前资产—探针工况，`acceptance_scope` 明示具体 geom 对；额外 `followup_ground` 单独记录是否发生、相同阈值下结果和非原验收门槛属性，不能用资产接触通过暗示整个场景达标。接触统计分资产—探针、ground—探针，记录实际参数、峰值法向力、积分冲量、接触时段和接触期间分离速度。力为同次求解的接触坐标系量，世界冲量明确作用于 probe；不是恢复系数标定。`application_force_limit=not_specified`，不声明机器人安全。dt、落点、解析几何和有限质量/半径变化仅在新诊断副本执行，先存固定实验计划，不回写正式参数。扩展超限必须保留并限制结论，人工和真实宿主继续 pending。
 
 验收补强：benchmark为非强制诊断项。native完成后立即持久化结果、独立内容哈希和分层状态，再运行benchmark；其可恢复异常只记stage/type/message/已有文件，不更改native通过或原失败原因，不阻止独立渲染。native异常只产生失败证据；证据持久化或哈希I/O失败为EVIDENCE_IO_ERROR，禁止发布成功包，与物理超限区分。
+
+渲染异常同步修订：pipeline在native完成后取得完整的已核对结果，不在物理验证前的旧对象上只改physics/hash。渲染异常仅更新render及render_error；render_failure.json记录原错误并作为失败/不可用render层的绑定证据，不要求失败路径生成成功预览。范围/地面/profile保持来自既有native证据，不重新跑物理或补签。native通过但render unavailable时仍scope verified、SCOPED_PHYSICS_VALIDATED，原full转换退出7并保留staging；report的局部通过不能算原full成功。render failed时为FAILED，保留独立物理事实。诊断I/O二次失败使用EvidenceIOError保留原异常和存储异常，不假称落盘。绑定层若出现not_run或未知状态，必须失效并报告证据问题，不能跳过校验后沿用缓存passed。
 test_real_asset_native_failure_is_reported只验证已知失败被正确处理；独立python -m asset_mujoco.acceptance才执行真实GLB的compile/native/render/迁移达标门槛。缺原始输入报告not_executed，不达标非零退出，不以回归全绿或诊断达标替代。
 独立contact_diagnostics只操作新副本，执行前保存有限参数组，先验证未改基线再做控制变量实验。trace明确积分前采样和积分后时间，分列首次接触、首次超限、最大穿透步；累计接触记录不等于独立撞击次数。正式参数调整必须用户另行批准，未来native验收应测试新交付XML，不在验证器覆盖配置。
 

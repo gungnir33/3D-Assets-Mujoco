@@ -1,0 +1,67 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+___ test_nonterminal_bound_render_status_never_inherits_cached_pass[not_run] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-mcl/pytest-24/test_nonterminal_bound_render_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7a64dc0f3340>
+damaged_status = 'not_run'
+
+    @pytest.mark.parametrize('damaged_status',['not_run','unexpected',None])
+    def test_nonterminal_bound_render_status_never_inherits_cached_pass(tmp_path,monkeypatch,damaged_status):
+        source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+        request=ConversionRequest(input=source,output=tmp_path/'out',contact_profile='engineering_static_v1')
+        def mutate(package):
+            path=package/'evidence_manifest.json'; evidence=json.loads(path.read_text())
+            assert evidence['layers']['render']['status']=='passed'
+            evidence['layers']['render']['status']=damaged_status
+            path.write_text(json.dumps(evidence))  # 不重签，必须发现证据损坏。
+        calls=intercept_boundary(monkeypatch,mutate)
+>       with pytest.raises(pipeline.ValidationFailed) as caught:
+E       Failed: DID NOT RAISE <class 'asset_mujoco.pipeline.ValidationFailed'>
+
+tests/integration/test_publication_gate.py:146: Failed
+_ test_nonterminal_bound_render_status_never_inherits_cached_pass[unexpected] __
+
+tmp_path = PosixPath('/tmp/pytest-of-mcl/pytest-24/test_nonterminal_bound_render_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7a64dc0f1720>
+damaged_status = 'unexpected'
+
+    @pytest.mark.parametrize('damaged_status',['not_run','unexpected',None])
+    def test_nonterminal_bound_render_status_never_inherits_cached_pass(tmp_path,monkeypatch,damaged_status):
+        source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+        request=ConversionRequest(input=source,output=tmp_path/'out',contact_profile='engineering_static_v1')
+        def mutate(package):
+            path=package/'evidence_manifest.json'; evidence=json.loads(path.read_text())
+            assert evidence['layers']['render']['status']=='passed'
+            evidence['layers']['render']['status']=damaged_status
+            path.write_text(json.dumps(evidence))  # 不重签，必须发现证据损坏。
+        calls=intercept_boundary(monkeypatch,mutate)
+>       with pytest.raises(pipeline.ValidationFailed) as caught:
+E       Failed: DID NOT RAISE <class 'asset_mujoco.pipeline.ValidationFailed'>
+
+tests/integration/test_publication_gate.py:146: Failed
+____ test_nonterminal_bound_render_status_never_inherits_cached_pass[None] _____
+
+tmp_path = PosixPath('/tmp/pytest-of-mcl/pytest-24/test_nonterminal_bound_render_2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7a655d71f6d0>
+damaged_status = None
+
+    @pytest.mark.parametrize('damaged_status',['not_run','unexpected',None])
+    def test_nonterminal_bound_render_status_never_inherits_cached_pass(tmp_path,monkeypatch,damaged_status):
+        source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+        request=ConversionRequest(input=source,output=tmp_path/'out',contact_profile='engineering_static_v1')
+        def mutate(package):
+            path=package/'evidence_manifest.json'; evidence=json.loads(path.read_text())
+            assert evidence['layers']['render']['status']=='passed'
+            evidence['layers']['render']['status']=damaged_status
+            path.write_text(json.dumps(evidence))  # 不重签，必须发现证据损坏。
+        calls=intercept_boundary(monkeypatch,mutate)
+>       with pytest.raises(pipeline.ValidationFailed) as caught:
+E       Failed: DID NOT RAISE <class 'asset_mujoco.pipeline.ValidationFailed'>
+
+tests/integration/test_publication_gate.py:146: Failed
+=========================== short test summary info ============================
+FAILED tests/integration/test_publication_gate.py::test_nonterminal_bound_render_status_never_inherits_cached_pass[not_run]
+FAILED tests/integration/test_publication_gate.py::test_nonterminal_bound_render_status_never_inherits_cached_pass[unexpected]
+FAILED tests/integration/test_publication_gate.py::test_nonterminal_bound_render_status_never_inherits_cached_pass[None]
+3 failed, 16 deselected in 2.88s

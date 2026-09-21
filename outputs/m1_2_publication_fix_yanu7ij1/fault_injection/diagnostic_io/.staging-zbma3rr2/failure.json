@@ -1,0 +1,13 @@
+{
+  "error": "EVIDENCE_IO_ERROR: render.diagnostics; original=RuntimeError: RENDER_UNAVAILABLE: explicit synthetic injection; persistence=EVIDENCE_IO_ERROR: render_failure.json: explicit synthetic diagnostic storage outage; \u8bca\u65ad\u76ee\u5f55 /home/mcl/workspace/3D-Assets-Mujoco/outputs/m1_2_publication_fix_yanu7ij1/fault_injection/diagnostic_io/.staging-zbma3rr2",
+  "type": "EvidenceIOError",
+  "stage": "render.diagnostics",
+  "original_error": {
+    "type": "RuntimeError",
+    "message": "RENDER_UNAVAILABLE: explicit synthetic injection"
+  },
+  "persistence_error": {
+    "type": "EvidenceIOError",
+    "message": "EVIDENCE_IO_ERROR: render_failure.json: explicit synthetic diagnostic storage outage"
+  }
+}

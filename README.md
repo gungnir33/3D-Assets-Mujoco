@@ -76,6 +76,10 @@ VISUAL_ONLY 仅 --collision-mode none --validation-level compile，physics=not_a
 5 物理/渲染内容失败；7 渲染后端不可用。失败 staging 保留诊断，未发布包不能作为成功输出。
 `report` 仍为只读查询，但发现 FAILED、INVALID_EVIDENCE 或证据问题返回 5；指定工况通过且人工 pending 返回 0。缓存不能把受绑定的 native failed 降级成未运行。范围还核对实际夹具的 geom 对、步长、初态、能量/autoreset 设置以及候选的公开 contact_scene，一致哈希不代替语义一致性。
 
+发布准入在 Python `convert()` 内、`atomic_publish` 之前执行，重新核对磁盘证据：compile 要求编译通过且无证据问题；physics 还要求原生物理通过和 verified 范围；full 还要求渲染通过。VISUAL_ONLY 保持显式 compile 与 physics=not_applicable。人工 pending 和非必需地面观察失败不阻止指定工况发布。FAILED、INVALID_EVIDENCE、必需层未完成或任何证据问题均拒绝发布，只留下诊断 staging；不能依靠 CLI 事后非零退出补救。
+
+full 渲染不可用时，`convert` 退出7且不发布，但 report 可显示 physics=passed、render=unavailable、scope=verified 的 SCOPED_PHYSICS_VALIDATED；这只表示独立物理事实，不表示原 full 请求成功。渲染失败则退出5、总状态FAILED，仍保留物理和范围。`render_failure.json` 绑定原错误，`render_error` 出现在统一报告；异常包含 package、stage、code 和分层结果。诊断写入故障为 EVIDENCE_IO_ERROR/退出3，保留原异常和存储错误，不宣称完整落盘。详见 [发布与异常修复报告](docs/design/M1_2_PUBLICATION_STATE_FIX_REPORT.md)。
+
 ## 当前边界与故障排查
 
 - M1 示例是举 HY3D 牌子的企鹅；scale=0.5 是演示尺寸，不是对真实物理尺寸的测量。

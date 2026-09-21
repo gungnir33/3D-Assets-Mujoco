@@ -1,0 +1,176 @@
+{
+  "compile": "passed",
+  "physics": "passed",
+  "render": "passed",
+  "appearance_review": "pending",
+  "asset_physics_sha256": "c03dc2bbf8f946eaed839cf8235cf45eb2d9e8da45757c415b6cb282b9d63e0c",
+  "evidence_issues": [],
+  "scope_report_version": 1,
+  "contact_profile": "engineering_static_v1",
+  "validation_scope": {
+    "case_id": "native_asset_probe_v1",
+    "required_pairs": [
+      [
+        "asset_collision",
+        "probe"
+      ]
+    ],
+    "evidence_status": "verified",
+    "evidence_refs": {
+      "contact_result_manifest.json": "dc59f5a6896a43ce43fa121e3276c3259445ca72c542797699430e98b290871b",
+      "contact_scene.xml": "2af80a672fdd917468bea9eb50527320b3b1ddcfad9c034f398c34a0661dfd02",
+      "conversion_manifest.json": "e45b63ea7064873eae8bb3c9cb9584261e7afdee80752f0c9c8b0f8518c45f8c",
+      "physics_native.xml": "2af80a672fdd917468bea9eb50527320b3b1ddcfad9c034f398c34a0661dfd02",
+      "physics_native_evidence.json": "21da2437eaede9bcf5b24875cb13aa76aab2a74d581bdc6dcfa22764cfb202da"
+    },
+    "conditions": {
+      "dt": 0.002,
+      "steps": 1000,
+      "time": 2.0000000000000013,
+      "initial_position": [
+        0.0,
+        0.0,
+        1.2221956863999368
+      ],
+      "penetration_limit_m": 0.005,
+      "mujoco": "3.4.0",
+      "resolved_geoms": {
+        "asset_collision": {
+          "contype": 1,
+          "conaffinity": 1,
+          "friction": [
+            1.0,
+            0.005,
+            0.0001
+          ],
+          "solref": [
+            0.006,
+            1.0
+          ],
+          "solimp": [
+            0.9,
+            0.95,
+            0.001,
+            0.5,
+            2.0
+          ],
+          "pos": [
+            0.00016546711219603939,
+            0.0661531426600358,
+            0.44440318439264304
+          ],
+          "priority": 0,
+          "solmix": 1.0
+        },
+        "ground": {
+          "contype": 1,
+          "conaffinity": 1,
+          "friction": [
+            1.0,
+            0.005,
+            0.0001
+          ],
+          "solref": [
+            0.006,
+            1.0
+          ],
+          "solimp": [
+            0.9,
+            0.95,
+            0.001,
+            0.5,
+            2.0
+          ],
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "priority": 0,
+          "solmix": 1.0
+        },
+        "probe": {
+          "contype": 1,
+          "conaffinity": 1,
+          "friction": [
+            1.0,
+            0.005,
+            0.0001
+          ],
+          "solref": [
+            0.006,
+            1.0
+          ],
+          "solimp": [
+            0.9,
+            0.95,
+            0.001,
+            0.5,
+            2.0
+          ],
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "priority": 0,
+          "solmix": 1.0
+        }
+      },
+      "first_resolved_contact": {
+        "solref": [
+          0.006,
+          1.0
+        ],
+        "solimp": [
+          0.9,
+          0.95,
+          0.001,
+          0.5,
+          2.0
+        ],
+        "friction": [
+          1.0,
+          1.0,
+          0.005,
+          0.0001,
+          0.0001
+        ]
+      },
+      "fixture": "physics_native.xml",
+      "acceptance_scope": "asset_collision:probe; unchanged baseline conditions",
+      "option": {
+        "timestep": "0.002"
+      },
+      "option_flags": {
+        "energy": "enable",
+        "autoreset": "disable"
+      },
+      "probe_fixture": "<body name=\"probe_body\" pos=\"0 0 1.2221956863999368\"><freejoint /><inertial pos=\"0 0 0\" mass=\".1\" diaginertia=\"2.4885669235395467e-05 2.4885669235395467e-05 2.4885669235395467e-05\" /><geom name=\"probe\" type=\"sphere\" size=\"0.02494276911020279\" mass=\".1\" solref=\"0.006 1.0\" solimp=\"0.9 0.95 0.001 0.5 2.0\" /></body>"
+    }
+  },
+  "followup_ground": {
+    "status": "failed",
+    "mandatory_for_physics": false,
+    "comparison_threshold_m": 0.005,
+    "evidence_refs": {
+      "physics_native_evidence.json": "21da2437eaede9bcf5b24875cb13aa76aab2a74d581bdc6dcfa22764cfb202da",
+      "contact_result_manifest.json": "dc59f5a6896a43ce43fa121e3276c3259445ca72c542797699430e98b290871b"
+    },
+    "last_recorded_status": null
+  },
+  "application_force_limit": "not_specified",
+  "host_integration": "pending",
+  "robot_contact_safety": "not_validated",
+  "physics_error": null,
+  "render_error": null,
+  "limitations": [
+    "SCOPED_TO_DECLARED_CONTACT_CASE",
+    "WHOLE_SCENE_NOT_VALIDATED",
+    "HOST_INTEGRATION_PENDING",
+    "ROBOT_CONTACT_SAFETY_NOT_VALIDATED",
+    "APPLICATION_FORCE_LIMIT_NOT_SPECIFIED",
+    "FOLLOWUP_GROUND_FAILED"
+  ],
+  "status": "SCOPED_PHYSICS_VALIDATED"
+}

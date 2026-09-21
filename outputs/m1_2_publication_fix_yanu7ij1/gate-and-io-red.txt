@@ -1,0 +1,633 @@
+FFFFFFFFFFFF.............F                                               [100%]
+=================================== FAILURES ===================================
+_______ test_real_scope_contradiction_blocks_python_publication[python] ________
+
+tmp_path = PosixPath('/tmp/pytest-of-mcl/pytest-19/test_real_scope_contradiction_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x709e76bf1c00>
+capsys = <_pytest.capture.CaptureFixture object at 0x709e76bf1d20>
+entrypoint = 'python'
+
+    @pytest.mark.parametrize('entrypoint',['python','cli'])
+    def test_real_scope_contradiction_blocks_python_publication(tmp_path,monkeypatch,capsys,entrypoint):
+        source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+        request=ConversionRequest(input=source,output=tmp_path/'out',contact_profile='engineering_static_v1')
+        validate=validation.validate_physics
+        def inject(package,request,size):
+            result=validate(package,request,size)
+            path=package/'contact_result_manifest.json'
+            contact=json.loads(path.read_text()); contact['contact_profile']='preserve'
+            path.write_text(json.dumps(contact))
+            entry=json.loads((package/'evidence_manifest.json').read_text())['layers']['physics']
+            entry=record_layer(package,'physics',entry['status'],entry['files'],entry['context'])
+            # 模拟写入方自洽哈希但语义错误，实际checked_report应判contradictory。
+            report=json.loads((package/'validation_report.json').read_text())
+            report['asset_physics_sha256']=entry['sha256']
+            (package/'validation_report.json').write_text(json.dumps(report))
+            result['asset_sha256']=entry['sha256']
+            return result
+        monkeypatch.setattr(validation,'validate_physics',inject)
+        calls=[]; publish=pipeline.atomic_publish
+        def spy(staging,final):
+            calls.append(final); return publish(staging,final)
+        monkeypatch.setattr(pipeline,'atomic_publish',spy)
+        if entrypoint=='python':
+>           with pytest.raises(pipeline.ValidationFailed) as caught:
+E           Failed: DID NOT RAISE <class 'asset_mujoco.pipeline.ValidationFailed'>
+
+tests/integration/test_publication_gate.py:34: Failed
+_________ test_real_scope_contradiction_blocks_python_publication[cli] _________
+
+tmp_path = PosixPath('/tmp/pytest-of-mcl/pytest-19/test_real_scope_contradiction_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x709e76bf3220>
+capsys = <_pytest.capture.CaptureFixture object at 0x709e76bf11e0>
+entrypoint = 'cli'
+
+    @pytest.mark.parametrize('entrypoint',['python','cli'])
+    def test_real_scope_contradiction_blocks_python_publication(tmp_path,monkeypatch,capsys,entrypoint):
+        source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+        request=ConversionRequest(input=source,output=tmp_path/'out',contact_profile='engineering_static_v1')
+        validate=validation.validate_physics
+        def inject(package,request,size):
+            result=validate(package,request,size)
+            path=package/'contact_result_manifest.json'
+            contact=json.loads(path.read_text()); contact['contact_profile']='preserve'
+            path.write_text(json.dumps(contact))
+            entry=json.loads((package/'evidence_manifest.json').read_text())['layers']['physics']
+            entry=record_layer(package,'physics',entry['status'],entry['files'],entry['context'])
+            # 模拟写入方自洽哈希但语义错误，实际checked_report应判contradictory。
+            report=json.loads((package/'validation_report.json').read_text())
+            report['asset_physics_sha256']=entry['sha256']
+            (package/'validation_report.json').write_text(json.dumps(report))
+            result['asset_sha256']=entry['sha256']
+            return result
+        monkeypatch.setattr(validation,'validate_physics',inject)
+        calls=[]; publish=pipeline.atomic_publish
+        def spy(staging,final):
+            calls.append(final); return publish(staging,final)
+        monkeypatch.setattr(pipeline,'atomic_publish',spy)
+        if entrypoint=='python':
+            with pytest.raises(pipeline.ValidationFailed) as caught:
+                pipeline.convert(request)
+            assert caught.value.code=='EVIDENCE_INVALID'
+            assert caught.value.stage=='publication'
+        else:
+            from asset_mujoco.cli import main
+            assert main(['convert',str(source),'--output',str(request.output),
+                         '--contact-profile','engineering_static_v1'])==5
+            output=json.loads(capsys.readouterr().out)
+>           assert output['error']['code']=='EVIDENCE_INVALID'
+E           KeyError: 'error'
+
+tests/integration/test_publication_gate.py:43: KeyError
+_ test_missing_layer_or_evidence_blocks_core_publish[compile-compile_missing-EVIDENCE_INVALID] _
+
+tmp_path = PosixPath('/tmp/pytest-of-mcl/pytest-19/test_missing_layer_or_evidence0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x709e76a53c10>
+level = 'compile', mutation = 'compile_missing', expected = 'EVIDENCE_INVALID'
+
+    @pytest.mark.parametrize('level,mutation,expected',[
+        ('compile','compile_missing','EVIDENCE_INVALID'),
+        ('compile','resource_changed','EVIDENCE_INVALID'),
+        ('physics','physics_missing','VALIDATION_INCOMPLETE'),
+        ('physics','resource_changed','EVIDENCE_INVALID'),
+        ('full','physics_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_unavailable','RENDER_UNAVAILABLE'),
+        ('full','resource_changed','EVIDENCE_INVALID'),
+        ('compile','report_missing','EVIDENCE_INVALID'),
+        ('physics','report_invalid','EVIDENCE_INVALID'),
+    ])
+    def test_missing_layer_or_evidence_blocks_core_publish(tmp_path,monkeypatch,level,mutation,expected):
+        source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+        request=ConversionRequest(input=source,output=tmp_path/'out',validation_level=level,contact_profile='engineering_static_v1')
+        def mutate(package):
+            if mutation.startswith('report_'):
+                path=package/'validation_report.json'
+                if mutation=='report_missing':
+                    path.unlink()
+                else:
+                    path.write_text('{broken')
+                return
+            if mutation=='resource_changed':
+                path=package/'meshes/collision.obj'; path.write_text(path.read_text()+'\n# fault injection\n')
+                return
+            evidence=json.loads((package/'evidence_manifest.json').read_text())
+            state=json.loads((package/'validation_report.json').read_text())
+            layer=mutation.split('_')[0]
+            if mutation=='render_unavailable':
+                (package/'render_failure.json').write_text(json.dumps({'status':'unavailable','error':{'type':'RuntimeError','message':'injected unavailable'}}))
+                record_layer(package,'render','unavailable',compile_resources(package)+['render_failure.json'],{'failure_evidence':'render_failure.json'})
+                state['render']='unavailable'
+            else:
+                evidence['layers'].pop(layer,None)
+                (package/'evidence_manifest.json').write_text(json.dumps(evidence))
+                state[layer]='not_run'
+            (package/'validation_report.json').write_text(json.dumps(state))
+            refresh_report(package)
+        calls=intercept_boundary(monkeypatch,mutate)
+>       with pytest.raises(pipeline.ValidationFailed) as caught:
+E       Failed: DID NOT RAISE <class 'asset_mujoco.pipeline.ValidationFailed'>
+
+tests/integration/test_publication_gate.py:110: Failed
+_ test_missing_layer_or_evidence_blocks_core_publish[compile-resource_changed-EVIDENCE_INVALID] _
+
+tmp_path = PosixPath('/tmp/pytest-of-mcl/pytest-19/test_missing_layer_or_evidence1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x709e76a532e0>
+level = 'compile', mutation = 'resource_changed', expected = 'EVIDENCE_INVALID'
+
+    @pytest.mark.parametrize('level,mutation,expected',[
+        ('compile','compile_missing','EVIDENCE_INVALID'),
+        ('compile','resource_changed','EVIDENCE_INVALID'),
+        ('physics','physics_missing','VALIDATION_INCOMPLETE'),
+        ('physics','resource_changed','EVIDENCE_INVALID'),
+        ('full','physics_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_unavailable','RENDER_UNAVAILABLE'),
+        ('full','resource_changed','EVIDENCE_INVALID'),
+        ('compile','report_missing','EVIDENCE_INVALID'),
+        ('physics','report_invalid','EVIDENCE_INVALID'),
+    ])
+    def test_missing_layer_or_evidence_blocks_core_publish(tmp_path,monkeypatch,level,mutation,expected):
+        source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+        request=ConversionRequest(input=source,output=tmp_path/'out',validation_level=level,contact_profile='engineering_static_v1')
+        def mutate(package):
+            if mutation.startswith('report_'):
+                path=package/'validation_report.json'
+                if mutation=='report_missing':
+                    path.unlink()
+                else:
+                    path.write_text('{broken')
+                return
+            if mutation=='resource_changed':
+                path=package/'meshes/collision.obj'; path.write_text(path.read_text()+'\n# fault injection\n')
+                return
+            evidence=json.loads((package/'evidence_manifest.json').read_text())
+            state=json.loads((package/'validation_report.json').read_text())
+            layer=mutation.split('_')[0]
+            if mutation=='render_unavailable':
+                (package/'render_failure.json').write_text(json.dumps({'status':'unavailable','error':{'type':'RuntimeError','message':'injected unavailable'}}))
+                record_layer(package,'render','unavailable',compile_resources(package)+['render_failure.json'],{'failure_evidence':'render_failure.json'})
+                state['render']='unavailable'
+            else:
+                evidence['layers'].pop(layer,None)
+                (package/'evidence_manifest.json').write_text(json.dumps(evidence))
+                state[layer]='not_run'
+            (package/'validation_report.json').write_text(json.dumps(state))
+            refresh_report(package)
+        calls=intercept_boundary(monkeypatch,mutate)
+>       with pytest.raises(pipeline.ValidationFailed) as caught:
+E       Failed: DID NOT RAISE <class 'asset_mujoco.pipeline.ValidationFailed'>
+
+tests/integration/test_publication_gate.py:110: Failed
+_ test_missing_layer_or_evidence_blocks_core_publish[physics-physics_missing-VALIDATION_INCOMPLETE] _
+
+tmp_path = PosixPath('/tmp/pytest-of-mcl/pytest-19/test_missing_layer_or_evidence2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x709e76a53610>
+level = 'physics', mutation = 'physics_missing'
+expected = 'VALIDATION_INCOMPLETE'
+
+    @pytest.mark.parametrize('level,mutation,expected',[
+        ('compile','compile_missing','EVIDENCE_INVALID'),
+        ('compile','resource_changed','EVIDENCE_INVALID'),
+        ('physics','physics_missing','VALIDATION_INCOMPLETE'),
+        ('physics','resource_changed','EVIDENCE_INVALID'),
+        ('full','physics_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_unavailable','RENDER_UNAVAILABLE'),
+        ('full','resource_changed','EVIDENCE_INVALID'),
+        ('compile','report_missing','EVIDENCE_INVALID'),
+        ('physics','report_invalid','EVIDENCE_INVALID'),
+    ])
+    def test_missing_layer_or_evidence_blocks_core_publish(tmp_path,monkeypatch,level,mutation,expected):
+        source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+        request=ConversionRequest(input=source,output=tmp_path/'out',validation_level=level,contact_profile='engineering_static_v1')
+        def mutate(package):
+            if mutation.startswith('report_'):
+                path=package/'validation_report.json'
+                if mutation=='report_missing':
+                    path.unlink()
+                else:
+                    path.write_text('{broken')
+                return
+            if mutation=='resource_changed':
+                path=package/'meshes/collision.obj'; path.write_text(path.read_text()+'\n# fault injection\n')
+                return
+            evidence=json.loads((package/'evidence_manifest.json').read_text())
+            state=json.loads((package/'validation_report.json').read_text())
+            layer=mutation.split('_')[0]
+            if mutation=='render_unavailable':
+                (package/'render_failure.json').write_text(json.dumps({'status':'unavailable','error':{'type':'RuntimeError','message':'injected unavailable'}}))
+                record_layer(package,'render','unavailable',compile_resources(package)+['render_failure.json'],{'failure_evidence':'render_failure.json'})
+                state['render']='unavailable'
+            else:
+                evidence['layers'].pop(layer,None)
+                (package/'evidence_manifest.json').write_text(json.dumps(evidence))
+                state[layer]='not_run'
+            (package/'validation_report.json').write_text(json.dumps(state))
+            refresh_report(package)
+        calls=intercept_boundary(monkeypatch,mutate)
+>       with pytest.raises(pipeline.ValidationFailed) as caught:
+E       Failed: DID NOT RAISE <class 'asset_mujoco.pipeline.ValidationFailed'>
+
+tests/integration/test_publication_gate.py:110: Failed
+_ test_missing_layer_or_evidence_blocks_core_publish[physics-resource_changed-EVIDENCE_INVALID] _
+
+tmp_path = PosixPath('/tmp/pytest-of-mcl/pytest-19/test_missing_layer_or_evidence3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x709e76a50580>
+level = 'physics', mutation = 'resource_changed', expected = 'EVIDENCE_INVALID'
+
+    @pytest.mark.parametrize('level,mutation,expected',[
+        ('compile','compile_missing','EVIDENCE_INVALID'),
+        ('compile','resource_changed','EVIDENCE_INVALID'),
+        ('physics','physics_missing','VALIDATION_INCOMPLETE'),
+        ('physics','resource_changed','EVIDENCE_INVALID'),
+        ('full','physics_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_unavailable','RENDER_UNAVAILABLE'),
+        ('full','resource_changed','EVIDENCE_INVALID'),
+        ('compile','report_missing','EVIDENCE_INVALID'),
+        ('physics','report_invalid','EVIDENCE_INVALID'),
+    ])
+    def test_missing_layer_or_evidence_blocks_core_publish(tmp_path,monkeypatch,level,mutation,expected):
+        source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+        request=ConversionRequest(input=source,output=tmp_path/'out',validation_level=level,contact_profile='engineering_static_v1')
+        def mutate(package):
+            if mutation.startswith('report_'):
+                path=package/'validation_report.json'
+                if mutation=='report_missing':
+                    path.unlink()
+                else:
+                    path.write_text('{broken')
+                return
+            if mutation=='resource_changed':
+                path=package/'meshes/collision.obj'; path.write_text(path.read_text()+'\n# fault injection\n')
+                return
+            evidence=json.loads((package/'evidence_manifest.json').read_text())
+            state=json.loads((package/'validation_report.json').read_text())
+            layer=mutation.split('_')[0]
+            if mutation=='render_unavailable':
+                (package/'render_failure.json').write_text(json.dumps({'status':'unavailable','error':{'type':'RuntimeError','message':'injected unavailable'}}))
+                record_layer(package,'render','unavailable',compile_resources(package)+['render_failure.json'],{'failure_evidence':'render_failure.json'})
+                state['render']='unavailable'
+            else:
+                evidence['layers'].pop(layer,None)
+                (package/'evidence_manifest.json').write_text(json.dumps(evidence))
+                state[layer]='not_run'
+            (package/'validation_report.json').write_text(json.dumps(state))
+            refresh_report(package)
+        calls=intercept_boundary(monkeypatch,mutate)
+>       with pytest.raises(pipeline.ValidationFailed) as caught:
+E       Failed: DID NOT RAISE <class 'asset_mujoco.pipeline.ValidationFailed'>
+
+tests/integration/test_publication_gate.py:110: Failed
+_ test_missing_layer_or_evidence_blocks_core_publish[full-physics_missing-VALIDATION_INCOMPLETE] _
+
+tmp_path = PosixPath('/tmp/pytest-of-mcl/pytest-19/test_missing_layer_or_evidence4')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x709e76b29870>
+level = 'full', mutation = 'physics_missing', expected = 'VALIDATION_INCOMPLETE'
+
+    @pytest.mark.parametrize('level,mutation,expected',[
+        ('compile','compile_missing','EVIDENCE_INVALID'),
+        ('compile','resource_changed','EVIDENCE_INVALID'),
+        ('physics','physics_missing','VALIDATION_INCOMPLETE'),
+        ('physics','resource_changed','EVIDENCE_INVALID'),
+        ('full','physics_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_unavailable','RENDER_UNAVAILABLE'),
+        ('full','resource_changed','EVIDENCE_INVALID'),
+        ('compile','report_missing','EVIDENCE_INVALID'),
+        ('physics','report_invalid','EVIDENCE_INVALID'),
+    ])
+    def test_missing_layer_or_evidence_blocks_core_publish(tmp_path,monkeypatch,level,mutation,expected):
+        source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+        request=ConversionRequest(input=source,output=tmp_path/'out',validation_level=level,contact_profile='engineering_static_v1')
+        def mutate(package):
+            if mutation.startswith('report_'):
+                path=package/'validation_report.json'
+                if mutation=='report_missing':
+                    path.unlink()
+                else:
+                    path.write_text('{broken')
+                return
+            if mutation=='resource_changed':
+                path=package/'meshes/collision.obj'; path.write_text(path.read_text()+'\n# fault injection\n')
+                return
+            evidence=json.loads((package/'evidence_manifest.json').read_text())
+            state=json.loads((package/'validation_report.json').read_text())
+            layer=mutation.split('_')[0]
+            if mutation=='render_unavailable':
+                (package/'render_failure.json').write_text(json.dumps({'status':'unavailable','error':{'type':'RuntimeError','message':'injected unavailable'}}))
+                record_layer(package,'render','unavailable',compile_resources(package)+['render_failure.json'],{'failure_evidence':'render_failure.json'})
+                state['render']='unavailable'
+            else:
+                evidence['layers'].pop(layer,None)
+                (package/'evidence_manifest.json').write_text(json.dumps(evidence))
+                state[layer]='not_run'
+            (package/'validation_report.json').write_text(json.dumps(state))
+            refresh_report(package)
+        calls=intercept_boundary(monkeypatch,mutate)
+>       with pytest.raises(pipeline.ValidationFailed) as caught:
+E       Failed: DID NOT RAISE <class 'asset_mujoco.pipeline.ValidationFailed'>
+
+tests/integration/test_publication_gate.py:110: Failed
+_ test_missing_layer_or_evidence_blocks_core_publish[full-render_missing-VALIDATION_INCOMPLETE] _
+
+tmp_path = PosixPath('/tmp/pytest-of-mcl/pytest-19/test_missing_layer_or_evidence5')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x709e76b10f40>
+level = 'full', mutation = 'render_missing', expected = 'VALIDATION_INCOMPLETE'
+
+    @pytest.mark.parametrize('level,mutation,expected',[
+        ('compile','compile_missing','EVIDENCE_INVALID'),
+        ('compile','resource_changed','EVIDENCE_INVALID'),
+        ('physics','physics_missing','VALIDATION_INCOMPLETE'),
+        ('physics','resource_changed','EVIDENCE_INVALID'),
+        ('full','physics_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_unavailable','RENDER_UNAVAILABLE'),
+        ('full','resource_changed','EVIDENCE_INVALID'),
+        ('compile','report_missing','EVIDENCE_INVALID'),
+        ('physics','report_invalid','EVIDENCE_INVALID'),
+    ])
+    def test_missing_layer_or_evidence_blocks_core_publish(tmp_path,monkeypatch,level,mutation,expected):
+        source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+        request=ConversionRequest(input=source,output=tmp_path/'out',validation_level=level,contact_profile='engineering_static_v1')
+        def mutate(package):
+            if mutation.startswith('report_'):
+                path=package/'validation_report.json'
+                if mutation=='report_missing':
+                    path.unlink()
+                else:
+                    path.write_text('{broken')
+                return
+            if mutation=='resource_changed':
+                path=package/'meshes/collision.obj'; path.write_text(path.read_text()+'\n# fault injection\n')
+                return
+            evidence=json.loads((package/'evidence_manifest.json').read_text())
+            state=json.loads((package/'validation_report.json').read_text())
+            layer=mutation.split('_')[0]
+            if mutation=='render_unavailable':
+                (package/'render_failure.json').write_text(json.dumps({'status':'unavailable','error':{'type':'RuntimeError','message':'injected unavailable'}}))
+                record_layer(package,'render','unavailable',compile_resources(package)+['render_failure.json'],{'failure_evidence':'render_failure.json'})
+                state['render']='unavailable'
+            else:
+                evidence['layers'].pop(layer,None)
+                (package/'evidence_manifest.json').write_text(json.dumps(evidence))
+                state[layer]='not_run'
+            (package/'validation_report.json').write_text(json.dumps(state))
+            refresh_report(package)
+        calls=intercept_boundary(monkeypatch,mutate)
+>       with pytest.raises(pipeline.ValidationFailed) as caught:
+E       Failed: DID NOT RAISE <class 'asset_mujoco.pipeline.ValidationFailed'>
+
+tests/integration/test_publication_gate.py:110: Failed
+_ test_missing_layer_or_evidence_blocks_core_publish[full-render_unavailable-RENDER_UNAVAILABLE] _
+
+tmp_path = PosixPath('/tmp/pytest-of-mcl/pytest-19/test_missing_layer_or_evidence6')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x709e76b29810>
+level = 'full', mutation = 'render_unavailable', expected = 'RENDER_UNAVAILABLE'
+
+    @pytest.mark.parametrize('level,mutation,expected',[
+        ('compile','compile_missing','EVIDENCE_INVALID'),
+        ('compile','resource_changed','EVIDENCE_INVALID'),
+        ('physics','physics_missing','VALIDATION_INCOMPLETE'),
+        ('physics','resource_changed','EVIDENCE_INVALID'),
+        ('full','physics_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_unavailable','RENDER_UNAVAILABLE'),
+        ('full','resource_changed','EVIDENCE_INVALID'),
+        ('compile','report_missing','EVIDENCE_INVALID'),
+        ('physics','report_invalid','EVIDENCE_INVALID'),
+    ])
+    def test_missing_layer_or_evidence_blocks_core_publish(tmp_path,monkeypatch,level,mutation,expected):
+        source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+        request=ConversionRequest(input=source,output=tmp_path/'out',validation_level=level,contact_profile='engineering_static_v1')
+        def mutate(package):
+            if mutation.startswith('report_'):
+                path=package/'validation_report.json'
+                if mutation=='report_missing':
+                    path.unlink()
+                else:
+                    path.write_text('{broken')
+                return
+            if mutation=='resource_changed':
+                path=package/'meshes/collision.obj'; path.write_text(path.read_text()+'\n# fault injection\n')
+                return
+            evidence=json.loads((package/'evidence_manifest.json').read_text())
+            state=json.loads((package/'validation_report.json').read_text())
+            layer=mutation.split('_')[0]
+            if mutation=='render_unavailable':
+                (package/'render_failure.json').write_text(json.dumps({'status':'unavailable','error':{'type':'RuntimeError','message':'injected unavailable'}}))
+                record_layer(package,'render','unavailable',compile_resources(package)+['render_failure.json'],{'failure_evidence':'render_failure.json'})
+                state['render']='unavailable'
+            else:
+                evidence['layers'].pop(layer,None)
+                (package/'evidence_manifest.json').write_text(json.dumps(evidence))
+                state[layer]='not_run'
+            (package/'validation_report.json').write_text(json.dumps(state))
+            refresh_report(package)
+        calls=intercept_boundary(monkeypatch,mutate)
+>       with pytest.raises(pipeline.ValidationFailed) as caught:
+E       Failed: DID NOT RAISE <class 'asset_mujoco.pipeline.ValidationFailed'>
+
+tests/integration/test_publication_gate.py:110: Failed
+_ test_missing_layer_or_evidence_blocks_core_publish[full-resource_changed-EVIDENCE_INVALID] _
+
+tmp_path = PosixPath('/tmp/pytest-of-mcl/pytest-19/test_missing_layer_or_evidence7')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x709e76b2b850>
+level = 'full', mutation = 'resource_changed', expected = 'EVIDENCE_INVALID'
+
+    @pytest.mark.parametrize('level,mutation,expected',[
+        ('compile','compile_missing','EVIDENCE_INVALID'),
+        ('compile','resource_changed','EVIDENCE_INVALID'),
+        ('physics','physics_missing','VALIDATION_INCOMPLETE'),
+        ('physics','resource_changed','EVIDENCE_INVALID'),
+        ('full','physics_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_unavailable','RENDER_UNAVAILABLE'),
+        ('full','resource_changed','EVIDENCE_INVALID'),
+        ('compile','report_missing','EVIDENCE_INVALID'),
+        ('physics','report_invalid','EVIDENCE_INVALID'),
+    ])
+    def test_missing_layer_or_evidence_blocks_core_publish(tmp_path,monkeypatch,level,mutation,expected):
+        source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+        request=ConversionRequest(input=source,output=tmp_path/'out',validation_level=level,contact_profile='engineering_static_v1')
+        def mutate(package):
+            if mutation.startswith('report_'):
+                path=package/'validation_report.json'
+                if mutation=='report_missing':
+                    path.unlink()
+                else:
+                    path.write_text('{broken')
+                return
+            if mutation=='resource_changed':
+                path=package/'meshes/collision.obj'; path.write_text(path.read_text()+'\n# fault injection\n')
+                return
+            evidence=json.loads((package/'evidence_manifest.json').read_text())
+            state=json.loads((package/'validation_report.json').read_text())
+            layer=mutation.split('_')[0]
+            if mutation=='render_unavailable':
+                (package/'render_failure.json').write_text(json.dumps({'status':'unavailable','error':{'type':'RuntimeError','message':'injected unavailable'}}))
+                record_layer(package,'render','unavailable',compile_resources(package)+['render_failure.json'],{'failure_evidence':'render_failure.json'})
+                state['render']='unavailable'
+            else:
+                evidence['layers'].pop(layer,None)
+                (package/'evidence_manifest.json').write_text(json.dumps(evidence))
+                state[layer]='not_run'
+            (package/'validation_report.json').write_text(json.dumps(state))
+            refresh_report(package)
+        calls=intercept_boundary(monkeypatch,mutate)
+>       with pytest.raises(pipeline.ValidationFailed) as caught:
+E       Failed: DID NOT RAISE <class 'asset_mujoco.pipeline.ValidationFailed'>
+
+tests/integration/test_publication_gate.py:110: Failed
+_ test_missing_layer_or_evidence_blocks_core_publish[compile-report_missing-EVIDENCE_INVALID] _
+
+tmp_path = PosixPath('/tmp/pytest-of-mcl/pytest-19/test_missing_layer_or_evidence8')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x709e76cf0730>
+level = 'compile', mutation = 'report_missing', expected = 'EVIDENCE_INVALID'
+
+    @pytest.mark.parametrize('level,mutation,expected',[
+        ('compile','compile_missing','EVIDENCE_INVALID'),
+        ('compile','resource_changed','EVIDENCE_INVALID'),
+        ('physics','physics_missing','VALIDATION_INCOMPLETE'),
+        ('physics','resource_changed','EVIDENCE_INVALID'),
+        ('full','physics_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_unavailable','RENDER_UNAVAILABLE'),
+        ('full','resource_changed','EVIDENCE_INVALID'),
+        ('compile','report_missing','EVIDENCE_INVALID'),
+        ('physics','report_invalid','EVIDENCE_INVALID'),
+    ])
+    def test_missing_layer_or_evidence_blocks_core_publish(tmp_path,monkeypatch,level,mutation,expected):
+        source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+        request=ConversionRequest(input=source,output=tmp_path/'out',validation_level=level,contact_profile='engineering_static_v1')
+        def mutate(package):
+            if mutation.startswith('report_'):
+                path=package/'validation_report.json'
+                if mutation=='report_missing':
+                    path.unlink()
+                else:
+                    path.write_text('{broken')
+                return
+            if mutation=='resource_changed':
+                path=package/'meshes/collision.obj'; path.write_text(path.read_text()+'\n# fault injection\n')
+                return
+            evidence=json.loads((package/'evidence_manifest.json').read_text())
+            state=json.loads((package/'validation_report.json').read_text())
+            layer=mutation.split('_')[0]
+            if mutation=='render_unavailable':
+                (package/'render_failure.json').write_text(json.dumps({'status':'unavailable','error':{'type':'RuntimeError','message':'injected unavailable'}}))
+                record_layer(package,'render','unavailable',compile_resources(package)+['render_failure.json'],{'failure_evidence':'render_failure.json'})
+                state['render']='unavailable'
+            else:
+                evidence['layers'].pop(layer,None)
+                (package/'evidence_manifest.json').write_text(json.dumps(evidence))
+                state[layer]='not_run'
+            (package/'validation_report.json').write_text(json.dumps(state))
+            refresh_report(package)
+        calls=intercept_boundary(monkeypatch,mutate)
+>       with pytest.raises(pipeline.ValidationFailed) as caught:
+E       Failed: DID NOT RAISE <class 'asset_mujoco.pipeline.ValidationFailed'>
+
+tests/integration/test_publication_gate.py:110: Failed
+_ test_missing_layer_or_evidence_blocks_core_publish[physics-report_invalid-EVIDENCE_INVALID] _
+
+tmp_path = PosixPath('/tmp/pytest-of-mcl/pytest-19/test_missing_layer_or_evidence9')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x709e76a53280>
+level = 'physics', mutation = 'report_invalid', expected = 'EVIDENCE_INVALID'
+
+    @pytest.mark.parametrize('level,mutation,expected',[
+        ('compile','compile_missing','EVIDENCE_INVALID'),
+        ('compile','resource_changed','EVIDENCE_INVALID'),
+        ('physics','physics_missing','VALIDATION_INCOMPLETE'),
+        ('physics','resource_changed','EVIDENCE_INVALID'),
+        ('full','physics_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_missing','VALIDATION_INCOMPLETE'),
+        ('full','render_unavailable','RENDER_UNAVAILABLE'),
+        ('full','resource_changed','EVIDENCE_INVALID'),
+        ('compile','report_missing','EVIDENCE_INVALID'),
+        ('physics','report_invalid','EVIDENCE_INVALID'),
+    ])
+    def test_missing_layer_or_evidence_blocks_core_publish(tmp_path,monkeypatch,level,mutation,expected):
+        source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+        request=ConversionRequest(input=source,output=tmp_path/'out',validation_level=level,contact_profile='engineering_static_v1')
+        def mutate(package):
+            if mutation.startswith('report_'):
+                path=package/'validation_report.json'
+                if mutation=='report_missing':
+                    path.unlink()
+                else:
+                    path.write_text('{broken')
+                return
+            if mutation=='resource_changed':
+                path=package/'meshes/collision.obj'; path.write_text(path.read_text()+'\n# fault injection\n')
+                return
+            evidence=json.loads((package/'evidence_manifest.json').read_text())
+            state=json.loads((package/'validation_report.json').read_text())
+            layer=mutation.split('_')[0]
+            if mutation=='render_unavailable':
+                (package/'render_failure.json').write_text(json.dumps({'status':'unavailable','error':{'type':'RuntimeError','message':'injected unavailable'}}))
+                record_layer(package,'render','unavailable',compile_resources(package)+['render_failure.json'],{'failure_evidence':'render_failure.json'})
+                state['render']='unavailable'
+            else:
+                evidence['layers'].pop(layer,None)
+                (package/'evidence_manifest.json').write_text(json.dumps(evidence))
+                state[layer]='not_run'
+            (package/'validation_report.json').write_text(json.dumps(state))
+            refresh_report(package)
+        calls=intercept_boundary(monkeypatch,mutate)
+>       with pytest.raises(pipeline.ValidationFailed) as caught:
+E       Failed: DID NOT RAISE <class 'asset_mujoco.pipeline.ValidationFailed'>
+
+tests/integration/test_publication_gate.py:110: Failed
+______ test_successful_render_evidence_io_failure_is_not_physics_failure _______
+
+tmp_path = PosixPath('/tmp/pytest-of-mcl/pytest-19/test_successful_render_evidenc0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x709e76cb3be0>
+
+    def test_successful_render_evidence_io_failure_is_not_physics_failure(tmp_path,monkeypatch):
+        source=tmp_path/'box.glb'; trimesh.creation.box().export(source)
+        request=ConversionRequest(input=source,output=tmp_path/'out',contact_profile='engineering_static_v1')
+        record=pipeline.record_layer
+        def fail(package,layer,*args,**kwargs):
+            if layer=='render':
+                raise OSError('injected render evidence storage outage')
+            return record(package,layer,*args,**kwargs)
+        monkeypatch.setattr(pipeline,'record_layer',fail)
+        calls=[]
+        monkeypatch.setattr(pipeline,'atomic_publish',lambda *args:calls.append(args))
+        with pytest.raises(EvidenceIOError,match='render evidence storage outage') as caught:
+>           pipeline.convert(request)
+
+tests/integration/test_render_failure_state.py:115: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/asset_mujoco/pipeline.py:128: in convert
+    record_layer(staging,"render","passed",resources+["render_config.json","render_evidence.json"]+render_report["images"],
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+package = PosixPath('/tmp/pytest-of-mcl/pytest-19/test_successful_render_evidenc0/out/.staging-ddtkk_l_')
+layer = 'render'
+args = ('passed', ['contact_scene.xml', 'conversion_manifest.json', 'meshes/collision.obj', 'meshes/visual_000.obj', 'model.xml', 'scene.xml', ...], {'backend': 'egl', 'mujoco': '3.4.0'})
+kwargs = {}
+
+    def fail(package,layer,*args,**kwargs):
+        if layer=='render':
+>           raise OSError('injected render evidence storage outage')
+E           OSError: injected render evidence storage outage
+
+tests/integration/test_render_failure_state.py:109: OSError
+=========================== short test summary info ============================
+FAILED tests/integration/test_publication_gate.py::test_real_scope_contradiction_blocks_python_publication[python]
+FAILED tests/integration/test_publication_gate.py::test_real_scope_contradiction_blocks_python_publication[cli]
+FAILED tests/integration/test_publication_gate.py::test_missing_layer_or_evidence_blocks_core_publish[compile-compile_missing-EVIDENCE_INVALID]
+FAILED tests/integration/test_publication_gate.py::test_missing_layer_or_evidence_blocks_core_publish[compile-resource_changed-EVIDENCE_INVALID]
+FAILED tests/integration/test_publication_gate.py::test_missing_layer_or_evidence_blocks_core_publish[physics-physics_missing-VALIDATION_INCOMPLETE]
+FAILED tests/integration/test_publication_gate.py::test_missing_layer_or_evidence_blocks_core_publish[physics-resource_changed-EVIDENCE_INVALID]
+FAILED tests/integration/test_publication_gate.py::test_missing_layer_or_evidence_blocks_core_publish[full-physics_missing-VALIDATION_INCOMPLETE]
+FAILED tests/integration/test_publication_gate.py::test_missing_layer_or_evidence_blocks_core_publish[full-render_missing-VALIDATION_INCOMPLETE]
+FAILED tests/integration/test_publication_gate.py::test_missing_layer_or_evidence_blocks_core_publish[full-render_unavailable-RENDER_UNAVAILABLE]
+FAILED tests/integration/test_publication_gate.py::test_missing_layer_or_evidence_blocks_core_publish[full-resource_changed-EVIDENCE_INVALID]
+FAILED tests/integration/test_publication_gate.py::test_missing_layer_or_evidence_blocks_core_publish[compile-report_missing-EVIDENCE_INVALID]
+FAILED tests/integration/test_publication_gate.py::test_missing_layer_or_evidence_blocks_core_publish[physics-report_invalid-EVIDENCE_INVALID]
+FAILED tests/integration/test_render_failure_state.py::test_successful_render_evidence_io_failure_is_not_physics_failure
+13 failed, 13 passed in 12.78s

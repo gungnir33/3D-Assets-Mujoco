@@ -1,0 +1,148 @@
+{
+  "compile": "passed",
+  "physics": "failed",
+  "render": "passed",
+  "appearance_review": "pending",
+  "asset_physics_sha256": null,
+  "evidence_issues": [],
+  "scope_report_version": 1,
+  "contact_profile": "preserve",
+  "validation_scope": {
+    "case_id": "native_asset_probe_v1",
+    "required_pairs": [
+      [
+        "asset_collision",
+        "probe"
+      ]
+    ],
+    "evidence_status": "verified",
+    "evidence_refs": {
+      "contact_result_manifest.json": "e209644ae256d43c71bf0e4056845ee41ffb178bc3acca2b907d6cb96640925f",
+      "conversion_manifest.json": "993eceed09b23e725650953a25079e2a0162da20f8d06c388630045617a6a832",
+      "physics_native.xml": "91367006aff8dfaa2c27f08de890bad05e28305d8426f380df1534482c2aed92",
+      "physics_native_evidence.json": "b1dea32984e2335315191cc56ce05787b316f96ea57f315cab4cfe14028f2e9b"
+    },
+    "conditions": {
+      "dt": 0.002,
+      "steps": 1000,
+      "time": 2.0000000000000013,
+      "initial_position": [
+        0,
+        0,
+        1.2221956863999368
+      ],
+      "penetration_limit_m": 0.005,
+      "mujoco": "3.4.0",
+      "resolved_geoms": {
+        "probe": {
+          "contype": 1,
+          "conaffinity": 1,
+          "friction": [
+            1.0,
+            0.005,
+            0.0001
+          ],
+          "solref": [
+            0.02,
+            1.0
+          ],
+          "solimp": [
+            0.9,
+            0.95,
+            0.001,
+            0.5,
+            2.0
+          ],
+          "pos": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "priority": 0,
+          "solmix": 1.0
+        },
+        "asset_collision": {
+          "contype": 1,
+          "conaffinity": 1,
+          "friction": [
+            1.0,
+            0.005,
+            0.0001
+          ],
+          "solref": [
+            0.02,
+            1.0
+          ],
+          "solimp": [
+            0.9,
+            0.95,
+            0.001,
+            0.5,
+            2.0
+          ],
+          "pos": [
+            0.00016546711219603939,
+            0.0661531426600358,
+            0.44440318439264304
+          ],
+          "priority": 0,
+          "solmix": 1.0
+        }
+      },
+      "first_resolved_contact": {
+        "solref": [
+          0.02,
+          1.0
+        ],
+        "solimp": [
+          0.9,
+          0.95,
+          0.001,
+          0.5,
+          2.0
+        ],
+        "friction": [
+          1.0,
+          1.0,
+          0.005,
+          0.0001,
+          0.0001
+        ]
+      },
+      "fixture": "physics_native.xml",
+      "acceptance_scope": "asset_collision:probe; unchanged baseline conditions",
+      "option": {
+        "timestep": "0.002"
+      },
+      "option_flags": {
+        "energy": "enable",
+        "autoreset": "disable"
+      },
+      "probe_fixture": "<body name=\"probe_body\" pos=\"0 0 1.2221956863999368\"><freejoint /><inertial pos=\"0 0 0\" mass=\".1\" diaginertia=\"2.4885669235395467e-05 2.4885669235395467e-05 2.4885669235395467e-05\" /><geom name=\"probe\" type=\"sphere\" size=\"0.02494276911020279\" mass=\".1\" /></body>"
+    }
+  },
+  "followup_ground": {
+    "status": "failed",
+    "mandatory_for_physics": false,
+    "comparison_threshold_m": 0.005,
+    "evidence_refs": {
+      "physics_native_evidence.json": "b1dea32984e2335315191cc56ce05787b316f96ea57f315cab4cfe14028f2e9b",
+      "contact_result_manifest.json": "e209644ae256d43c71bf0e4056845ee41ffb178bc3acca2b907d6cb96640925f"
+    },
+    "last_recorded_status": null
+  },
+  "application_force_limit": "not_specified",
+  "host_integration": "pending",
+  "robot_contact_safety": "not_validated",
+  "physics_error": "ASSET_CONTACT_FAILED: penetration=0.011795154509838177",
+  "render_error": null,
+  "limitations": [
+    "SCOPED_TO_DECLARED_CONTACT_CASE",
+    "WHOLE_SCENE_NOT_VALIDATED",
+    "HOST_INTEGRATION_PENDING",
+    "ROBOT_CONTACT_SAFETY_NOT_VALIDATED",
+    "APPLICATION_FORCE_LIMIT_NOT_SPECIFIED",
+    "FOLLOWUP_GROUND_FAILED"
+  ],
+  "status": "FAILED"
+}

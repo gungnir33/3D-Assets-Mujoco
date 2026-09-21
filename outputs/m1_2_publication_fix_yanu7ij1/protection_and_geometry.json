@@ -1,0 +1,31 @@
+{
+  "protected": {
+    "dependencies": true,
+    "phase1_head": true,
+    "phase1_status": true,
+    "source_sha256": true,
+    "history": true
+  },
+  "history_count": 1185,
+  "unchanged_geometry_textures_xml_render_config": {
+    "preserve": {
+      "scene.xml": true,
+      "physics_native.xml": true,
+      "render_config.json": true,
+      "model.xml": true,
+      "meshes/visual_000.obj": true,
+      "meshes/collision.obj": true,
+      "textures/visual_000.png": true
+    },
+    "engineering_static_v1": {
+      "scene.xml": true,
+      "contact_scene.xml": true,
+      "physics_native.xml": true,
+      "render_config.json": true,
+      "model.xml": true,
+      "meshes/visual_000.obj": true,
+      "meshes/collision.obj": true,
+      "textures/visual_000.png": true
+    }
+  }
+}

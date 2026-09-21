@@ -1,0 +1,8 @@
+{
+  "status": "unavailable",
+  "stage": "render",
+  "error": {
+    "type": "RuntimeError",
+    "message": "RENDER_UNAVAILABLE: explicit synthetic injection"
+  }
+}
