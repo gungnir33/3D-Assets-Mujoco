@@ -18,8 +18,8 @@ def compiled_package(tmp_path,textured=False):
     mesh.export(source)
     return convert(ConversionRequest(input=source,output=tmp_path/"out",validation_level="compile"))
 
-def report(package,capsys):
-    assert main(["report",str(package)])==0
+def report(package,capsys,expected_code=0):
+    assert main(["report",str(package)])==expected_code
     return json.loads(capsys.readouterr().out)
 
 @pytest.mark.parametrize("mutation",["xml","mesh","texture"])
@@ -33,7 +33,7 @@ def test_compile_only_content_change_invalidates(tmp_path,capsys,mutation):
             file.write("\nv 9 9 9\n")
     else:
         (package/"textures/visual_000.png").unlink()
-    current=report(package,capsys)
+    current=report(package,capsys,expected_code=5)
     assert current["status"]!="COMPILE_VALIDATED"
     assert current["compile"]!="passed"
 
@@ -47,7 +47,7 @@ def test_legacy_evidence_is_insufficient(tmp_path,capsys):
     package=tmp_path/"legacy"
     package.mkdir()
     (package/"validation_report.json").write_text('{"compile":"passed"}')
-    assert report(package,capsys)["compile"]!="passed"
+    assert report(package,capsys,expected_code=5)["compile"]!="passed"
 
 def test_render_and_review_bound_to_previews(tmp_path,capsys):
     from asset_mujoco.rendering import render_package
@@ -64,7 +64,7 @@ def test_render_and_review_bound_to_previews(tmp_path,capsys):
     assert before["appearance_review"]=="approved"
     assert before["render"]=="passed"
     Image.new("RGB",(512,512),"red").save(package/"previews/iso.png")
-    after=report(package,capsys)
+    after=report(package,capsys,expected_code=5)
     assert after["render"]=="not_run"
     assert after["appearance_review"]=="pending"
     assert after["compile"]=="passed"

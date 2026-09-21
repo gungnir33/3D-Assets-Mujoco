@@ -191,3 +191,42 @@ def test_visual_only_declares_no_required_physical_pair(tmp_path):
     result=checked_report(package)
     assert result.aggregate()=='VISUAL_ONLY' and result.physics=='not_applicable'
     assert not result.validation_scope.required_pairs
+
+@pytest.mark.parametrize('cached',['not_run','not_applicable','passed'])
+def test_cached_layer_cannot_hide_native_failure(tmp_path,cached):
+    from asset_mujoco.pipeline import ValidationFailed
+    source=tmp_path/'cube.glb'; trimesh.creation.box().export(source)
+    with pytest.raises(ValidationFailed) as caught:
+        convert(ConversionRequest(input=source,output=tmp_path/'out',validation_level='physics'))
+    package=caught.value.package
+    path=package/'validation_report.json'; report=json.loads(path.read_text())
+    report['physics']=cached
+    path.write_text(json.dumps(report))
+    result=checked_report(package)
+    assert result.physics=='failed' and result.status=='FAILED'
+    assert 'penetration=' in result.physics_error
+    code,read=invoke('report',package)
+    assert code==5 and read['physics']=='failed'
+
+@pytest.mark.parametrize('mutation',['name','timestep','position','forced_pair'])
+def test_hash_valid_fixture_contradiction_rejected(legacy,mutation):
+    import xml.etree.ElementTree as ET
+    from asset_mujoco.manifest import record_layer
+    path=legacy/'physics_native.xml'; tree=ET.parse(path)
+    if mutation=='name':
+        tree.find(".//geom[@name='probe']").set('name','not_probe')
+    elif mutation=='timestep':
+        tree.find('option').set('timestep','0.01')
+    elif mutation=='position':
+        tree.find(".//body[@name='probe_body']").set('pos','9 9 9')
+    else:
+        ET.SubElement(ET.SubElement(tree.getroot(),'contact'),'pair',geom1='asset_collision',geom2='probe')
+    tree.write(path)
+    evidence=json.loads((legacy/'evidence_manifest.json').read_text())['layers']['physics']
+    entry=record_layer(legacy,'physics',evidence['status'],evidence['files'],evidence['context'])
+    report=json.loads((legacy/'validation_report.json').read_text())
+    report['asset_physics_sha256']=entry['sha256']
+    (legacy/'validation_report.json').write_text(json.dumps(report))
+    result=checked_report(legacy)
+    assert result.status=='INVALID_EVIDENCE'
+    assert result.validation_scope.evidence_status=='contradictory'

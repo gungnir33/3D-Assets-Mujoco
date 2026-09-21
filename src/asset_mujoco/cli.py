@@ -47,7 +47,7 @@ def main(argv=None):
             package=args["package"]
             result=checked_report(package)
             print(json.dumps({"status":result.aggregate(),**result.model_dump()}))
-            return 0
+            return 5 if result.evidence_issues or result.aggregate() in ('FAILED','INVALID_EVIDENCE') else 0
         if command=="review":
             print(json.dumps(save_review(args["package"],args["reviewer"],args["decision"],args["images"])))
             return 0

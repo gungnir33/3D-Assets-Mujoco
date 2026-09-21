@@ -136,6 +136,23 @@ def _scope_projection(root,result,verified,document):
         fixture=ET.parse(root/'physics_native.xml').getroot()
         option=fixture.find('option')
         probe=fixture.find(".//body[@name='probe_body']")
+        if any(len(fixture.findall(".//geom[@name='"+name+"']"))!=1 for name in pair):
+            raise ValueError('fixture_required_pair_conflict')
+        if option is None or not math.isclose(float(option.get('timestep','nan')),native['dt'],rel_tol=1e-12):
+            raise ValueError('fixture_timestep_conflict')
+        if fixture.find('.//pair') is not None:
+            raise ValueError('fixture_forced_pair_conflict')
+        flags=option.find('flag')
+        if flags is None or flags.get('energy')!='enable' or flags.get('autoreset')!='disable' or flags.get('override')=='enable':
+            raise ValueError('fixture_solver_flags_conflict')
+        if body=='static':
+            position=[float(v) for v in probe.get('pos','').split()] if probe is not None else []
+            if position!=native['initial_position']:
+                raise ValueError('fixture_initial_position_conflict')
+        if result.contact_profile=='engineering_static_v1':
+            delivered=ET.parse(root/'contact_scene.xml').getroot()
+            if ET.tostring(fixture)!=ET.tostring(delivered):
+                raise ValueError('fixture_delivered_contact_scene_conflict')
         result.validation_scope.conditions={
             key:native[key] for key in ('dt','steps','time','initial_position','penetration_limit_m','mujoco',
                                       'resolved_geoms','first_resolved_contact')}
@@ -175,13 +192,15 @@ def _build_report(root,*,check_projection):
     except (OSError,ValueError):
         document={"layers":{}}
     verified={}
+    layer_conflicts=[]
     for layer in ("compile","physics","render"):
-        state=getattr(result,layer)
+        cached_state=getattr(result,layer)
+        entry=document.get("layers",{}).get(layer)
+        state=entry.get('status') if entry else cached_state
         if state not in ("passed","failed"):
             continue
-        entry=document.get("layers",{}).get(layer)
         valid=False
-        if entry and entry.get("files") and entry.get("status")==state:
+        if entry and entry.get("files"):
             try:
                 body={key:entry[key] for key in ("status","files","context")}
                 valid=entry.get("sha256")==_digest(body) and content_manifest(root,entry["files"])==entry["files"]
@@ -194,10 +213,11 @@ def _build_report(root,*,check_projection):
                 if layer=="render":
                     required|={"render_config.json","render_evidence.json","previews/front.png","previews/side.png","previews/iso.png","previews/collision.png"}
                 valid=valid and required.issubset(entry["files"])
-                if layer=="physics" and state=="passed":
+                if layer=="physics":
                     evidence=json.loads((root/primary).read_text())
-                    valid=valid and evidence.get("native",{}).get("status")=="passed"
-                    valid=valid and result.asset_physics_sha256==entry['sha256']
+                    valid=valid and evidence.get("native",{}).get("status")==state
+                    if state=='passed':
+                        valid=valid and result.asset_physics_sha256==entry['sha256']
             except (OSError,ValueError,KeyError):
                 valid=False
         if not valid:
@@ -205,11 +225,18 @@ def _build_report(root,*,check_projection):
             result.evidence_issues.append(layer+": missing_or_stale_evidence")
         else:
             verified[layer]=entry
+            setattr(result,layer,state)
+            if check_projection and cached_state!=state:
+                layer_conflicts.append(layer)
+                result.evidence_issues.append(layer+': cached_state_conflicts_with_bound_evidence')
     if result.compile!="passed":
         for layer in ("physics","render"):
             if getattr(result,layer)=="passed":
                 setattr(result,layer,"not_run")
     _scope_projection(root,result,verified,document)
+    if 'physics' in layer_conflicts:
+        result.validation_scope.evidence_status='contradictory'
+        result.limitations.append('SCOPE_EVIDENCE_INSUFFICIENT')
     bound_scope_version=None
     if 'compile' in verified:
         bound_scope_version=json.loads((root/'conversion_manifest.json').read_text()).get('scope_reporting_version')
