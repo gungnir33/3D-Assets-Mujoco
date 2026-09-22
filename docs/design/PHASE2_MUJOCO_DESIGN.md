@@ -352,21 +352,21 @@ M1.2 发布门槛修订：Python convert 在 atomic_publish 前调用统一准�
 
 ## 11. CLI 和串联契约
 
-以下均为拟实现命令，审核前不可当作已有工具运行。
+以下为当前实现入口，需在安装本项目的独立 Python 3.10 环境运行。完整串联与恢复说明见 [CHAIN.md](../usage/CHAIN.md)。未实现的 decompose/watertight 不接受为串联配置，不能先生成后才提示不支持。
 
 ```bash
 conda run -n asset_mujoco python -m asset_mujoco.cli inspect \
-  --input /absolute/model.glb
+  /absolute/model.glb
 
 conda run -n asset_mujoco python -m asset_mujoco.cli convert \
-  --input /absolute/model.glb --output /absolute/mujoco-output \
-  --name barricade --source-up y --body-mode static --collision hull
+  /absolute/model.glb --output /absolute/mujoco-output \
+  --name barricade --source-up y --body-mode static --collision-mode hull
 
 conda run -n asset_mujoco python -m asset_mujoco.cli convert \
-  --input /absolute/model.glb --output /absolute/mujoco-output \
+  /absolute/model.glb --output /absolute/mujoco-output \
   --name barricade --source-up y --target-size-m 1.25 0.13 0.65 \
-  --scale-mode fit_axes --body-mode free --mass-kg 12 \
-  --inertia-mode box_approx --collision decompose
+  --scale-mode fit_axes --body-mode free --mass 12 \
+  --inertia-mode box_approx --collision-mode hull
 ```
 
 12 kg 仅是调用示例，不是水马实测重量。输出 JSON 至 stdout，进度/日志至 stderr。成功提供 package/model_xml/scene_xml/manifest/validation；失败提供 code、stage、message、details 和失败工作目录。
@@ -378,7 +378,7 @@ conda run -n asset_mujoco python -m asset_mujoco.cli convert \
 ```bash
 conda run -n asset_mujoco python scripts/chain.py \
   --request /absolute/phase1-request.json \
-  --conversion-config /absolute/phase2-config.yaml \
+  --conversion-config /absolute/phase2-config.json \
   --output /absolute/mujoco-output
 ```
 
@@ -386,11 +386,11 @@ conda run -n asset_mujoco python scripts/chain.py \
 
 phase1-request.json 明确 endpoint 和原 payload，发请求前限制 format=glb/obj，默认 glb，拒绝 fbx。返回后验证 file 可读、类型与内容受支持；OBJ 同时验证依赖。metadata 可选读取，缺失/不可读时警告，但不阻止参数完整的独立转换。不会把远程机器路径视作共享本地文件。
 
-服务由用户按原流程启动，chain 不 daemonize、不 import 第一阶段。HTTP timeout=1800 s，loopback 客户端 trust_env=False，仅作用该客户端，不改变全局代理。兼容 FastAPI 422 的 detail（列表或其他 JSON 值）以及业务 error.code/message/details，保留 HTTP 状态及原始原因；非 JSON 响应保存有长度限制的原文与 content-type。
+服务由用户按原流程启动，chain 不 daemonize、不 import 第一阶段。HTTP POST timeout=1800 s、health=10 s，标准库客户端 ProxyHandler({}) 不使用环境代理，不改变全局代理；禁止重定向，仅 loopback HTTP。兼容 FastAPI 422 的 detail 及业务 error.code/message/details，保留 HTTP 状态、原始正文与截断事实，正文上限1MiB。
 
 不自动重试生成 POST。超时报 phase1.status=unknown，结果可能仍在生成，不声称取消；再次转换须用户定位已有结果后显式恢复。连接失败、422、503 和非 JSON 错误分别记录。
 
-第一阶段成功后保留原 job/file/metadata，第二阶段失败仍输出 phase1 成功结果。恢复时用 `convert --input <原结果>`，无需再次生成。两阶段日志和 manifest 分开存放，chain_manifest 仅引用二者。
+第一阶段成功后保留原 job/file/metadata，第二阶段失败仍输出 phase1 成功结果。恢复时用 `convert <原结果>`，无需再次生成。两阶段日志和 manifest 分开存放，chain_manifest 位于唯一 chain 任务目录而不是已发布包内。支持 --prompt/--image/--mesh+--condition-image 或 --request，互斥；--dry-run 不联网不创建目录。任务9本轮只有模拟HTTP+真实转换证据，真实生成串联未执行。
 
 ## 12. 版本、依赖与资源管理
 

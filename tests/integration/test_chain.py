@@ -188,3 +188,63 @@ def test_evidence_io_error_preserves_persistence_failure(tmp_path, mock_server, 
     assert result['exit_code'] == 3 and result['phase1']['status'] == 'passed'
     assert result['diagnostic_persisted'] is False
     assert result['phase2']['error']['original_error']['message'] == 'original render failure'
+
+
+@pytest.mark.parametrize('endpoint', ['text', 'image', 'texture'])
+@pytest.mark.parametrize('entry', ['module', 'script'])
+def test_installed_entry_http_contract(tmp_path, mock_server, endpoint, entry):
+    import subprocess
+    import sys
+    from PIL import Image
+    settings = settings_for(tmp_path, mock_server)
+    image = tmp_path / 'condition.png'
+    Image.new('RGB', (2, 2), 'white').save(image)
+    config = tmp_path / 'convert.json'
+    config.write_text(json.dumps({'source_up': 'z', 'validation_level': 'compile'}))
+    program = ['-m', 'asset_mujoco.chain'] if entry == 'module' else [str(Path(__file__).resolve().parents[2] / 'scripts/chain.py')]
+    flags = {'text': ['--prompt', 'a synthetic box'], 'image': ['--image', str(image)],
+             'texture': ['--mesh', str(tmp_path / 'box.glb'), '--condition-image', str(image)]}[endpoint]
+    run = subprocess.run([sys.executable, '-I', '-B', *program, *flags,
+        '--conversion-config', str(config), '--output', str(tmp_path / 'cli-output'),
+        '--base-url', settings.base_url], capture_output=True, text=True, timeout=60)
+    assert run.returncode == 0, run.stdout + run.stderr
+    report = json.loads(run.stdout)
+    assert report['phase2']['validation']['status'] == 'COMPILE_VALIDATED'
+    post = [c for c in mock_server[1] if c['method'] == 'POST']
+    assert len(post) == 1 and post[0]['path'] == '/generate/' + endpoint
+    payload = post[0]['payload']
+    assert payload['format'] == 'glb' and payload['seed'] == 12345
+    key = {'text': 'prompt', 'image': 'image', 'texture': 'condition_image'}[endpoint]
+    assert payload[key] == ('a synthetic box' if endpoint == 'text' else str(image))
+
+
+def test_installed_supplied_chain_relative_proxy(tmp_path, mock_server):
+    import subprocess
+    import sys
+    settings = settings_for(tmp_path, mock_server)
+    config = tmp_path / 'convert.json'
+    config.write_text(json.dumps({'source_up': 'z', 'validation_level': 'compile',
+        'collision_mode': 'supplied', 'collision_proxy_path': 'box.glb', 'validation_collision_part': 0}))
+    run = subprocess.run([sys.executable, '-I', '-B', '-m', 'asset_mujoco.chain',
+        '--prompt', 'synthetic proxy match', '--conversion-config', str(config),
+        '--output', str(tmp_path / 'cli-output'), '--base-url', settings.base_url],
+        capture_output=True, text=True, timeout=60)
+    assert run.returncode == 0, run.stdout + run.stderr
+    result = json.loads(run.stdout)
+    manifest = json.loads((Path(result['phase2']['package']) / 'conversion_manifest.json').read_text())
+    assert manifest['collision_proxy']['target_index'] == 0
+    assert result['phase2']['validation']['validation_scope']['required_pairs'] == [['asset_collision_000', 'probe']]
+
+
+def test_recovery_argv_preserves_supplied_inertia_and_target(tmp_path):
+    from asset_mujoco.chain import build_recovery_argv
+    config = {'name': 'asset', 'source_up': 'y', 'yaw_deg': 180, 'scale': .5,
+        'body_mode': 'free', 'mass': 2, 'inertia_mode': 'supplied',
+        'supplied_inertia': {'example': 'written unchanged; validated elsewhere'},
+        'collision_mode': 'supplied', 'collision_proxy_path': '/proxy path/proxy.glb',
+        'validation_collision_part': 2, 'validation_level': 'compile', 'contact_profile': 'preserve'}
+    argv = build_recovery_argv(Path('/source path/model.glb'), config, tmp_path)
+    assert '/source path/model.glb' in argv and '/proxy path/proxy.glb' in argv
+    assert argv[argv.index('--validation-collision-part') + 1] == '2'
+    inertia = Path(argv[argv.index('--supplied-inertia') + 1])
+    assert json.loads(inertia.read_text()) == config['supplied_inertia']

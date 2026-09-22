@@ -118,6 +118,8 @@ diagnostics先重测基线、一致后运行预先保存的小规模A–D参数�
 
 任务 8A 新增自备闭合凸碰撞代理：[使用说明](docs/usage/COLLISION_PROXY.md)、[实施证据](docs/design/TASK8A_IMPLEMENTATION_REPORT.md)。代理共享视觉坐标变换，physics/full 必须显式指定验证部件；不表示整个任务 8 或孔洞专项完成。
 
+任务 9 提供 `python -m asset_mujoco.chain` 一条命令串联描述/图片生成与 XML 转换：[完整用法与失败恢复](docs/usage/CHAIN.md)、[验证记录](docs/design/TASK9_IMPLEMENTATION_REPORT.md)。真实生成 POST 仅在用户主动执行时发送；本轮只验证模拟 HTTP + 真实转换。
+
 默认 `--contact-profile preserve`，不改变原始行为。仅 static+hull 可显式选择 `engineering_static_v1`：
 
 ```bash
