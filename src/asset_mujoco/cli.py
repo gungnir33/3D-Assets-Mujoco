@@ -8,6 +8,18 @@ from .contracts import ConversionRequest,ValidationResult
 from .inputs import inspect_input
 from .manifest import save_review,checked_report,EvidenceIOError
 
+def conversion_exit_code(error):
+    from .pipeline import ValidationFailed
+    if isinstance(error,ValidationFailed):
+        return error.exit_code
+    if isinstance(error,EvidenceIOError):
+        return 3
+    if isinstance(error,(ValidationError,FileNotFoundError)):
+        return 2
+    message=str(error)
+    return 7 if 'RENDER_UNAVAILABLE' in message else 5 if any(x in message for x in (
+        'RENDER_FAILED','ASSET_CONTACT','NONFINITE','SIMULATION_WARNING','TIME_RESET')) else 4 if 'Element' in message or 'XML' in message else 3
+
 def main(argv=None):
     parser=argparse.ArgumentParser()
     commands=parser.add_subparsers(dest="command",required=True)
@@ -82,7 +94,7 @@ def main(argv=None):
         return 2
     except Exception as error:
         message=str(error)
-        code=7 if "RENDER_UNAVAILABLE" in message else 5 if any(x in message for x in ("RENDER_FAILED","ASSET_CONTACT","NONFINITE","SIMULATION_WARNING","TIME_RESET")) else 4 if "Element" in message or "XML" in message else 3
+        code=conversion_exit_code(error)
         print(json.dumps({"error":{"code":"CONVERSION_FAILED","message":message}}))
         return code
 
