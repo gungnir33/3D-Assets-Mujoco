@@ -10,7 +10,7 @@
 
 **Spec:** [TASK8A_9_DESIGN.md](TASK8A_9_DESIGN.md) 第 1–2、5–7 节（用户已确认）；总体设计 [PHASE2_MUJOCO_DESIGN.md](PHASE2_MUJOCO_DESIGN.md)。
 
-状态：待计划审核及执行方式选择。新增入口与测试尚未实现；示例不代表已执行生成。本计划可在默认 hull 上独立完成，supplied 串联测试依赖 [8A 实施计划](TASK8A_IMPLEMENTATION_PLAN.md) 完成。
+状态：已获用户确认并按方式 1 执行；以下保留原规划步骤，实际提交/测试见 [实施报告](TASK9_IMPLEMENTATION_REPORT.md)。模拟 HTTP 不代表已执行真实生成。supplied 串联测试建立在 [8A 实施计划](TASK8A_IMPLEMENTATION_PLAN.md) 的实现上。
 
 ## Global Constraints
 

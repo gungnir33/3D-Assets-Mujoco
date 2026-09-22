@@ -1,5 +1,7 @@
 # 任务 8A 实施记录
 
+最终整体审核修复、安装包 298 passed/1 skipped 及保护核对见 [最终交接记录](TASK8A_9_FINAL_VERIFICATION.md)；以下保留各阶段当时结果。
+
 2026-09-21，起点 `b0419beb8e86a3663bd5ee09df755c861f99d6e7`，main；origin 保持 `https://github.com/gungnir33/3D-Assets-Mujoco.git`。用户原有未跟踪审核文件未修改或提交，不自动 push。
 
 实现提交：`6c91ffb` 受限解码与凸性检查，`873dcd0` 多部件导出和编译证据，`db42a76` 显式目标接触及证据绑定。

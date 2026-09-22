@@ -92,7 +92,7 @@ full 渲染不可用时，`convert` 退出7且不发布，但 report 可显示 p
 - OBJ/MTL/纹理在实际读取 resolver 层限制于输入文件父目录，禁止越界和符号链接越界，无不受限 fallback。必需资源缺失直接失败。
 - 有 PBR 材质但省略 baseColorFactor 时使用白色全 1；真正无材质使用默认灰色。源法线按完整组合变换的逆转置导出，缺失才计算并记录来源。
 - 非默认宿主 compiler 冲突会报 HOST_COMPILER_CONFLICT，不自动修正宿主。
-- CoACD、supplied 碰撞代理、watertight 积分和 HTTP 串联尚未实施。
+- CoACD、watertight 质量积分、孔洞专项尚未实施。supplied 碰撞代理和本机 HTTP 串联已实现，使用说明见下文；真实用户代理和真实 Hunyuan3D 生成串联未实测。
 
 历史M1.1结果：94 passed、1 skipped（OSMesa）；当时失败包保留于 `outputs/penguin_m1_1_20260911_final/.staging-396kwwx1`。不作为新一轮验收证据。
 

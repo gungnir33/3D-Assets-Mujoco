@@ -1,4 +1,16 @@
 {
+  "task8a9_final": {
+    "code_commit": "6310ea0faed1eafe0932f2b884a05cfed284f8a1",
+    "environment": "/home/mcl/anaconda3/envs/asset_mujoco_m1_1_rebuild_8a9_20260921_5Ibcv05j",
+    "installed_source_files_matched": 25,
+    "locked_dependencies_matched": 27,
+    "pip_check": "passed",
+    "installed_regression": {"passed": 298, "skipped": 1, "duration_s": 63.59},
+    "skip_reason": "OSMesa OpenGL loader unavailable; EGL passed",
+    "real_generation": "not_executed",
+    "historical_files_unchanged": 1580,
+    "report": "docs/design/TASK8A_9_FINAL_VERIFICATION.md"
+  },
   "task9": {
     "code_commit": "9461519",
     "environment": "/home/mcl/anaconda3/envs/asset_mujoco_m1_1_rebuild_8a9_20260921_5Ibcv05j",

@@ -10,7 +10,7 @@
 
 **Spec:** [TASK8A_9_DESIGN.md](TASK8A_9_DESIGN.md) 第 1–4、7 节（用户已确认）；[PHASE2_MUJOCO_DESIGN.md](PHASE2_MUJOCO_DESIGN.md) 为总体权威设计。
 
-状态：待实施计划审核及执行方式选择；下面代码为拟实施片段，不是已落地功能。计划起点 HEAD `5854e8b7e9062affe6ac23c2e2abb2ec36672d06`。
+状态：已获用户确认并按方式 1 执行；以下保留原规划步骤，实际提交/测试及边界见 [实施报告](TASK8A_IMPLEMENTATION_REPORT.md)。规划起点 HEAD `5854e8b7e9062affe6ac23c2e2abb2ec36672d06`，实际执行起点为后续计划提交 b0419be，不回退。
 
 ## Global Constraints
 
