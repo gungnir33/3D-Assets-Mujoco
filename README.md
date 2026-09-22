@@ -1,20 +1,22 @@
 # 3D Assets → MuJoCo
 
-当前 M1.2 已按审核基线完成受限收尾；候选仅指定资产—探针工况通过，地面失败、人工/宿主待验证仍保留。入口与下一阶段选择见 [收尾与交接](docs/design/M1_2_CLOSEOUT.md)。
+当前已实现 M1.2 受限基础、任务 8A supplied 凸碰撞代理和任务 9 本机 HTTP 生成串联。用户入口见 **[完整使用手册](docs/usage/USER_MANUAL.md)**（能力清单、模块代码位置、GLB/OBJ 转 XML、单命令生成、输出与故障恢复）。
+
+最新实现与验证见 [8A + 9 最终交接](docs/design/TASK8A_9_FINAL_VERIFICATION.md)：已有安装包回归 298 passed、1 skipped，真实 Hunyuan3D 串联及用户代理尚未实测。M1.2 候选仍仅指定工况通过，历史地面失败、人工/宿主待验证不变；[M1.2 收尾](docs/design/M1_2_CLOSEOUT.md) 保留为历史记录，不代表 8A/9 仍待实施。
 
 独立第二阶段转换器。只读使用已有 GLB/OBJ，不 import 第一阶段、不加载 CUDA 模型。
 模型权重和真实输入不提交 Git。按用户要求，outputs 已纳入版本管理，包含生成资源和诊断证据；提交前检查文件大小和敏感内容。MuJoCo、trimesh 等依赖遵循各自许可证；本仓库尚未选择项目许可证，不推定 MIT 授权。
 
-环境：Conda asset_mujoco、Python 3.10.21、MuJoCo 3.4.0。
+当前已验证环境：Conda asset_mujoco_m1_1_rebuild_8a9_20260921_5Ibcv05j、Python 3.10.21、MuJoCo 3.4.0。
 requirements.lock.txt 为本次独立环境实测锁文件；不要安装到 hunyuan3d 或现有宿主。
 
-M1.1 已用独立 `asset_mujoco_m1_1_rebuild` 重建安装并完成回归。新环境安装示例（名称已存在时另选唯一名称）：
+本机可直接激活上述环境。新环境安装示例（名称已存在时另选唯一名称，不覆盖旧环境）：
 
 ```bash
-conda create -n asset_mujoco_m1_1_rebuild python=3.10 -y
-conda run -n asset_mujoco_m1_1_rebuild python -m pip install -r requirements.lock.txt
-conda run -n asset_mujoco_m1_1_rebuild python -m pip install --no-deps --no-build-isolation .
-conda run -n asset_mujoco_m1_1_rebuild python -m pip check
+conda create -n asset_mujoco_user python=3.10 -y
+conda run -n asset_mujoco_user python -m pip install -r requirements.lock.txt
+conda run -n asset_mujoco_user python -m pip install --no-deps --no-build-isolation .
+conda run -n asset_mujoco_user python -m pip check
 ```
 
 锁文件 stdout 与 stderr 分开生成，不把 WARNING 写入依赖；没有修改原有环境或系统驱动。
@@ -24,8 +26,7 @@ conda run -n asset_mujoco_m1_1_rebuild python -m pip check
 在本仓库根目录运行：
 
 ```bash
-conda activate asset_mujoco
-export PYTHONPATH="$PWD/src"
+conda activate asset_mujoco_m1_1_rebuild_8a9_20260921_5Ibcv05j
 python -m asset_mujoco.cli inspect /absolute/input.glb
 python -m asset_mujoco.cli convert /absolute/input.glb \
   --output ./outputs --name example --source-up y --yaw-deg 0 \
@@ -103,14 +104,14 @@ full 渲染不可用时，`convert` 退出7且不发布，但 report 可显示 p
 安装新源码到独立环境后执行（不要运行旧site-packages）：
 
 ```bash
-conda run -n asset_mujoco_m1_1_rebuild python -m pip install --no-deps --no-build-isolation .
-conda run -n asset_mujoco_m1_1_rebuild python -m asset_mujoco.acceptance --output ./outputs/contact_diagnosis
+python -m pip install --no-deps --no-build-isolation .
+python -m asset_mujoco.acceptance --output ./outputs/contact_diagnosis
 # 诊断的 --package 使用上一步返回的新package路径，不指向历史目录写文件
-conda run -n asset_mujoco_m1_1_rebuild python -m asset_mujoco.contact_diagnostics \
+python -m asset_mujoco.contact_diagnostics \
   --package /absolute/new/package --output ./outputs/contact_diagnosis
 ```
 
-acceptance默认只读使用指定原始GLB，可显式--input；缺失时not_executed/退出2，不达标退出5。它检查compile/native/render及迁移，和test_real_asset_native_failure_is_reported的失败处理回归分开。
+acceptance默认只读使用指定原始GLB，可显式--input；它固定使用 y-up/yaw=180/scale=.5/static+hull+full，并不会适配其他资产工况。通用资产请使用 convert/report。缺失时not_executed/退出2，不达标退出5。它检查compile/native/render及迁移，和test_real_asset_native_failure_is_reported的失败处理回归分开。
 diagnostics先重测基线、一致后运行预先保存的小规模A–D参数组；仅修改新副本，输出fixture/逐步trace/summary/hash。诊断执行成功或某实验达标都不改变原始验收状态。
 历史完整结论：[接触诊断报告](docs/design/M1_1_CONTACT_DIAGNOSIS_REPORT.md)，[当轮机器证据](docs/design/M1_1_CONTACT_DIAGNOSIS_EVIDENCE.json)。
 
