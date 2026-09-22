@@ -264,3 +264,50 @@ def test_proxy_compile_cli_and_visual_bytes_unchanged(tmp_path, monkeypatch, cap
     with pytest.raises(ValueError, match='TARGET_OUT_OF_RANGE'):
         convert(ConversionRequest(**common, collision_mode='supplied', collision_proxy_path=visual,
                                   validation_collision_part=5))
+
+
+def test_malformed_glb_float_indices_rejected_before_mesh_coercion(tmp_path):
+    import json
+    import struct
+    from asset_mujoco.collision_proxy import load_collision_proxy
+    box = trimesh.creation.box()
+    positions = np.asarray(box.vertices, dtype='<f4').tobytes()
+    indices = (np.asarray(box.faces, dtype='<f4').reshape(-1) + .25).tobytes()
+    binary = positions + indices
+    document = {'asset': {'version': '2.0'}, 'scene': 0, 'scenes': [{'nodes': [0]}],
+        'nodes': [{'mesh': 0}], 'meshes': [{'primitives': [{'attributes': {'POSITION': 0}, 'indices': 1}]}],
+        'buffers': [{'byteLength': len(binary)}],
+        'bufferViews': [{'buffer': 0, 'byteOffset': 0, 'byteLength': len(positions)},
+                        {'buffer': 0, 'byteOffset': len(positions), 'byteLength': len(indices)}],
+        'accessors': [{'bufferView': 0, 'componentType': 5126, 'count': 8, 'type': 'VEC3',
+                       'min': [-.5, -.5, -.5], 'max': [.5, .5, .5]},
+                      {'bufferView': 1, 'componentType': 5126, 'count': 36, 'type': 'SCALAR'}]}
+    raw = json.dumps(document).encode()
+    raw += b' ' * (-len(raw) % 4)
+    glb = struct.pack('<4sII', b'glTF', 2, 28 + len(raw) + len(binary))
+    glb += struct.pack('<II', len(raw), 0x4e4f534a) + raw
+    glb += struct.pack('<II', len(binary), 0x004e4942) + binary
+    path = tmp_path / 'fractional_indices.glb'
+    path.write_bytes(glb)
+    with pytest.raises(ValueError, match='INDICES'):
+        load_collision_proxy(path, np.eye(4))
+
+
+def test_nonmanifold_rejection_does_not_build_quadratic_adjacency(tmp_path):
+    import gc
+    import tracemalloc
+    from asset_mujoco.collision_proxy import load_collision_proxy
+    box = trimesh.creation.box()
+    duplicate = trimesh.Trimesh(vertices=box.vertices, faces=np.tile(box.faces[0], (1000, 1)), process=False)
+    path = tmp_path / 'duplicates.glb'
+    duplicate.export(path)
+    gc.collect()
+    tracemalloc.start()
+    try:
+        with pytest.raises(ValueError, match='COLLISION_PROXY'):
+            load_collision_proxy(path, np.eye(4))
+        _, peak = tracemalloc.get_traced_memory()
+    finally:
+        tracemalloc.stop()
+    # 仅1000面已足以暴露旧的两两set邻接：35MiB以上；线性拒绝远小于此预算。
+    assert peak < 12 * 1024 * 1024, peak

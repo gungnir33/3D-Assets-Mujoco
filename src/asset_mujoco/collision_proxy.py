@@ -46,14 +46,19 @@ def _components(faces):
     for i, face in enumerate(faces):
         for a, b in ((face[0], face[1]), (face[1], face[2]), (face[2], face[0])):
             edge = tuple(sorted((int(a), int(b))))
-            for other in edge_faces.get(edge, []):
+            owners = edge_faces.get(edge, [])
+            if len(owners) >= 2:
+                _reject('NON_MANIFOLD_EDGE')
+            for other in owners:
                 adjacency[i].add(other)
                 adjacency[other].add(i)
             edge_faces.setdefault(edge, []).append(i)
     unseen = set(range(len(faces)))
     groups = []
-    while unseen:
-        todo = [min(unseen)]
+    for first in range(len(faces)):
+        if first not in unseen:
+            continue
+        todo = [first]
         group = []
         while todo:
             i = todo.pop()

@@ -93,3 +93,34 @@ def test_localhost_external_resolution_rejected(monkeypatch):
     monkeypatch.setattr(socket, 'getaddrinfo', lambda *a, **kw: [(socket.AF_INET, socket.SOCK_STREAM, 6, '', ('192.0.2.1', 1))])
     with pytest.raises(Phase1Error):
         LocalGenerationClient('http://localhost:12345').health()
+
+
+@pytest.mark.parametrize('failure_kind', ['timeout', 'incomplete'])
+def test_http_error_body_read_failure_preserves_status_and_unknown(tmp_path, monkeypatch, failure_kind):
+    import io
+    import http.client
+    from urllib.error import HTTPError
+    import asset_mujoco.chain as chain
+    from asset_mujoco.chain_contracts import ChainSettings
+    from asset_mujoco.chain_http import LocalGenerationClient
+    class BrokenBody(io.BytesIO):
+        def read(self, *args):
+            if failure_kind == 'timeout':
+                raise TimeoutError('HTTP error body timeout')
+            raise http.client.IncompleteRead(b'partial', 100)
+    client = LocalGenerationClient('http://127.0.0.1:12345')
+    calls = []
+    def broken_open(request, timeout):
+        calls.append(request.full_url)
+        raise HTTPError(request.full_url, 503, 'Unavailable', {}, BrokenBody())
+    monkeypatch.setattr(client.opener, 'open', broken_open)
+    monkeypatch.setattr(client, 'health', lambda: {'status': 'ok'})
+    monkeypatch.setattr(chain, 'LocalGenerationClient', lambda url: client)
+    result = chain.run_chain(ChainSettings('text', {'prompt': 'synthetic'}, {}, tmp_path / 'out', client.base_url))
+    assert result['exit_code'] == 6 and result['phase1']['status'] == 'unknown'
+    assert result['phase1']['error']['http_status'] == 503
+    assert result['phase1']['error']['details']['read_error_type'] == ('TimeoutError' if failure_kind == 'timeout' else 'IncompleteRead')
+    assert result['phase2']['status'] == 'not_run' and len(calls) == 1
+    if failure_kind == 'incomplete':
+        from pathlib import Path
+        assert (Path(result['run_directory']) / 'phase1_response.json').read_bytes() == b'partial'

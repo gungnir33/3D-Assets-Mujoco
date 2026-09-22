@@ -80,8 +80,17 @@ class LocalGenerationClient:
             with self.opener.open(request, timeout=1800 if generation else 10) as response:
                 return self._read(response, generation)
         except HTTPError as error:
-            with error:
-                raw = error.read(MAX_JSON + 1)
+            try:
+                with error:
+                    raw = error.read(MAX_JSON + 1)
+            except (OSError, http.client.HTTPException) as read_error:
+                partial = getattr(read_error, 'partial', b'')
+                raise Phase1Error('HTTP_ERROR_BODY_INCOMPLETE',
+                    f'HTTP {error.code} response body could not be read: {read_error}',
+                    http_status=error.code,
+                    details={'read_error_type': type(read_error).__name__, 'read_error': str(read_error)},
+                    raw_body=partial, truncated=len(partial)>MAX_JSON,
+                    result_unknown=generation) from read_error
             truncated = len(raw) > MAX_JSON
             body = raw[:MAX_JSON]
             code, message, details = f'HTTP_{error.code}', str(error), None

@@ -33,6 +33,13 @@ def decode_asset(path: Path) -> DecodedAsset:
     source_normals = {}
     scene = trimesh.Scene(base_frame=decoded.get('base_frame', 'world'))
     for name, attributes in decoded['geometry'].items():
+        # Trimesh 会把 faces 强制转 int64；必须在构造前拒绝源索引丢精度。
+        faces = np.asarray(attributes.get('faces'))
+        vertices = np.asarray(attributes.get('vertices'))
+        if (faces.ndim != 2 or faces.shape[1] != 3 or faces.dtype.kind not in 'iu'
+                or not len(faces) or faces.min() < 0 or vertices.ndim != 2
+                or faces.max() >= len(vertices)):
+            raise ValueError('INVALID_SOURCE_INDICES: expected valid integer triangle indices')
         normals = attributes.get('vertex_normals')
         if normals is not None:
             source_normals[name] = np.array(normals, dtype=float, copy=True)
